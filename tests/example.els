@@ -1,0 +1,26 @@
+module kez {
+    struct Derp {
+        y: u16,
+    }
+    const t: u32 = 42;
+    static u: str = "test";
+    static mut v: f64 = 10.0;
+    const w: Derp = Derp { y: 31, };
+}
+
+// this is a comment
+
+fn main() -> u8 {
+    let mut x = 1;
+    let j = "this";
+    let mut z: u32 = 4;
+    let u = &x;
+    x && z;
+    x += 1;
+    let j = false;
+    let y = 0 - -1 + (2 * 3) << (4 / 5);
+    let y = x + 1;
+    print(x);
+    return;
+    return x.new();
+}
