@@ -6,6 +6,8 @@
 #include "token.h"
 #include "token_stream.h"
 #include "token_utils.h"
+#include "xalloc.h"
+
 
 void token_stream_init(token_stream_t* self, char* data) {
     self->data = data;
@@ -15,7 +17,7 @@ void token_stream_init(token_stream_t* self, char* data) {
     self->length = strlen(data);
     self->line = 0;
 
-    string_t* string = malloc(sizeof(string_t));
+    string_t* string = xmalloc(sizeof(string_t));
     if (string == NULL) {
         self = NULL;
         return;
@@ -51,13 +53,13 @@ token_t token_stream_next(token_stream_t* self) {
 
     if (token.kind != TOK_INVALID) {
         string_push_char(&token_str, c);
-        char next_c = token_stream_peek(self);
-        token_kind_t next_kind = single_char_token[(uint8_t)next_c];
+        c = token_stream_peek(self);
+        token_kind_t next_kind = single_char_token[(uint8_t)c];
 
         while (next_kind != TOK_INVALID) {
-            string_push_char(&token_str, next_c);
-            next_c = token_stream_peek(self);
-            next_kind = single_char_token[(uint8_t)next_c];
+            string_push_char(&token_str, c);
+            c = token_stream_consume(self);
+            next_kind = single_char_token[(uint8_t)c];
         }
     }
 

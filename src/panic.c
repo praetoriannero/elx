@@ -4,9 +4,13 @@
 
 #include "panic.h"
 
-void panic_impl(const char* file, int line,
-                const char* func,
-                const char* fmt, ...) {
+void panic_impl(
+    const char* file,
+    int line,
+    const char* func,
+    const char* fmt,
+    ...
+) {
     fprintf(stderr, "PANIC at %s:%d (%s): ", file, line, func);
     va_list args;
     va_start(args, fmt);
