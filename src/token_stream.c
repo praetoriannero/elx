@@ -28,8 +28,6 @@ void token_stream_init(token_stream_t* self, char* data) {
 token_t token_stream_next(token_stream_t* self) {
     char c;
 
-    char test$;
-
     token_t token;
     token_init(&token);
 
