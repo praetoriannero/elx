@@ -27,14 +27,14 @@ void token_stream_init(token_stream_t* self, char* data) {
     self->token_string = string;
 }
 
-token_t token_stream_next(token_stream_t* self) {
+token_t* token_stream_next(token_stream_t* self) {
     char c;
 
-    token_t token;
-    token_init(&token);
+    token_t* token = xmalloc(sizeof(token_t));
+    token_init(token);
 
-    string_t token_str;
-    string_init(&token_str);
+    string_t* token_str = xmalloc(sizeof(string_t));
+    string_init(token_str);
 
     c = token_stream_consume(self);
     while ((c == ' ') || (c == '\t') || (c == '\n') || (c == '\r')) {
@@ -45,19 +45,19 @@ token_t token_stream_next(token_stream_t* self) {
     }
 
     if (c == -1) {
-        token.kind = TOK_EOF;
+        token->kind = TOK_EOF;
         return token;
     }
 
-    token.kind = single_char_token[(uint8_t)c];
+    token->kind = single_char_token[(uint8_t)c];
 
-    if (token.kind != TOK_INVALID) {
-        string_push_char(&token_str, c);
+    if (token->kind != TOK_INVALID) {
+        string_push_char(token_str, c);
         c = token_stream_peek(self);
         token_kind_t next_kind = single_char_token[(uint8_t)c];
 
         while (next_kind != TOK_INVALID) {
-            string_push_char(&token_str, c);
+            string_push_char(token_str, c);
             c = token_stream_consume(self);
             next_kind = single_char_token[(uint8_t)c];
         }
@@ -65,15 +65,18 @@ token_t token_stream_next(token_stream_t* self) {
 
     if (is_ident_char(c)) {
         while (is_ident_char(c)) {
-            string_push_char(&token_str, c);
+            string_push_char(token_str, c);
             if (!is_ident_char(token_stream_peek(self))) {
                 break;
             }
             c = token_stream_consume(self);
         }
-        token.kind = TOK_IDENT;
+        token->kind = TOK_IDENT;
     }
 
+    token->str = string_copy(token_str);
+
+    string_deinit(token_str);
     return token;
 }
 
@@ -130,6 +133,6 @@ char token_stream_consume(token_stream_t* self) {
 
 void token_stream_deinit(token_stream_t* self) {
     string_deinit(self->token_string);
-    free(self);
+    xfree(self);
 }
 

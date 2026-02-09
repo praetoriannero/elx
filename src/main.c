@@ -56,19 +56,19 @@ int32_t main(int argc, char** argv) {
         file_name = argv[1];
         file_handle = fopen(file_name, "r");
     } else {
-        panic("Invalid argument: missing source location\n");
+        panic("missing source location argument\n");
     }
 
     if (file_handle != NULL) {
         printf("%s\n", file_name);
     } else {
-        panic("Error opening file: %s\n", file_name);
+        panic("failed to open file %s\n", file_name);
     }
 
 
     file_size = get_file_size(file_handle);
     if (file_size < 0) {
-        panic("Failed to read file %s\n", file_name);
+        panic("failed to read file %s\n", file_name);
     }
     printf("%d\n", (int)file_size);
 
@@ -79,14 +79,14 @@ int32_t main(int argc, char** argv) {
     printf("CONTENT START\n%s\nCONTENT END\n", content);
 
     token_stream_t* stream = xmalloc(sizeof(token_stream_t));
-
-    token_t token;
-    token_init(&token);
     token_stream_init(stream, content);
 
-    while (token.kind != TOK_EOF) {
-        token = token_stream_next(stream);
-        printf("%s\n", token_kind_str(token.kind));
+    token_kind_t kind = TOK_INVALID;
+    while (kind != TOK_EOF) {
+        token_t* token = token_stream_next(stream);
+        kind = token->kind;
+        printf("%s\n", token_string(token));
+        token_deinit(token);
     }
 
     // clean up

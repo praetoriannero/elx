@@ -86,5 +86,7 @@ char* token_kind_str(token_kind_t kind) {
         case TOK_EOF: return "TOK_EOF";
         case TOK_ARROW: return "TOK_ARROW";
     }
+
+    return "TOK_INVALID";
 }
 

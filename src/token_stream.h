@@ -22,7 +22,7 @@ int64_t token_stream_meta_str(token_stream_t* stream, char* meta_str);
 
 void token_stream_init(token_stream_t* self, char* data);
 
-token_t token_stream_next(token_stream_t* stream);
+token_t* token_stream_next(token_stream_t* stream);
 
 char token_stream_peek(token_stream_t* stream);
 

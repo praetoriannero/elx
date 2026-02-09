@@ -14,10 +14,10 @@ void string_push_char(string_t* self, char c) {
         size_t new_alloc = self->capacity * 2;
         char* new_data_ptr = (char*)realloc(self->data, new_alloc);
         if (new_data_ptr == NULL) {
-            panic("Error: failed to reallocate string buffer.\n");
+            panic("failed to reallocate string buffer\n");
         }
         if (new_alloc > MAX_STR_ALLOC) {
-            panic("Error: max string allocation exceeded.\n");
+            panic("max string allocation exceeded\n");
         }
         self->capacity = new_alloc;
     }
@@ -28,6 +28,11 @@ void string_push_char(string_t* self, char c) {
 }
 
 void string_init(string_t* self) {
+    // if (self == NULL) {
+    //     panic("cannot initialize null string_t pointer\n");
+    // }
+    xnotnull(self);
+
     char* new_char = xmalloc(INITIAL_STR_ALLOC);
 
     self->data = new_char;
@@ -40,6 +45,8 @@ string_t* string_copy(string_t* self) {
     string_t* string = xmalloc(sizeof(string_t));
 
     string->data = xmalloc(sizeof(strlen(self->data)) + 1);
+    strcpy(string->data, self->data);
+
     string->data[strlen(self->data)] = '\0';
     string->capacity = self->capacity;
     string->size = self->size;
@@ -48,7 +55,7 @@ string_t* string_copy(string_t* self) {
 }
 
 void string_clear(string_t* self) {
-    free(self->data);
+    xfree(self->data);
     char* new_char = xmalloc(INITIAL_STR_ALLOC);
 
     self->data = new_char;
@@ -58,7 +65,10 @@ void string_clear(string_t* self) {
 }
 
 void string_deinit(string_t* self) {
-    free(self->data);
-    free(self);
+    if (self == NULL) {
+        panic("cannot release null string_t pointer\n");
+    }
+    xfree(self->data);
+    xfree(self);
 }
 

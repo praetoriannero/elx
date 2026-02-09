@@ -1,31 +1,46 @@
 [
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "--target=x86_64-linux-gnu", "-fvisibility=hidden", "-Wall", "-Wextra", "-Wpedantic", "-O3", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-DNDEBUG", "-o", "build/.objs/elx/linux/x86_64/release/src/vector.c.o", "src/vector.c"],
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-g", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/vector.c.o", "src/vector.c"],
   "file": "src/vector.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "--target=x86_64-linux-gnu", "-fvisibility=hidden", "-Wall", "-Wextra", "-Wpedantic", "-O3", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-DNDEBUG", "-o", "build/.objs/elx/linux/x86_64/release/src/main.c.o", "src/main.c"],
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-g", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/panic.c.o", "src/panic.c"],
+  "file": "src/panic.c"
+},
+{
+  "directory": "/home/heaven/source/elx",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-g", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/xalloc.c.o", "src/xalloc.c"],
+  "file": "src/xalloc.c"
+},
+{
+  "directory": "/home/heaven/source/elx",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-g", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/main.c.o", "src/main.c"],
   "file": "src/main.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "--target=x86_64-linux-gnu", "-fvisibility=hidden", "-Wall", "-Wextra", "-Wpedantic", "-O3", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-DNDEBUG", "-o", "build/.objs/elx/linux/x86_64/release/src/tokutils.c.o", "src/tokutils.c"],
-  "file": "src/tokutils.c"
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-g", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/token_utils.c.o", "src/token_utils.c"],
+  "file": "src/token_utils.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "--target=x86_64-linux-gnu", "-fvisibility=hidden", "-Wall", "-Wextra", "-Wpedantic", "-O3", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-DNDEBUG", "-o", "build/.objs/elx/linux/x86_64/release/src/token.c.o", "src/token.c"],
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-g", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/token.c.o", "src/token.c"],
   "file": "src/token.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "--target=x86_64-linux-gnu", "-fvisibility=hidden", "-Wall", "-Wextra", "-Wpedantic", "-O3", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-DNDEBUG", "-o", "build/.objs/elx/linux/x86_64/release/src/str.c.o", "src/str.c"],
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-g", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/str.c.o", "src/str.c"],
   "file": "src/str.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["/usr/bin/clang", "-c", "-Qunused-arguments", "--target=x86_64-linux-gnu", "-fvisibility=hidden", "-Wall", "-Wextra", "-Wpedantic", "-O3", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-DNDEBUG", "-o", "build/.objs/elx/linux/x86_64/release/src/token_stream.c.o", "src/token_stream.c"],
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-g", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/token_stream.c.o", "src/token_stream.c"],
   "file": "src/token_stream.c"
+},
+{
+  "directory": "/home/heaven/source/elx",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-g", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/token_kind.c.o", "src/token_kind.c"],
+  "file": "src/token_kind.c"
 }]

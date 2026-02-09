@@ -21,5 +21,7 @@ void token_deinit(token_t* self);
 
 token_t* token_copy(token_t* self);
 
+char* token_string(token_t* self);
+
 #endif
 
