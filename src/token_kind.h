@@ -36,15 +36,20 @@ typedef enum token_kind {
     TOK_GT,             // >
     TOK_LT,             // <
     TOK_SEMICOLON,      // ;
+    TOK_COMMA,          // ,
+    TOK_DECIMAL,        // .
 
     // multi-char operators
-    TOK_OR,             // ||
-    TOK_AND,            // &&
+    TOK_LOR,            // ||
+    TOK_LAND,           // &&
     TOK_SHL,            // <<
     TOK_SHR,            // >>
     TOK_GTE,            // >=
     TOK_LTE,            // <=
     TOK_ARROW,          // ->
+    TOK_COMMENT,        // //
+    TOK_RANGE,          // ..
+    TOK_PATH,           // ::
 
     // joint operator assignment
     TOK_EQEQ,           // ==
@@ -54,8 +59,9 @@ typedef enum token_kind {
     TOK_TIMESEQ,        // *=
     TOK_DIVEQ,          // /=
     TOK_BINVEQ,         // ~=
-    TOK_BANDEQ,         // &=
-    TOK_BXOREQ,         // ^=
+    TOK_OREQ,           // |=
+    TOK_ANDEQ,          // &=
+    TOK_XOREQ,          // ^=
     TOK_MODEQ,          // %=
     TOK_SHLEQ,          // <<=
     TOK_SHREQ,          // >>=
@@ -101,6 +107,8 @@ typedef enum token_kind {
 } token_kind_t;
 
 static const token_kind_t single_char_token[256] = {
+    ['.'] = TOK_DECIMAL,
+    [','] = TOK_COMMA,
     ['?'] = TOK_QMARK,
     ['"'] = TOK_DQUOTE,
     ['\''] = TOK_SQUOTE,

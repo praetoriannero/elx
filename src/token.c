@@ -1,9 +1,8 @@
-#include <stdio.h>
-
 #include "fmt.h"
 #include "str.h"
 #include "token.h"
 #include "xalloc.h"
+
 
 void token_init(token_t* self) {
     xnotnull(self);

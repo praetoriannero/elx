@@ -18,14 +18,17 @@ void token_stream_init(token_stream_t* self, char* data) {
     self->line = 0;
 
     string_t* string = xmalloc(sizeof(string_t));
-    if (string == NULL) {
-        self = NULL;
-        return;
-    }
-
     string_init(string);
     self->token_string = string;
 }
+
+// static void _handle_operator(token_stream_t* self, token_t* token, char c, string_t* token_str);
+//
+// static void _handle_string(token_stream_t* self, token_t* token, char c, string_t* token_str);
+//
+// static void _handle_comment(token_stream_t* self, token_t* token, char c, string_t* token_str);
+//
+// static void _handle_ident(token_stream_t* self, token_t* token, char c, string_t* token_str);
 
 token_t* token_stream_next(token_stream_t* self) {
     char c;
@@ -51,27 +54,44 @@ token_t* token_stream_next(token_stream_t* self) {
 
     token->kind = single_char_token[(uint8_t)c];
 
-    if (token->kind != TOK_INVALID) {
-        string_push_char(token_str, c);
-        c = token_stream_peek(self);
-        token_kind_t next_kind = single_char_token[(uint8_t)c];
+    bool check = true;
 
-        while (next_kind != TOK_INVALID) {
+    if (check) {
+        if (token->kind != TOK_INVALID) {
+            char tmp;
+            string_t tmp_str;
+            token_kind_t next_kind;
+
+            string_init(&tmp_str);
             string_push_char(token_str, c);
-            c = token_stream_consume(self);
+
+            c = token_stream_peek(self);
+            tmp = c;
             next_kind = single_char_token[(uint8_t)c];
+
+            while (next_kind != TOK_INVALID) {
+                string_push_char(token_str, c);
+                c = token_stream_consume(self);
+                tmp = token_stream_peek(self);
+                next_kind = single_char_token[(uint8_t)tmp];
+            }
+            check = false;
         }
+
     }
 
-    if (is_ident_char(c)) {
-        while (is_ident_char(c)) {
-            string_push_char(token_str, c);
-            if (!is_ident_char(token_stream_peek(self))) {
-                break;
+    if (check) {
+        if (is_ident_char(c)) {
+            while (is_ident_char(c)) {
+                string_push_char(token_str, c);
+                if (!is_ident_char(token_stream_peek(self))) {
+                    break;
+                }
+                c = token_stream_consume(self);
             }
-            c = token_stream_consume(self);
+            token->kind = TOK_IDENT;
+            check = false;
         }
-        token->kind = TOK_IDENT;
     }
 
     token->str = string_copy(token_str);

@@ -3,6 +3,11 @@
 
 char* token_kind_str(token_kind_t kind) {
     switch (kind) {
+        case TOK_RANGE: return "TOK_RANGE";
+        case TOK_PATH: return "TOK_PATH";
+        case TOK_COMMENT: return "TOK_COMMENT";
+        case TOK_DECIMAL: return "TOK_DECIMAL";
+        case TOK_COMMA: return "TOK_COMMA";
         case TOK_INVALID: return "TOK_INVALID";
         case TOK_QMARK: return "TOK_QMARK";
         case TOK_DQUOTE: return "TOK_DQUOTE";
@@ -30,8 +35,8 @@ char* token_kind_str(token_kind_t kind) {
         case TOK_LBRACK: return "TOK_LBRACK";
         case TOK_RBRACK: return "TOK_RBRACK";
         case TOK_PIPE: return "TOK_PIPE";
-        case TOK_OR: return "TOK_OR";
-        case TOK_AND: return "TOK_AND";
+        case TOK_LOR: return "TOK_LOR";
+        case TOK_LAND: return "TOK_LAND";
         case TOK_SHL: return "TOK_SHL";
         case TOK_SHR: return "TOK_SHR";
         case TOK_GT: return "TOK_GT";
@@ -45,8 +50,9 @@ char* token_kind_str(token_kind_t kind) {
         case TOK_TIMESEQ: return "TOK_TIMESEQ";
         case TOK_DIVEQ: return "TOK_DIVEQ";
         case TOK_BINVEQ: return "TOK_BINVEQ";
-        case TOK_BANDEQ: return "TOK_BANDEQ";
-        case TOK_BXOREQ: return "TOK_BXOREQ";
+        case TOK_ANDEQ: return "TOK_ANDEQ";
+        case TOK_OREQ: return "TOK_OREQ";
+        case TOK_XOREQ: return "TOK_XOREQ";
         case TOK_MODEQ: return "TOK_MODEQ";
         case TOK_SHLEQ: return "TOK_SHLEQ";
         case TOK_SHREQ: return "TOK_SHREQ";
