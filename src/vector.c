@@ -1,8 +1,8 @@
 #include "vector.h"
 #include <stdlib.h>
 
-vector_t *vector_new(size_t datum_size) {
-    vector_t *vec = (vector_t *)malloc(sizeof(vector_t));
+vector_t* vector_new(size_t datum_size) {
+    vector_t* vec = (vector_t*)malloc(sizeof(vector_t));
 
     vec->data = NULL;
     vec->capacity = 1;
@@ -12,13 +12,13 @@ vector_t *vector_new(size_t datum_size) {
     return vec;
 }
 
-char *vector_push(vector_t *vec, void *datum) {
+char* vector_push(vector_t* vec, void* datum) {
     size_t new_len = vec->size + 1;
     if (new_len >= (vec->capacity / 2)) {
         size_t new_alloc = vec->capacity * 2;
-        char *new_data_ptr = (char *)realloc(vec->data, new_alloc);
+        char* new_data_ptr = (char*)realloc(vec->data, new_alloc);
         if (new_data_ptr == NULL) {
-            char *err_msg = "Error: failed to allocate vector buffer.\n";
+            char* err_msg = "Error: failed to allocate vector buffer.\n";
             return err_msg;
         }
         vec->capacity = new_alloc;
@@ -30,8 +30,8 @@ char *vector_push(vector_t *vec, void *datum) {
     return NULL;
 }
 
-void *vector_pop(vector_t *vec) {
-    void *datum = NULL;
+void* vector_pop(vector_t* vec) {
+    void* datum = NULL;
 
     if (vec->size) {
         datum = vec->data[vec->size];
@@ -42,7 +42,7 @@ void *vector_pop(vector_t *vec) {
     return NULL;
 }
 
-void vector_free(vector_t *vec) {
+void vector_free(vector_t* vec) {
     size_t idx;
     for (idx = 0; idx < vec->size; idx++) {
         free(vec->data[idx]);

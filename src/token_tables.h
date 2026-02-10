@@ -8,93 +8,95 @@
 struct op_node {
     char text;
     token_kind_t kind;
-    const struct op_node *children;
+    const struct op_node* children;
     size_t child_count;
 };
 
-static const struct op_node shr_children[] = {
+typedef struct op_node op_node_t;
+
+static const op_node_t shr_children[] = {
     {'=', TOK_SHREQ, NULL, 0},
 };
 
-static const struct op_node shl_children[] = {
+static const op_node_t shl_children[] = {
     {'=', TOK_SHLEQ, NULL, 0},
 };
 
-static const struct op_node mod_children[] = {
+static const op_node_t mod_children[] = {
     {'=', TOK_MODEQ, NULL, 0},
 };
 
-static const struct op_node xor_children[] = {
+static const op_node_t xor_children[] = {
     {'=', TOK_XOREQ, NULL, 0},
 };
 
-static const struct op_node binv_children[] = {
+static const op_node_t binv_children[] = {
     {'=', TOK_BINVEQ, NULL, 0},
 };
 
-static const struct op_node div_children[] = {
+static const op_node_t div_children[] = {
     {'=', TOK_DIVEQ, NULL, 0},
 };
 
-static const struct op_node times_children[] = {
+static const op_node_t times_children[] = {
     {'=', TOK_TIMESEQ, NULL, 0},
 };
 
-static const struct op_node min_children[] = {
+static const op_node_t min_children[] = {
     {'=', TOK_MINEQ, NULL, 0},
     {'>', TOK_ARROW, NULL, 0},
 };
 
-static const struct op_node plus_children[] = {
+static const op_node_t plus_children[] = {
     {'=', TOK_PLUSEQ, NULL, 0},
 };
 
-static const struct op_node excl_children[] = {
+static const op_node_t excl_children[] = {
     {'=', TOK_NOTEQ, NULL, 0},
 };
 
-static const struct op_node eq_children[] = {
+static const op_node_t eq_children[] = {
     {'=', TOK_EQEQ, NULL, 0},
 };
 
-static const struct op_node gt_children[] = {
+static const op_node_t gt_children[] = {
     {'>', TOK_SHR, shr_children, 1},
     {'=', TOK_GTE, NULL, 0},
 };
 
-static const struct op_node lt_children[] = {
+static const op_node_t lt_children[] = {
     {'<', TOK_SHL, shr_children, 1},
     {'=', TOK_LTE, NULL, 0},
 };
 
-static const struct op_node and_children[] = {
+static const op_node_t and_children[] = {
     {'&', TOK_LAND, NULL, 0},
     {'=', TOK_ANDEQ, NULL, 0},
 };
 
-static const struct op_node or_children[] = {
+static const op_node_t or_children[] = {
     {'|', TOK_LOR, NULL, 0},
     {'=', TOK_OREQ, NULL, 0},
 };
 
-static const struct op_node fs_children[] = {
+static const op_node_t fs_children[] = {
     {'/', TOK_COMMENT, NULL, 0},
     {'=', TOK_DIVEQ, NULL, 0},
 };
 
-static const struct op_node dec_children[] = {
+static const op_node_t dec_children[] = {
     {'.', TOK_RANGE, NULL, 0},
 };
 
-static const struct op_node colon_children[] = {
+static const op_node_t colon_children[] = {
     {':', TOK_PATH, NULL, 0},
 };
 
-static const struct op_node star_children[] = {
+static const op_node_t star_children[] = {
     {'=', TOK_TIMESEQ, NULL, 0},
 };
 
-static const struct op_node entries[] = {
+static const op_node_t op_table[] = {
     {'.', TOK_DECIMAL, dec_children, 1},
     {',', TOK_COMMA, NULL, 0},
     {'?', TOK_QMARK, NULL, 0},
@@ -128,11 +130,11 @@ static const struct op_node entries[] = {
 };
 
 typedef struct string_token {
-    char *text;
+    char* text;
     token_kind_t kind;
 } string_token_t;
 
-static const string_token_t keyword_table[] = {
+static const string_token_t keyword_kind_table[] = {
     {"as", TOK_KW_AS},         {"async", TOK_KW_ASYNC},
     {"await", TOK_KW_AWAIT},   {"break", TOK_KW_BREAK},
     {"const", TOK_KW_CONST},   {"continue", TOK_KW_CONTINUE},
@@ -151,63 +153,13 @@ static const string_token_t keyword_table[] = {
     {"while", TOK_KW_WHILE},
 };
 
+typedef struct lookup_result {
+    char* remaining_chars;
+    token_kind_t kind;
+} lookup_result_t;
+
+lookup_result_t lookup_operator(char* chars);
+
+lookup_result_t lookup_keyword(char* chars);
+
 #endif
-
-// typedef struct string_token {
-//     char* text;
-//     token_kind_t kind;
-// } string_token_t;
-
-// static const string_token_t operator_table[] = {
-//     { ".", TOK_DECIMAL },
-//     { ",", TOK_COMMA },
-//     { "?", TOK_QMARK },
-//     { "\"", TOK_DQUOTE },
-//     { "'", TOK_SQUOTE },
-//     { "!", TOK_EXCLAM },
-//     { ":", TOK_COLON },
-//     { "^", TOK_XOR },
-//     { "%", TOK_PERCENT },
-//     { "~", TOK_BINV },
-//     { "-", TOK_MINUS },
-//     { "+", TOK_PLUS },
-//     { "$", TOK_DOLLAR },
-//     { "`", TOK_TICK },
-//     { "*", TOK_STAR },
-//     { "/", TOK_FSLASH },
-//     { "\\", TOK_BSLASH },
-//     { "{", TOK_LBRACE },
-//     { "}", TOK_RBRACE },
-//     { "@", TOK_AT },
-//     { "=", TOK_EQ },
-//     { "(", TOK_LPAREN },
-//     { ")", TOK_RPAREN },
-//     { "#", TOK_POUND },
-//     { "&", TOK_AMPER },
-//     { "[", TOK_LBRACK },
-//     { "]", TOK_RBRACK },
-//     { "|", TOK_PIPE },
-//     { ">", TOK_GT },
-//     { "<", TOK_LT },
-//     { ";", TOK_SEMICOLON },
-//     { "//", TOK_COMMENT },
-//     { "||", TOK_OR },
-//     { "&&", TOK_AND },
-//     { "<<", TOK_SHL },
-//     { ">>", TOK_SHR },
-//     { "->", TOK_ARROW },
-//     { ">=", TOK_GTE },
-//     { "<=", TOK_LTE },
-//     { "==", TOK_EQEQ },
-//     { "!=", TOK_NOTEQ },
-//     { "+=", TOK_PLUSEQ },
-//     { "-=", TOK_MINEQ },
-//     { "*=", TOK_TIMESEQ },
-//     { "/=", TOK_DIVEQ },
-//     { "~=", TOK_BINVEQ },
-//     { "&=", TOK_BANDEQ },
-//     { "^=", TOK_BXOREQ },
-//     { "%=", TOK_MODEQ },
-//     { "<<=", TOK_SHLEQ },
-//     { ">>=", TOK_SHREQ },
-// };

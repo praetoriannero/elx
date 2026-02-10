@@ -9,7 +9,7 @@
 #include "panic.h"
 
 static uintptr_t get_exe_base(void) {
-    FILE *maps = fopen("/proc/self/maps", "r");
+    FILE* maps = fopen("/proc/self/maps", "r");
     if (!maps)
         return 0;
 
@@ -33,7 +33,7 @@ static uintptr_t get_exe_base(void) {
 }
 
 void print_stacktrace(void) {
-    void *frames[64];
+    void* frames[64];
     int n = backtrace(frames, 64);
     printf("%ld\n", get_exe_base());
     uintptr_t base = get_exe_base();
@@ -46,13 +46,13 @@ void print_stacktrace(void) {
         snprintf(cmd, sizeof(cmd),
                  "addr2line -f -p -e /proc/%d/exe %p | awk '{printf(\"  "
                  "%%s\\n\", $0)}'",
-                 getpid(), (void *)offset);
+                 getpid(), (void*)offset);
         system(cmd);
     }
     fprintf(stderr, "\e[0m\n");
 }
 
-void panic_impl(const char *file, int line, const char *func, const char *fmt,
+void panic_impl(const char* file, int line, const char* func, const char* fmt,
                 ...) {
     print_stacktrace();
 

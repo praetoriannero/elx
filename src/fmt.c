@@ -4,8 +4,8 @@
 
 #include "xalloc.h"
 
-char *fmt(const char *fmt, ...) {
-    xnotnull((void *)fmt);
+char* fmt(const char* fmt, ...) {
+    xnotnull((void*)fmt);
 
     va_list ap;
 
@@ -17,7 +17,7 @@ char *fmt(const char *fmt, ...) {
         return NULL;
     }
 
-    char *buf = xmalloc((size_t)n + 1);
+    char* buf = xmalloc((size_t)n + 1);
     if (!buf) {
         return NULL;
     }

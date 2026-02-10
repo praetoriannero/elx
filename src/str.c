@@ -5,16 +5,16 @@
 #include "str.h"
 #include "xalloc.h"
 
-const static uint64_t MAX_STR_ALLOC = 4096;
-const static size_t INITIAL_STR_ALLOC = 4;
+static const uint64_t MAX_STR_ALLOC = 4096;
+static const size_t INITIAL_STR_ALLOC = 4;
 
-void string_push_char(string_t *self, char c) {
+void string_push_char(string_t* self, char c) {
     xnotnull(self);
 
     size_t new_len = self->size + 1;
     if (new_len >= (self->capacity / 2)) {
         size_t new_alloc = self->capacity * 2;
-        char *new_data_ptr = (char *)realloc(self->data, new_alloc);
+        char* new_data_ptr = (char*)realloc(self->data, new_alloc);
         if (new_data_ptr == NULL) {
             panic("failed to reallocate string buffer\n");
         }
@@ -29,10 +29,10 @@ void string_push_char(string_t *self, char c) {
     self->size++;
 }
 
-void string_init(string_t *self) {
+void string_init(string_t* self) {
     xnotnull(self);
 
-    char *new_char = xmalloc(INITIAL_STR_ALLOC);
+    char* new_char = xmalloc(INITIAL_STR_ALLOC);
 
     self->data = new_char;
     self->data[0] = '\0';
@@ -40,10 +40,10 @@ void string_init(string_t *self) {
     self->size = 0;
 }
 
-string_t *string_copy(string_t *self) {
+string_t* string_copy(string_t* self) {
     xnotnull(self);
 
-    string_t *string = xmalloc(sizeof(string_t));
+    string_t* string = xmalloc(sizeof(string_t));
 
     string->data = xmalloc(sizeof(strlen(self->data)) + 1);
     strcpy(string->data, self->data);
@@ -55,9 +55,9 @@ string_t *string_copy(string_t *self) {
     return string;
 }
 
-void string_clear(string_t *self) {
+void string_clear(string_t* self) {
     xfree(self->data);
-    char *new_char = xmalloc(INITIAL_STR_ALLOC);
+    char* new_char = xmalloc(INITIAL_STR_ALLOC);
 
     self->data = new_char;
     self->data[0] = '\0';
@@ -65,7 +65,7 @@ void string_clear(string_t *self) {
     self->size = 0;
 }
 
-void string_deinit(string_t *self) {
+void string_deinit(string_t* self) {
     xfree(self->data);
     xfree(self);
 }

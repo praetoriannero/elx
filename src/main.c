@@ -21,10 +21,10 @@ typedef struct {
 } Token;
 
 typedef struct {
-    Token *values;
+    Token* values;
 } TokenArray;
 
-int64_t get_file_size(FILE *handle) {
+int64_t get_file_size(FILE* handle) {
     if (fseek(handle, 0, SEEK_END) != 0) {
         return 0;
     };
@@ -38,12 +38,12 @@ int64_t get_file_size(FILE *handle) {
     return file_size;
 }
 
-char *read_file_content(const char *file_path);
+char* read_file_content(const char* file_path);
 
-int32_t main(int argc, char **argv) {
-    FILE *file_handle = NULL;
-    char *file_name;
-    char *content;
+int32_t main(int argc, char** argv) {
+    FILE* file_handle = NULL;
+    char* file_name;
+    char* content;
     int64_t file_size;
 
     if (argc >= 2) {
@@ -71,12 +71,12 @@ int32_t main(int argc, char **argv) {
 
     printf("CONTENT START\n%s\nCONTENT END\n", content);
 
-    token_stream_t *stream = xmalloc(sizeof(token_stream_t));
+    token_stream_t* stream = xmalloc(sizeof(token_stream_t));
     token_stream_init(stream, content);
 
     token_kind_t kind = TOK_INVALID;
     while (kind != TOK_EOF) {
-        token_t *token = token_stream_next(stream);
+        token_t* token = token_stream_next(stream);
         kind = token->kind;
         printf("%s\n", token_string(token));
         token_deinit(token);

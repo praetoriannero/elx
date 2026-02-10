@@ -3,10 +3,10 @@
 #include "str.h"
 #include "xalloc.h"
 
-void token_init(token_t *self) {
+void token_init(token_t* self) {
     xnotnull(self);
 
-    string_t *str = xmalloc(sizeof(string_t));
+    string_t* str = xmalloc(sizeof(string_t));
     string_init(str);
 
     self->kind = TOK_INVALID;
@@ -16,17 +16,17 @@ void token_init(token_t *self) {
     self->column = 0;
 }
 
-void token_deinit(token_t *self) {
+void token_deinit(token_t* self) {
     xnotnull(self);
 
     string_deinit(self->str);
     xfree(self);
 }
 
-token_t *token_copy(token_t *self) {
+token_t* token_copy(token_t* self) {
     xnotnull(self);
 
-    token_t *token = xmalloc(sizeof(token_t));
+    token_t* token = xmalloc(sizeof(token_t));
 
     token->kind = self->kind;
     token->str = string_copy(self->str);
@@ -37,10 +37,10 @@ token_t *token_copy(token_t *self) {
     return token;
 }
 
-char *token_string(token_t *self) {
+char* token_string(token_t* self) {
     xnotnull(self);
 
-    char *str = NULL;
+    char* str = NULL;
     str = fmt("Token(str=\"%s\", kind=\"%s\")", self->str->data,
               token_kind_str(self->kind));
 

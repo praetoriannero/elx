@@ -119,6 +119,6 @@ static const token_kind_t single_char_token[256] = {
     [';'] = TOK_SEMICOLON,
 };
 
-char *token_kind_str(token_kind_t kind);
+char* token_kind_str(token_kind_t kind);
 
 #endif

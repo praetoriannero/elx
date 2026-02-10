@@ -8,7 +8,7 @@
 #include "token_utils.h"
 #include "xalloc.h"
 
-void token_stream_init(token_stream_t *self, char *data) {
+void token_stream_init(token_stream_t* self, char* data) {
     self->data = data;
     self->loc = 0;
     self->col = 0;
@@ -16,7 +16,7 @@ void token_stream_init(token_stream_t *self, char *data) {
     self->length = strlen(data);
     self->line = 0;
 
-    string_t *string = xmalloc(sizeof(string_t));
+    string_t* string = xmalloc(sizeof(string_t));
     string_init(string);
     self->token_string = string;
 }
@@ -33,22 +33,30 @@ void token_stream_init(token_stream_t *self, char *data) {
 // static void _handle_ident(token_stream_t* self, token_t* token, char c,
 // string_t* token_str);
 
-token_t *token_stream_next(token_stream_t *self) {
-    char c;
+static const char* whitespace = " \t\n\r";
 
-    token_t *token = xmalloc(sizeof(token_t));
-    token_init(token);
-
-    string_t *token_str = xmalloc(sizeof(string_t));
-    string_init(token_str);
-
-    c = token_stream_consume(self);
-    while ((c == ' ') || (c == '\t') || (c == '\n') || (c == '\r')) {
+static char token_stream_skip_whitespace(token_stream_t* self) {
+    char c = token_stream_consume(self);
+    while (strchr(whitespace, c)) {
         c = token_stream_consume(self);
         if (c == -1) {
             break;
         }
     }
+
+    return c;
+}
+
+token_t* token_stream_next(token_stream_t* self) {
+    char c;
+
+    token_t* token = xmalloc(sizeof(token_t));
+    token_init(token);
+
+    string_t* token_str = xmalloc(sizeof(string_t));
+    string_init(token_str);
+
+    c = token_stream_skip_whitespace(self);
 
     if (c == -1) {
         token->kind = TOK_EOF;
@@ -102,7 +110,7 @@ token_t *token_stream_next(token_stream_t *self) {
     return token;
 }
 
-int64_t token_stream_meta_str(token_stream_t *self, char *meta_str) {
+int64_t token_stream_meta_str(token_stream_t* self, char* meta_str) {
     return sprintf(
         meta_str,
         "token_stream_t{token=%s, loc=%zu, length=%zu, line=%zu, col=%zu}",
@@ -110,7 +118,7 @@ int64_t token_stream_meta_str(token_stream_t *self, char *meta_str) {
         self->col + 1);
 }
 
-void token_stream_reset(token_stream_t *self) {
+void token_stream_reset(token_stream_t* self) {
     string_clear(self->token_string);
     self->loc = 0;
     self->line = 0;
@@ -118,9 +126,9 @@ void token_stream_reset(token_stream_t *self) {
     self->last_col = 0;
 }
 
-char token_stream_peek(token_stream_t *self) { return self->data[self->loc]; }
+char token_stream_peek(token_stream_t* self) { return self->data[self->loc]; }
 
-char token_stream_peek_next(token_stream_t *self) {
+char token_stream_peek_next(token_stream_t* self) {
     if (self->loc == self->length - 1) {
         return -1;
     }
@@ -128,7 +136,7 @@ char token_stream_peek_next(token_stream_t *self) {
     return self->data[self->loc + 1];
 }
 
-char token_stream_consume(token_stream_t *self) {
+char token_stream_consume(token_stream_t* self) {
     if (self->loc == self->length - 1) {
         return -1;
     }
@@ -147,7 +155,7 @@ char token_stream_consume(token_stream_t *self) {
     return c;
 }
 
-void token_stream_deinit(token_stream_t *self) {
+void token_stream_deinit(token_stream_t* self) {
     string_deinit(self->token_string);
     xfree(self);
 }

@@ -4,18 +4,18 @@
 #include <stdlib.h>
 
 typedef struct vector {
-    void **data;
+    void** data;
     size_t datum_size;
     size_t capacity;
     size_t size;
 } vector_t;
 
-vector_t *vector_new(size_t datum_size);
+vector_t* vector_new(size_t datum_size);
 
-char *vector_push(vector_t *vec, void *datum);
+char* vector_push(vector_t* vec, void* datum);
 
-void *vector_pop(vector_t *vec);
+void* vector_pop(vector_t* vec);
 
-void vector_free(vector_t *vec);
+void vector_free(vector_t* vec);
 
 #endif
