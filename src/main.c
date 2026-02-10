@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -7,6 +8,7 @@
 #include "str.h"
 #include "token.h"
 #include "token_stream.h"
+#include "vector.h"
 #include "xalloc.h"
 
 int32_t OK = 0;
@@ -45,6 +47,18 @@ int32_t main(int argc, char** argv) {
     char* file_name;
     char* content;
     int64_t file_size;
+
+    vector_t* vec = vector_new(sizeof(int), 0);
+    for (int i = 0; i < 10; i++) {
+        printf("%d\n", i);
+        int* _a = xmalloc(sizeof(int));
+        *_a = 4;
+        vector_push(vec, _a);
+        int* _b = vector_pop(vec);
+        printf("%d %d\n", *_a, *_b);
+    }
+
+    exit(0);
 
     if (argc >= 2) {
         file_name = argv[1];

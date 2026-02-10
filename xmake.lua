@@ -1,6 +1,8 @@
 set_project("elx")
 set_version("0.1.0")
 
+-- add_requires("libunwind")
+-- add_requires("libbacktrace")
 add_rules("mode.debug", "mode.release")
 -- set_defaultmode("debug")
 -- set_toolchains("clang")
@@ -8,6 +10,7 @@ add_rules("mode.debug", "mode.release")
 target("elx")
 set_kind("binary")
 add_files("src/*.c")
+-- add_packages("libunwind", "libbacktrace")
 set_languages("c99")
 
 set_warnings("all", "extra", "pedantic")
@@ -26,7 +29,7 @@ add_cflags(
 	"-Wundef",
 	"-rdynamic",
 	"-g",
-	"-no-pie",
+	-- "-no-pie",
 	"-fno-omit-frame-pointer"
 )
 

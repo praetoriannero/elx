@@ -1,52 +1,77 @@
-#include "vector.h"
+#include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-vector_t* vector_new(size_t datum_size) {
-    vector_t* vec = (vector_t*)malloc(sizeof(vector_t));
+#include "xalloc.h"
+#include "vector.h"
 
-    vec->data = NULL;
-    vec->capacity = 1;
-    vec->datum_size = datum_size;
-    vec->size = 0;
 
+#define DEFAULT_VEC_SIZE 8
+
+
+void vector_init(vector_t* self, size_t datum_size, size_t initial_capacity) {
+    xnotnull(self);
+
+    self->data = xmalloc(datum_size * initial_capacity);
+    self->capacity = initial_capacity;
+    self->datum_size = datum_size;
+    self->size = 0;
+}
+
+vector_t* vector_new(size_t datum_size, size_t initial_capacity) {
+    vector_t* vec = xmalloc(sizeof(vector_t));
+    vector_init(vec, datum_size, initial_capacity);
     return vec;
 }
 
-char* vector_push(vector_t* vec, void* datum) {
-    size_t new_len = vec->size + 1;
-    if (new_len >= (vec->capacity / 2)) {
-        size_t new_alloc = vec->capacity * 2;
-        char* new_data_ptr = (char*)realloc(vec->data, new_alloc);
-        if (new_data_ptr == NULL) {
-            char* err_msg = "Error: failed to allocate vector buffer.\n";
-            return err_msg;
-        }
-        vec->capacity = new_alloc;
+void vector_push(vector_t* self, const void* datum) {
+    size_t new_len = self->size + 1;
+    if (new_len == self->capacity) {
+        size_t new_capacity = self->capacity ? self->capacity * 2 : DEFAULT_VEC_SIZE;
+        size_t new_alloc = new_capacity * self->datum_size;
+
+        void* new_data = xrealloc(self->data, new_alloc);
+        self->capacity = new_capacity;
+        self->data = new_data;
     }
 
-    vec->data[vec->size] = datum;
-    vec->size++;
+    memcpy((char*)self->data + self->size * self->datum_size,
+            datum,
+            self->datum_size);
 
-    return NULL;
+    self->size++;
 }
 
-void* vector_pop(vector_t* vec) {
-    void* datum = NULL;
+void* vector_pop(vector_t* self) {
+    if (self->size == 0)
+        return NULL;
 
-    if (vec->size) {
-        datum = vec->data[vec->size];
-        vec->size--;
-        return datum;
-    }
+    self->size--;
 
-    return NULL;
+    return (char*)self->data + self->size * self->datum_size;
 }
 
-void vector_free(vector_t* vec) {
+void vector_clear(vector_t* self, free_inner inner_cb) {
     size_t idx;
-    for (idx = 0; idx < vec->size; idx++) {
-        free(vec->data[idx]);
+    if (inner_cb) {
+        for (idx = 0; idx < self->size; idx++) {
+            inner_cb((char*)self->data + idx * self->datum_size);
+        }
     }
 
-    free(vec);
+    self->size = 0;
+    self->capacity = 0;
+}
+
+void vector_free(vector_t* self, free_inner inner_cb) {
+    size_t idx;
+    if (inner_cb) {
+        for (idx = 0; idx < self->size; idx++) {
+            inner_cb((char*)self->data + idx * self->datum_size);
+        }
+    }
+
+    xfree(self->data);
+    xfree(self);
 }

@@ -11,6 +11,11 @@
 },
 {
   "directory": "/home/heaven/source/elx",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-g", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/token_tables.c.o", "src/token_tables.c"],
+  "file": "src/token_tables.c"
+},
+{
+  "directory": "/home/heaven/source/elx",
   "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-g", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/xalloc.c.o", "src/xalloc.c"],
   "file": "src/xalloc.c"
 },
@@ -38,6 +43,11 @@
   "directory": "/home/heaven/source/elx",
   "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-g", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/token_stream.c.o", "src/token_stream.c"],
   "file": "src/token_stream.c"
+},
+{
+  "directory": "/home/heaven/source/elx",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-std=c99", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-g", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/fmt.c.o", "src/fmt.c"],
+  "file": "src/fmt.c"
 },
 {
   "directory": "/home/heaven/source/elx",
