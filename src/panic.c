@@ -1,16 +1,17 @@
 #include <execinfo.h>
-#include <stdlib.h>
 #include <stdarg.h>
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
 #include "panic.h"
 
 static uintptr_t get_exe_base(void) {
-    FILE* maps = fopen("/proc/self/maps", "r");
-    if (!maps) return 0;
+    FILE *maps = fopen("/proc/self/maps", "r");
+    if (!maps)
+        return 0;
 
     char line[512];
     uintptr_t base = 0;
@@ -43,20 +44,16 @@ void print_stacktrace(void) {
         uintptr_t offset = base ? (addr - base - 1) : (addr - 1);
         char cmd[512];
         snprintf(cmd, sizeof(cmd),
-                 "addr2line -f -p -e /proc/%d/exe %p | awk '{printf(\"  %%s\\n\", $0)}'",
-                 getpid(), (void*)offset);
+                 "addr2line -f -p -e /proc/%d/exe %p | awk '{printf(\"  "
+                 "%%s\\n\", $0)}'",
+                 getpid(), (void *)offset);
         system(cmd);
     }
     fprintf(stderr, "\e[0m\n");
 }
 
-void panic_impl(
-    const char* file,
-    int line,
-    const char* func,
-    const char* fmt,
-    ...
-) {
+void panic_impl(const char *file, int line, const char *func, const char *fmt,
+                ...) {
     print_stacktrace();
 
     fprintf(stderr, "\033\e[0;31mPANIC at %s:%d (%s): ", file, line, func);
@@ -68,4 +65,3 @@ void panic_impl(
 
     exit(1);
 }
-
