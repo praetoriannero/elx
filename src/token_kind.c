@@ -2,6 +2,10 @@
 
 char* token_kind_str(token_kind_t kind) {
     switch (kind) {
+    case TOK_FLOAT:
+        return "TOK_FLOAT";
+    case TOK_INTEGER:
+        return "TOK_INTEGER";
     case TOK_RANGE:
         return "TOK_RANGE";
     case TOK_PATH:

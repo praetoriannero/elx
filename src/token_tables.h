@@ -65,7 +65,7 @@ static const op_node_t gt_children[] = {
 };
 
 static const op_node_t lt_children[] = {
-    {'<', TOK_SHL, shr_children, 1},
+    {'<', TOK_SHL, shl_children, 1},
     {'=', TOK_LTE, NULL, 0},
 };
 

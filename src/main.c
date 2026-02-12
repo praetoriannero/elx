@@ -48,18 +48,6 @@ int32_t main(int argc, char** argv) {
     char* content;
     int64_t file_size;
 
-    vector_t* vec = vector_new(sizeof(int), 0);
-    for (int i = 0; i < 10; i++) {
-        printf("%d\n", i);
-        int* _a = xmalloc(sizeof(int));
-        *_a = 4;
-        vector_push(vec, _a);
-        int* _b = vector_pop(vec);
-        printf("%d %d\n", *_a, *_b);
-    }
-
-    exit(0);
-
     if (argc >= 2) {
         file_name = argv[1];
         file_handle = fopen(file_name, "r");

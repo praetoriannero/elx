@@ -1,0 +1,12 @@
+thread 'main' panicked at 'called `Option::unwrap()` on a `None` value', src/main.rs:10:9
+stack backtrace:
+   0: rust_begin_unwind
+   1: core::panicking::panic_fmt
+   2: core::panicking::panic
+   3: playground::main::h91d2...
+   4: core::ops::function::FnOnce::call_once
+   5: std::sys_common::backtrace::__rust_begin_short_backtrace
+   6: std::rt::lang_start::{{closure}}
+   7: std::rt::lang_start_internal
+   8: main
+   9: __libc_start_main

@@ -12,6 +12,11 @@ typedef struct token {
     size_t length;
     size_t line;
     size_t column;
+
+    void (*init)(struct token*);
+    void (*deinit)(struct token*);
+    struct token* (*copy)(struct token*);
+    char* (*string)(struct token*);
 } token_t;
 
 void token_init(token_t* self);

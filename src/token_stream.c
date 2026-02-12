@@ -1,10 +1,14 @@
+#include <ctype.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
+#include "array.h"
 #include "str.h"
 #include "token.h"
 #include "token_stream.h"
+#include "token_kind.h"
+#include "token_tables.h"
 #include "token_utils.h"
 #include "xalloc.h"
 
@@ -35,16 +39,15 @@ void token_stream_init(token_stream_t* self, char* data) {
 
 static const char* whitespace = " \t\n\r";
 
-static char token_stream_skip_whitespace(token_stream_t* self) {
-    char c = token_stream_consume(self);
+static void token_stream_skip_whitespace(token_stream_t* self) {
+    char c = token_stream_peek(self);
     while (strchr(whitespace, c)) {
         c = token_stream_consume(self);
         if (c == -1) {
             break;
         }
+        c = token_stream_peek(self);
     }
-
-    return c;
 }
 
 token_t* token_stream_next(token_stream_t* self) {
@@ -56,7 +59,8 @@ token_t* token_stream_next(token_stream_t* self) {
     string_t* token_str = xmalloc(sizeof(string_t));
     string_init(token_str);
 
-    c = token_stream_skip_whitespace(self);
+    token_stream_skip_whitespace(self);
+    c = token_stream_consume(self);
 
     if (c == -1) {
         token->kind = TOK_EOF;
@@ -65,47 +69,98 @@ token_t* token_stream_next(token_stream_t* self) {
 
     token->kind = single_char_token[(uint8_t)c];
 
-    bool check = true;
+    // operator
+    if (token->kind != TOK_INVALID) {
+        string_t op_string;
+        string_init(&op_string);
+        string_push_char(&op_string, c);
 
-    if (check) {
-        if (token->kind != TOK_INVALID) {
-            char tmp;
-            string_t tmp_str;
-            token_kind_t next_kind;
+        const op_node_t* op_iter = op_table;
+        size_t table_size = array_len(op_table);
+        op_node_t op_node;
 
-            string_init(&tmp_str);
-            string_push_char(token_str, c);
+        char c_next = token_stream_peek(self);
+        token_kind_t kind_next = single_char_token[(uint8_t)c_next];
 
-            c = token_stream_peek(self);
-            tmp = c;
-            next_kind = single_char_token[(uint8_t)c];
-
-            while (next_kind != TOK_INVALID) {
-                string_push_char(token_str, c);
-                c = token_stream_consume(self);
-                tmp = token_stream_peek(self);
-                next_kind = single_char_token[(uint8_t)tmp];
+        for (size_t i = 0; i < table_size; i++) {
+            op_node = op_iter[i];
+            if (op_node.text == c) {
+                op_iter = op_node.children;
+                break;
             }
-            check = false;
         }
-    }
 
-    if (check) {
-        if (is_ident_char(c)) {
-            while (is_ident_char(c)) {
-                string_push_char(token_str, c);
-                if (!is_ident_char(token_stream_peek(self))) {
+        bool found = false;
+        while (op_iter && (kind_next != TOK_INVALID) && (!strchr(whitespace, c_next))) {
+            for (size_t i = 0; i < table_size; i++) {
+                op_node = op_iter[i];
+                if (op_node.text == c_next) {
+                    string_push_char(&op_string, token_stream_consume(self));
+                    op_iter = op_node.children;
+                    token->kind = op_node.kind;
+                    found = true;
                     break;
                 }
-                c = token_stream_consume(self);
             }
-            token->kind = TOK_IDENT;
-            check = false;
+
+            if (!found) {
+                break;
+            }
+
+            c_next = token_stream_peek(self);
+            kind_next = single_char_token[(uint8_t)c_next];
         }
+
+        token_str = string_copy(&op_string);
+        string_clear(&op_string);
+
+        goto clean_and_exit;
     }
 
-    token->str = string_copy(token_str);
+    // identifier
+    if (is_valid_ident_start(c)) {
+        while (is_ident_char(c)) {
+            string_push_char(token_str, c);
+            if (!is_ident_char(token_stream_peek(self))) {
+                break;
+            }
+            c = token_stream_consume(self);
+        }
+        token->kind = TOK_IDENT;
+        goto clean_and_exit;
+    }
 
+    // integer/float
+    if (isdigit(c)) {
+        uint8_t decimal_count = 0;
+        while (isdigit(c) || c == '.') {
+            if (c == '.') {
+                decimal_count++;
+            }
+
+            if (decimal_count > 1) {
+                break;
+            }
+
+            string_push_char(token_str, c);
+            if (!is_ident_char(token_stream_peek(self))) {
+                break;
+            }
+
+            c = token_stream_consume(self);
+        }
+
+        if (decimal_count) {
+            token->kind = TOK_FLOAT;
+        } else {
+            token->kind = TOK_INTEGER;
+        }
+
+        goto clean_and_exit;
+    }
+
+    clean_and_exit:
+    token->str = string_copy(token_str);
     string_deinit(token_str);
     return token;
 }

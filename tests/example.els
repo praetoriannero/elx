@@ -9,6 +9,7 @@ module kez {
 }
 
 // this is a comment
+// foo()()[1].(m) <<==
 
 fn main() -> u8 {
     let mut x = 1;

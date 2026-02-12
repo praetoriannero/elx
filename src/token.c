@@ -14,6 +14,11 @@ void token_init(token_t* self) {
     self->length = 0;
     self->line = 0;
     self->column = 0;
+
+    self->init = token_init;
+    self->deinit = token_deinit;
+    self->copy = token_copy;
+    self->string = token_string;
 }
 
 void token_deinit(token_t* self) {

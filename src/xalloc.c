@@ -22,12 +22,11 @@ void* realloc_impl(void* ptr, size_t size, const char* file, int line) {
     return new_ptr;
 }
 
-void free_impl(void* ptr, const char* file, int line) {
-    if (ptr == NULL) {
-        panic("invalid free on NULL pointer at %s:%d\n", file, line);
+void free_impl(void** ptr) {
+    if (ptr && *ptr) {
+        free(ptr);
+        ptr = NULL;
     }
-
-    free(ptr);
 }
 
 void not_null_impl(void* ptr, const char* file, int line) {

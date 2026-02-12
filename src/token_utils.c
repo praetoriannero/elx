@@ -17,6 +17,14 @@ bool is_valid_ident(char* ident) {
     return true;
 }
 
+bool is_valid_ident_start(char c) {
+    if (isalpha(c) || c == '_') {
+        return true;
+    }
+
+    return false;
+}
+
 bool is_ident_char(char c) {
     if (isalnum(c) || c == '_') {
         return true;

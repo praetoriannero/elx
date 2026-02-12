@@ -101,6 +101,12 @@ typedef enum token_kind {
     // identifier
     TOK_IDENT,
 
+    // float
+    TOK_FLOAT,
+
+    // integer
+    TOK_INTEGER,
+
     // end of file
     TOK_EOF,
 } token_kind_t;
