@@ -12,7 +12,13 @@
 #include "token_utils.h"
 #include "xalloc.h"
 
+void token_stream_error(token_stream_t* self, char* msg) {
+    panic("parsing error: %s at location %d:%d in file FILE\n", msg, self->line, self->col);
+}
+
 void token_stream_init(token_stream_t* self, char* data) {
+    xnotnull(self);
+
     self->data = data;
     self->loc = 0;
     self->col = 0;
@@ -25,23 +31,22 @@ void token_stream_init(token_stream_t* self, char* data) {
     self->token_string = string;
 }
 
-// static void _handle_operator(token_stream_t* self, token_t* token, char c,
-// string_t* token_str);
-//
-// static void _handle_string(token_stream_t* self, token_t* token, char c,
-// string_t* token_str);
-//
-// static void _handle_comment(token_stream_t* self, token_t* token, char c,
-// string_t* token_str);
-//
-// static void _handle_ident(token_stream_t* self, token_t* token, char c,
-// string_t* token_str);
-
 static const char* whitespace = " \t\n\r";
 
 static void token_stream_skip_whitespace(token_stream_t* self) {
     char c = token_stream_peek(self);
     while (strchr(whitespace, c)) {
+        c = token_stream_consume(self);
+        if (c == -1) {
+            break;
+        }
+        c = token_stream_peek(self);
+    }
+}
+
+static void token_stream_skip_comment(token_stream_t* self) {
+    char c = token_stream_peek(self);
+    while (c != '\n') {
         c = token_stream_consume(self);
         if (c == -1) {
             break;
@@ -114,7 +119,7 @@ token_t* token_stream_next(token_stream_t* self) {
         token_str = string_copy(&op_string);
         string_clear(&op_string);
 
-        goto clean_and_exit;
+        goto fn_next_exit;
     }
 
     // identifier
@@ -126,8 +131,17 @@ token_t* token_stream_next(token_stream_t* self) {
             }
             c = token_stream_consume(self);
         }
+
+        size_t length = array_len(keyword_kind_table);
+        for (uint8_t i = 0; i < length; i++) {
+            string_token_t st = keyword_kind_table[i];
+            if (strcmp(st.text, token_str->data) == 0) {
+                token->kind = st.kind;
+                goto fn_next_exit;
+            }
+        }
         token->kind = TOK_IDENT;
-        goto clean_and_exit;
+        goto fn_next_exit;
     }
 
     // integer/float
@@ -139,11 +153,12 @@ token_t* token_stream_next(token_stream_t* self) {
             }
 
             if (decimal_count > 1) {
-                break;
+                token_stream_error(self, "invalid integer format");
             }
 
             string_push_char(token_str, c);
-            if (!is_ident_char(token_stream_peek(self))) {
+            char c_next = token_stream_peek(self);
+            if ((c_next != '.') && (!isdigit(c_next))) {
                 break;
             }
 
@@ -156,10 +171,15 @@ token_t* token_stream_next(token_stream_t* self) {
             token->kind = TOK_INTEGER;
         }
 
-        goto clean_and_exit;
+        goto fn_next_exit;
     }
 
-    clean_and_exit:
+fn_next_exit:
+    if (token->kind == TOK_COMMENT) {
+        token_stream_skip_comment(self);
+        token_stream_next(self);
+    }
+
     token->str = string_copy(token_str);
     string_deinit(token_str);
     return token;
