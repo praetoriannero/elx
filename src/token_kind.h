@@ -81,6 +81,7 @@ typedef enum token_kind {
     TOK_KW_IMPL,     // impl
     TOK_KW_IN,       // in
     TOK_KW_LET,      // let
+    TOK_KW_VAR,      // var
     TOK_KW_MATCH,    // match
     TOK_KW_MODULE,   // module
     TOK_KW_MUT,      // mut

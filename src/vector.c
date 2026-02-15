@@ -3,12 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "xalloc.h"
 #include "vector.h"
-
+#include "xalloc.h"
 
 #define DEFAULT_VEC_SIZE 8
-
 
 void vector_init(vector_t* self, size_t datum_size, size_t initial_capacity) {
     xnotnull(self);
@@ -28,7 +26,8 @@ vector_t* vector_new(size_t datum_size, size_t initial_capacity) {
 void vector_push(vector_t* self, const void* datum) {
     size_t new_len = self->size + 1;
     if (new_len == self->capacity) {
-        size_t new_capacity = self->capacity ? self->capacity * 2 : DEFAULT_VEC_SIZE;
+        size_t new_capacity =
+            self->capacity ? self->capacity * 2 : DEFAULT_VEC_SIZE;
         size_t new_alloc = new_capacity * self->datum_size;
 
         void* new_data = xrealloc(self->data, new_alloc);
@@ -36,9 +35,8 @@ void vector_push(vector_t* self, const void* datum) {
         self->data = new_data;
     }
 
-    memcpy((char*)self->data + self->size * self->datum_size,
-            datum,
-            self->datum_size);
+    memcpy((char*)self->data + self->size * self->datum_size, datum,
+           self->datum_size);
 
     self->size++;
 }

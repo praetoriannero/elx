@@ -7,8 +7,7 @@
 #include "panic.h"
 #include "str.h"
 #include "token.h"
-#include "token_stream.h"
-#include "vector.h"
+#include "lexer.h"
 #include "xalloc.h"
 
 int32_t OK = 0;
@@ -73,20 +72,23 @@ int32_t main(int argc, char** argv) {
 
     printf("CONTENT START\n%s\nCONTENT END\n", content);
 
-    token_stream_t* stream = xmalloc(sizeof(token_stream_t));
-    token_stream_init(stream, content);
+    lexer_t* lexer = xmalloc(sizeof(lexer_t));
+    lexer_init(lexer, content);
 
     token_kind_t kind = TOK_INVALID;
     while (kind != TOK_EOF) {
-        token_t* token = token_stream_next(stream);
+        token_t* token = lexer_next(lexer);
         kind = token->kind;
+        if (kind == TOK_COMMENT) {
+            continue;
+        }
         printf("%s\n", token_string(token));
         token_deinit(token);
     }
 
     // clean up
     fclose(file_handle);
-    token_stream_deinit(stream);
+    lexer_deinit(lexer);
     free(content);
     return OK;
 }

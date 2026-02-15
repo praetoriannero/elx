@@ -6,17 +6,18 @@
 #include "array.h"
 #include "str.h"
 #include "token.h"
-#include "token_stream.h"
 #include "token_kind.h"
+#include "lexer.h"
 #include "token_tables.h"
 #include "token_utils.h"
 #include "xalloc.h"
 
-void token_stream_error(token_stream_t* self, char* msg) {
-    panic("parsing error: %s at location %d:%d in file FILE\n", msg, self->line, self->col);
+void lexer_error(lexer_t* self, char* msg) {
+    panic("parsing error: %s at location %d:%d in file FILE\n", msg, self->line,
+          self->col);
 }
 
-void token_stream_init(token_stream_t* self, char* data) {
+void lexer_init(lexer_t* self, char* data) {
     xnotnull(self);
 
     self->data = data;
@@ -33,29 +34,29 @@ void token_stream_init(token_stream_t* self, char* data) {
 
 static const char* whitespace = " \t\n\r";
 
-static void token_stream_skip_whitespace(token_stream_t* self) {
-    char c = token_stream_peek(self);
+static void lexer_skip_whitespace(lexer_t* self) {
+    char c = lexer_peek(self);
     while (strchr(whitespace, c)) {
-        c = token_stream_consume(self);
+        c = lexer_consume(self);
         if (c == -1) {
             break;
         }
-        c = token_stream_peek(self);
+        c = lexer_peek(self);
     }
 }
 
-static void token_stream_skip_comment(token_stream_t* self) {
-    char c = token_stream_peek(self);
+static void lexer_skip_comment(lexer_t* self) {
+    char c = lexer_peek(self);
     while (c != '\n') {
-        c = token_stream_consume(self);
+        c = lexer_consume(self);
         if (c == -1) {
             break;
         }
-        c = token_stream_peek(self);
+        c = lexer_peek(self);
     }
 }
 
-token_t* token_stream_next(token_stream_t* self) {
+token_t* lexer_next(lexer_t* self) {
     char c;
 
     token_t* token = xmalloc(sizeof(token_t));
@@ -64,8 +65,8 @@ token_t* token_stream_next(token_stream_t* self) {
     string_t* token_str = xmalloc(sizeof(string_t));
     string_init(token_str);
 
-    token_stream_skip_whitespace(self);
-    c = token_stream_consume(self);
+    lexer_skip_whitespace(self);
+    c = lexer_consume(self);
 
     if (c == -1) {
         token->kind = TOK_EOF;
@@ -84,7 +85,7 @@ token_t* token_stream_next(token_stream_t* self) {
         size_t table_size = array_len(op_table);
         op_node_t op_node;
 
-        char c_next = token_stream_peek(self);
+        char c_next = lexer_peek(self);
         token_kind_t kind_next = single_char_token[(uint8_t)c_next];
 
         for (size_t i = 0; i < table_size; i++) {
@@ -96,11 +97,12 @@ token_t* token_stream_next(token_stream_t* self) {
         }
 
         bool found = false;
-        while (op_iter && (kind_next != TOK_INVALID) && (!strchr(whitespace, c_next))) {
+        while (op_iter && (kind_next != TOK_INVALID) &&
+               (!strchr(whitespace, c_next))) {
             for (size_t i = 0; i < table_size; i++) {
                 op_node = op_iter[i];
                 if (op_node.text == c_next) {
-                    string_push_char(&op_string, token_stream_consume(self));
+                    string_push_char(&op_string, lexer_consume(self));
                     op_iter = op_node.children;
                     token->kind = op_node.kind;
                     found = true;
@@ -112,7 +114,7 @@ token_t* token_stream_next(token_stream_t* self) {
                 break;
             }
 
-            c_next = token_stream_peek(self);
+            c_next = lexer_peek(self);
             kind_next = single_char_token[(uint8_t)c_next];
         }
 
@@ -126,10 +128,10 @@ token_t* token_stream_next(token_stream_t* self) {
     if (is_valid_ident_start(c)) {
         while (is_ident_char(c)) {
             string_push_char(token_str, c);
-            if (!is_ident_char(token_stream_peek(self))) {
+            if (!is_ident_char(lexer_peek(self))) {
                 break;
             }
-            c = token_stream_consume(self);
+            c = lexer_consume(self);
         }
 
         size_t length = array_len(keyword_kind_table);
@@ -153,16 +155,16 @@ token_t* token_stream_next(token_stream_t* self) {
             }
 
             if (decimal_count > 1) {
-                token_stream_error(self, "invalid integer format");
+                lexer_error(self, "invalid integer format");
             }
 
             string_push_char(token_str, c);
-            char c_next = token_stream_peek(self);
+            char c_next = lexer_peek(self);
             if ((c_next != '.') && (!isdigit(c_next))) {
                 break;
             }
 
-            c = token_stream_consume(self);
+            c = lexer_consume(self);
         }
 
         if (decimal_count) {
@@ -176,24 +178,22 @@ token_t* token_stream_next(token_stream_t* self) {
 
 fn_next_exit:
     if (token->kind == TOK_COMMENT) {
-        token_stream_skip_comment(self);
-        token_stream_next(self);
+        lexer_skip_comment(self);
     }
-
     token->str = string_copy(token_str);
     string_deinit(token_str);
     return token;
 }
 
-int64_t token_stream_meta_str(token_stream_t* self, char* meta_str) {
+int64_t lexer_meta_str(lexer_t* self, char* meta_str) {
     return sprintf(
         meta_str,
-        "token_stream_t{token=%s, loc=%zu, length=%zu, line=%zu, col=%zu}",
+        "lexer_t{token=%s, loc=%zu, length=%zu, line=%zu, col=%zu}",
         self->token_string->data, self->loc, self->length, self->line + 1,
         self->col + 1);
 }
 
-void token_stream_reset(token_stream_t* self) {
+void lexer_reset(lexer_t* self) {
     string_clear(self->token_string);
     self->loc = 0;
     self->line = 0;
@@ -201,9 +201,9 @@ void token_stream_reset(token_stream_t* self) {
     self->last_col = 0;
 }
 
-char token_stream_peek(token_stream_t* self) { return self->data[self->loc]; }
+char lexer_peek(lexer_t* self) { return self->data[self->loc]; }
 
-char token_stream_peek_next(token_stream_t* self) {
+char lexer_peek_next(lexer_t* self) {
     if (self->loc == self->length - 1) {
         return -1;
     }
@@ -211,7 +211,7 @@ char token_stream_peek_next(token_stream_t* self) {
     return self->data[self->loc + 1];
 }
 
-char token_stream_consume(token_stream_t* self) {
+char lexer_consume(lexer_t* self) {
     if (self->loc == self->length - 1) {
         return -1;
     }
@@ -230,7 +230,7 @@ char token_stream_consume(token_stream_t* self) {
     return c;
 }
 
-void token_stream_deinit(token_stream_t* self) {
+void lexer_deinit(lexer_t* self) {
     string_deinit(self->token_string);
     xfree(self);
 }

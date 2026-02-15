@@ -98,7 +98,6 @@ static const op_node_t star_children[] = {
 
 static const op_node_t op_table[] = {
     {'.', TOK_DECIMAL, dec_children, 1},
-    {',', TOK_COMMA, NULL, 0},
     {'?', TOK_QMARK, NULL, 0},
     {'\"', TOK_DQUOTE, NULL, 0},
     {'\'', TOK_SQUOTE, NULL, 0},
@@ -110,15 +109,8 @@ static const op_node_t op_table[] = {
     {'-', TOK_MINUS, min_children, 2},
     {'+', TOK_PLUS, plus_children, 1},
     {'$', TOK_DOLLAR, NULL, 0},
-    {'`', TOK_TICK, NULL, 0},
     {'*', TOK_STAR, star_children, 1},
     {'/', TOK_FSLASH, fs_children, 2},
-    {'{', TOK_LBRACE, NULL, 0},
-    {'}', TOK_RBRACE, NULL, 0},
-    {'(', TOK_LPAREN, NULL, 0},
-    {')', TOK_RPAREN, NULL, 0},
-    {'[', TOK_LBRACK, NULL, 0},
-    {']', TOK_RBRACK, NULL, 0},
     {'@', TOK_AT, NULL, 0},
     {'|', TOK_PIPE, or_children, 2},
     {'&', TOK_AMPER, and_children, 2},
@@ -126,7 +118,18 @@ static const op_node_t op_table[] = {
     {'=', TOK_EQ, eq_children, 1},
     {'>', TOK_GT, gt_children, 2},
     {'<', TOK_LT, lt_children, 2},
+    // should these separators not be in the table?
+    // separators/puncuators
+    {',', TOK_COMMA, NULL, 0},
+    {'[', TOK_LBRACK, NULL, 0},
+    {']', TOK_RBRACK, NULL, 0},
+    {'(', TOK_LPAREN, NULL, 0},
+    {')', TOK_RPAREN, NULL, 0},
+    {'{', TOK_LBRACE, NULL, 0},
+    {'}', TOK_RBRACE, NULL, 0},
     {';', TOK_SEMICOLON, NULL, 0},
+    // possibly drop this
+    {'`', TOK_TICK, NULL, 0},
 };
 
 typedef struct string_token {
@@ -150,7 +153,7 @@ static const string_token_t keyword_kind_table[] = {
     {"struct", TOK_KW_STRUCT}, {"super", TOK_KW_SUPER},
     {"trait", TOK_KW_TRAIT},   {"true", TOK_KW_TRUE},
     {"type", TOK_KW_TYPE},     {"use", TOK_KW_USE},
-    {"while", TOK_KW_WHILE},
+    {"var", TOK_KW_VAR},       {"while", TOK_KW_WHILE},
 };
 
 typedef struct lookup_result {
@@ -160,6 +163,6 @@ typedef struct lookup_result {
 
 lookup_result_t lookup_operator(char* chars);
 
-lookup_result_t lookup_keyword(char* chars);
+// lookup_result_t lookup_keyword(char* chars);
 
 #endif

@@ -14,7 +14,7 @@ module kez {
 fn main() -> u8 {
     let mut x = 1;
     let j = "this";
-    let mut z: u32 = 4;
+    var z: u32 = 4;
     let u = &x;
     x && z;
     x += 1;
@@ -25,3 +25,5 @@ fn main() -> u8 {
     return;
     return x.new();
 }
+
+// test

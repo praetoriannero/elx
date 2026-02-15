@@ -1,5 +1,6 @@
 #include "token_kind.h"
 
+
 char* token_kind_str(token_kind_t kind) {
     switch (kind) {
     case TOK_FLOAT:
@@ -140,6 +141,8 @@ char* token_kind_str(token_kind_t kind) {
         return "TOK_KW_IMPL";
     case TOK_KW_IN:
         return "TOK_KW_IN";
+    case TOK_KW_VAR:
+        return "TOK_KW_VAR";
     case TOK_KW_LET:
         return "TOK_KW_LET";
     case TOK_KW_MATCH:

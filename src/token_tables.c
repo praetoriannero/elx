@@ -41,4 +41,4 @@ lookup_result_t lookup_operator(char* chars) {
     return result;
 }
 
-lookup_result_t lookup_keyword(char* chars);
+// lookup_result_t lookup_keyword(char* chars);

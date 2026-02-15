@@ -1,6 +1,9 @@
-this is a 4 test;
-42
+// this is a test
+// test
 
 
-another line
+////
 
+module kez {
+    // another
+}
