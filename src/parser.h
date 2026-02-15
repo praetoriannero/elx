@@ -208,21 +208,29 @@ typedef struct ast {
     uint32_t module_count;
 } ast_t;
 
-typedef struct {
+typedef struct parser {
     lexer_t lexer;
-} parser_t;
+    ast_t (*parse)(struct parser* self);
+    elx_struct_t (*visit_struct)(struct parser* self);
+    elx_module_t (*visit_module)(struct parser* self);
+    elx_func_t (*visit_func)(struct parser* self);
+    elx_global_t (*visit_global)(struct parser* self);
+    elx_enum_t (*visit_enum)(struct parser* self);
+    elx_import_t (*visit_import)(struct parser* self);
+} elx_parser_t;
 
-ast_t parse(token_t* tokens, uint32_t token_count);
+ast_t parser_parse(elx_parser_t* self);
 
-elx_struct_t parser_visit_struct(ast_t* self);
+elx_struct_t parser_visit_struct(elx_parser_t* self);
 
-elx_module_t parser_visit_module(ast_t* self);
+elx_module_t parser_visit_module(elx_parser_t* self);
 
-elx_func_t parser_visit_func(ast_t* self);
+elx_func_t parser_visit_func(elx_parser_t* self);
 
-elx_global_t parser_visit_global(ast_t* self);
+elx_global_t parser_visit_global(elx_parser_t* self);
 
-elx_enum_t parser_visit_enum(ast_t* self);
+elx_enum_t parser_visit_enum(elx_parser_t* self);
 
-elx_import_t parser_visit_import(ast_t* self);
+elx_import_t parser_visit_import(elx_parser_t* self);
 
+elx_parser_t parser(lexer_t lexer);

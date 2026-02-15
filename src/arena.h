@@ -3,16 +3,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-
 typedef struct {
-    size_t* head;
-    size_t* next;
+    uintptr_t* head;
+    uintptr_t* next;
 } block_t;
 
 typedef struct {
     block_t* block_head;
+    uintptr_t block_end;
     uint64_t block_size;
-    size_t ptr;
+    uintptr_t ptr;
 } arena_t;
 
 void arena_reset(arena_t* self);

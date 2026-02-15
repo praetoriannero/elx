@@ -13,8 +13,8 @@
 #include "xalloc.h"
 
 void lexer_error(lexer_t* self, char* msg) {
-    panic("lexing error: %s at location %d:%d in file FILE\n", msg, self->meta.line,
-          self->meta.col);
+    panic("lexing error: %s at location %d:%d in file FILE\n", msg,
+          self->meta.line, self->meta.col);
 }
 
 void lexer_init(lexer_t* self, char* data) {
