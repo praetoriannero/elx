@@ -7,14 +7,18 @@
 #include "str.h"
 #include "token.h"
 
-typedef struct lexer {
-    char* data;
-    string_t* token_string;
+typedef struct {
     size_t loc;
     size_t length;
     size_t line;
     size_t col;
     size_t last_col;
+} lexer_meta_t;
+
+typedef struct lexer {
+    char* data;
+    string_t* token_string;
+    lexer_meta_t meta;
 } lexer_t;
 
 int64_t lexer_meta_str(lexer_t* stream, char* meta_str);

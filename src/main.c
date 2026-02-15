@@ -4,10 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "lexer.h"
+#include "parser.h"
 #include "panic.h"
 #include "str.h"
 #include "token.h"
-#include "lexer.h"
 #include "xalloc.h"
 
 int32_t OK = 0;
@@ -46,6 +47,10 @@ int32_t main(int argc, char** argv) {
     char* file_name;
     char* content;
     int64_t file_size;
+
+    elx_struct_t temp;
+    printf("%lu\n", sizeof(temp));
+    exit(0);
 
     if (argc >= 2) {
         file_name = argv[1];

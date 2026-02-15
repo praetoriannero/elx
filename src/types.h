@@ -5,7 +5,6 @@
 
 #include "token.h"
 
-
 typedef struct elx_path {
     char** paths;
     uint32_t path_count;
@@ -184,5 +183,3 @@ typedef struct {
 typedef struct {
     elx_ident_t ident;
 } elx_module_t;
-
-

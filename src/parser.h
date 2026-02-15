@@ -3,8 +3,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "lexer.h"
 #include "token.h"
-
 
 typedef struct elx_path {
     char** paths;
@@ -130,7 +130,7 @@ typedef struct {
     elx_ident_t ident;
     struct elx_symbol* symbols;
     uint32_t symbol_count;
-} elx_module_stmt;
+} elx_module_t;
 
 typedef enum {
     ELX_ASSIGN_STMT,
@@ -161,33 +161,68 @@ typedef struct {
     elx_func_arg_t* args;
     uint32_t arg_count;
     elx_body_t body;
+    elx_ident_t ret_type;
 } elx_func_t;
+
+typedef struct {
+    char* name;
+    elx_ident_t type;
+    elx_expr_t expr;
+} elx_global_t;
+
+typedef struct {
+    char* name;
+    elx_ident_t* types;
+    uint32_t type_count;
+} elx_enum_t;
+
+typedef struct {
+    elx_ident_t path;
+} elx_import_t;
 
 typedef enum {
     ELX_STRUCT_KIND,
-    ELX_GLOBAL_KIND,
-    ELX_ENUM_KIND,
     ELX_MODULE_KIND,
     ELX_FUNC_KIND,
+    ELX_GLOBAL_KIND,
+    ELX_ENUM_KIND,
     ELX_IMPORT_KIND,
 } elx_symbol_kind_t;
 
 typedef union {
     elx_struct_t struct_kind;
+    elx_module_t module_kind;
+    elx_func_t func_kind;
+    elx_global_t global_kind;
+    elx_enum_t enum_kind;
+    elx_import_t import_kind;
 } elx_symbol_variant_t;
 
-typedef struct {
+typedef struct elx_symbol {
     elx_symbol_kind_t kind;
     elx_symbol_variant_t variant;
 } elx_symbol_t;
 
-typedef struct {
-    elx_ident_t ident;
-} elx_module_t;
-
-
-
 typedef struct ast {
-    token_t* tokens;
+    elx_module_t* modules;
+    uint32_t module_count;
 } ast_t;
+
+typedef struct {
+    lexer_t lexer;
+} parser_t;
+
+ast_t parse(token_t* tokens, uint32_t token_count);
+
+elx_struct_t parser_visit_struct(ast_t* self);
+
+elx_module_t parser_visit_module(ast_t* self);
+
+elx_func_t parser_visit_func(ast_t* self);
+
+elx_global_t parser_visit_global(ast_t* self);
+
+elx_enum_t parser_visit_enum(ast_t* self);
+
+elx_import_t parser_visit_import(ast_t* self);
 

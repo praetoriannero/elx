@@ -1,6 +1,5 @@
 #include "token_kind.h"
 
-
 char* token_kind_str(token_kind_t kind) {
     switch (kind) {
     case TOK_FLOAT:

@@ -4,28 +4,28 @@
 #include <string.h>
 
 #include "array.h"
+#include "lexer.h"
 #include "str.h"
 #include "token.h"
 #include "token_kind.h"
-#include "lexer.h"
 #include "token_tables.h"
 #include "token_utils.h"
 #include "xalloc.h"
 
 void lexer_error(lexer_t* self, char* msg) {
-    panic("parsing error: %s at location %d:%d in file FILE\n", msg, self->line,
-          self->col);
+    panic("lexing error: %s at location %d:%d in file FILE\n", msg, self->meta.line,
+          self->meta.col);
 }
 
 void lexer_init(lexer_t* self, char* data) {
     xnotnull(self);
 
     self->data = data;
-    self->loc = 0;
-    self->col = 0;
-    self->last_col = 0;
-    self->length = strlen(data);
-    self->line = 0;
+    self->meta.loc = 0;
+    self->meta.col = 0;
+    self->meta.last_col = 0;
+    self->meta.length = strlen(data);
+    self->meta.line = 0;
 
     string_t* string = xmalloc(sizeof(string_t));
     string_init(string);
@@ -182,49 +182,52 @@ fn_next_exit:
     }
     token->str = string_copy(token_str);
     string_deinit(token_str);
+
+    if (token->kind == TOK_INVALID) {
+        lexer_error(self, "invalid token");
+    }
     return token;
 }
 
 int64_t lexer_meta_str(lexer_t* self, char* meta_str) {
-    return sprintf(
-        meta_str,
-        "lexer_t{token=%s, loc=%zu, length=%zu, line=%zu, col=%zu}",
-        self->token_string->data, self->loc, self->length, self->line + 1,
-        self->col + 1);
+    return sprintf(meta_str,
+                   "lexer_t{token=%s, loc=%zu, length=%zu, line=%zu, col=%zu}",
+                   self->token_string->data, self->meta.loc, self->meta.length,
+                   self->meta.line + 1, self->meta.col + 1);
 }
 
 void lexer_reset(lexer_t* self) {
     string_clear(self->token_string);
-    self->loc = 0;
-    self->line = 0;
-    self->col = 0;
-    self->last_col = 0;
+    self->meta.loc = 0;
+    self->meta.line = 0;
+    self->meta.col = 0;
+    self->meta.last_col = 0;
 }
 
-char lexer_peek(lexer_t* self) { return self->data[self->loc]; }
+char lexer_peek(lexer_t* self) { return self->data[self->meta.loc]; }
 
 char lexer_peek_next(lexer_t* self) {
-    if (self->loc == self->length - 1) {
+    if (self->meta.loc == self->meta.length - 1) {
         return -1;
     }
 
-    return self->data[self->loc + 1];
+    return self->data[self->meta.loc + 1];
 }
 
 char lexer_consume(lexer_t* self) {
-    if (self->loc == self->length - 1) {
+    if (self->meta.loc == self->meta.length - 1) {
         return -1;
     }
 
-    char c = self->data[self->loc++];
+    char c = self->data[self->meta.loc++];
 
-    self->last_col = self->col;
+    self->meta.last_col = self->meta.col;
 
     if (c == '\n') {
-        self->line++;
-        self->col = 0;
+        self->meta.line++;
+        self->meta.col = 0;
     } else {
-        self->col++;
+        self->meta.col++;
     }
 
     return c;

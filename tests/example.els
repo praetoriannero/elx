@@ -8,6 +8,7 @@ module kez {
     const w: Derp = Derp { y: 31, };
 }
 
+$
 // this is a comment
 // foo()()[1].(m) <<==
 
