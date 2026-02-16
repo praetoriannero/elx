@@ -1,5 +1,4 @@
-#ifndef ELX_PANIC_H
-#define ELX_PANIC_H
+#pragma once
 
 #include <stdarg.h>
 
@@ -7,5 +6,3 @@
 
 void panic_impl(const char* file, int line, const char* func, const char* fmt,
                 ...);
-
-#endif

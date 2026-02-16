@@ -2,10 +2,10 @@ module kez {
     struct Derp {
         y: u16,
     }
-    const t: u32 = 42;
-    static u: str = "test";
-    static mut v: f64 = 10.0;
-    const w: Derp = Derp { y: 31, };
+    let t: u32 = 42;
+    static var u: str = "test";
+    static v: f64 = 10.0;
+    let w: Derp = Derp { y: 31 };
 }
 
 $
@@ -13,7 +13,7 @@ $
 // foo()()[1].(m) <<==
 
 fn main() -> u8 {
-    let mut x = 1;
+    let x = 1;
     let j = "this";
     var z: u32 = 4;
     let u = &x;
