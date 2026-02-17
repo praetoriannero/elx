@@ -8,7 +8,6 @@
 #include "panic.h"
 #include "parser.h"
 #include "str.h"
-#include "token.h"
 #include "xalloc.h"
 
 int32_t OK = 0;
@@ -67,29 +66,21 @@ int32_t main(int argc, char** argv) {
     }
     printf("%d\n", (int)file_size);
 
-    content = malloc((uint64_t)file_size + 1);
+    content = xmalloc((uint64_t)file_size + 1);
     size_t bytes_read = fread(content, 1, (uint64_t)file_size, file_handle);
     content[bytes_read] = '\0';
 
     printf("CONTENT START\n%s\nCONTENT END\n", content);
 
-    lexer_t* lexer = xmalloc(sizeof(lexer_t));
+    lexer_t* lexer = new (lexer_t);
     lexer_init(lexer, content);
 
-    token_kind_t kind = TOK_INVALID;
-    while (kind != TOK_EOF) {
-        token_t* token = lexer_next(lexer);
-        kind = token->kind;
-        if (kind == TOK_COMMENT) {
-            continue;
-        }
-        printf("%s\n", token_string(token));
-        token_deinit(token);
-    }
+    parser_t* parser = parser_new(*lexer);
+    parser->parse(parser);
 
     // clean up
     fclose(file_handle);
     lexer_deinit(lexer);
-    free(content);
+    xfree(content);
     return OK;
 }

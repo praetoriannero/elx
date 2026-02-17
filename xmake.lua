@@ -4,7 +4,7 @@ set_version("0.1.0")
 -- add_requires("libunwind")
 -- add_requires("libbacktrace")
 add_rules("mode.debug", "mode.release")
--- set_defaultmode("debug")
+set_defaultmode("debug")
 -- set_toolchains("clang")
 
 target("elx")
@@ -28,11 +28,12 @@ add_cflags(
 	"-Wdouble-promotion",
 	"-Wundef",
 	"-rdynamic",
+	-- "-fsanitize=address",
 	"-g",
 	-- "-no-pie",
 	"-fno-omit-frame-pointer"
 )
 
 if is_mode("debug") then
-	add_ldflags("-rdynamic", "-no-pie")
+	add_ldflags("-rdynamic", "-no-pie") --, "-fsanitize=address")
 end

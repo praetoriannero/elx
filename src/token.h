@@ -9,7 +9,7 @@
 
 typedef struct token {
     token_kind_t kind;
-    string_t* str;
+    string_t str;
     size_t length;
     size_t line;
     size_t column;
@@ -24,6 +24,10 @@ typedef struct {
     token_t* tokens;
     uint32_t token_count;
 } token_array_t;
+
+token_t* token_new(void);
+
+void token_free(token_t* self);
 
 void token_init(token_t* self);
 

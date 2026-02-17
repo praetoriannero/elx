@@ -8,12 +8,13 @@ module kez {
     let w: Derp = Derp { y: 31 };
 }
 
-$
+
 // this is a comment
 // foo()()[1].(m) <<==
 
 fn main() -> u8 {
     let x = 1;
+    let d: kez::Derp = Derp { y: 0 };
     let j = "this";
     var z: u32 = 4;
     let u = &x;

@@ -22,4 +22,6 @@ typedef void (*free_inner)(void* inner);
 
 void vector_free(vector_t* self, free_inner inner_cb);
 
+void vector_deinit(vector_t* self, free_inner inner_cb);
+
 #endif

@@ -1,5 +1,4 @@
-#ifndef ELX_ALLOC_H
-#define ELX_ALLOC_H
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,8 +15,8 @@ void not_null_impl(void* ptr, const char* file, int line);
 
 #define xrealloc(ptr, size) realloc_impl((ptr), (size), __FILE__, __LINE__)
 
-#define xfree(ptr) free_impl((ptr))
+#define xfree(ptr) free_impl((void**)&(ptr))
 
 #define xnotnull(ptr) not_null_impl((ptr), __FILE__, __LINE__)
 
-#endif
+#define new (type) xmalloc(sizeof(type))

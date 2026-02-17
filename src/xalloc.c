@@ -24,8 +24,8 @@ void* realloc_impl(void* ptr, size_t size, const char* file, int line) {
 
 void free_impl(void** ptr) {
     if (ptr && *ptr) {
-        free(ptr);
-        ptr = NULL;
+        free(*ptr);
+        *ptr = NULL;
     }
 }
 

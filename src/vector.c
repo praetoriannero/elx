@@ -18,12 +18,14 @@ void vector_init(vector_t* self, size_t datum_size, size_t initial_capacity) {
 }
 
 vector_t* vector_new(size_t datum_size, size_t initial_capacity) {
-    vector_t* vec = xmalloc(sizeof(vector_t));
+    vector_t* vec = new (vector_t);
     vector_init(vec, datum_size, initial_capacity);
     return vec;
 }
 
 void vector_push(vector_t* self, const void* datum) {
+    xnotnull(self);
+
     size_t new_len = self->size + 1;
     if (new_len == self->capacity) {
         size_t new_capacity =
@@ -60,6 +62,10 @@ void vector_clear(vector_t* self, free_inner inner_cb) {
 
     self->size = 0;
     self->capacity = 0;
+}
+
+void vector_deinit(vector_t* self, free_inner inner_cb) {
+    vector_clear(self, inner_cb);
 }
 
 void vector_free(vector_t* self, free_inner inner_cb) {

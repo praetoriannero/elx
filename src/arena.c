@@ -5,31 +5,13 @@
 #include "todo.h"
 #include "xalloc.h"
 
-
-void arena_reset(arena_t* self) {
-    todo();
-}
-
-void arena_free(arena_t* self) {
-    todo();
-}
-
-void* arena_alloc(arena_t* self, size_t size) {
-    if ((self->ptr + size) > self->block_end) {
-        panic("arena exhausted block size; failed to allocate %zu bytes", size);
-    }
-
-    void* ret_ptr = (void*)self->ptr;
-    self->ptr += size;
-
-    return ret_ptr;
-}
-
 arena_t* arena_new(size_t block_size) {
     arena_t* arena = xmalloc(sizeof(arena_t));
     arena_init(arena, block_size);
     return arena;
 }
+
+void arena_free(arena_t* self) { todo(); }
 
 void arena_init(arena_t* self, size_t block_size) {
     void* mem_base = xmalloc(block_size);
@@ -44,4 +26,17 @@ void arena_init(arena_t* self, size_t block_size) {
 void arena_deinit(arena_t* self) {
     xfree(self->block_head);
     xfree(self);
+}
+
+void arena_reset(arena_t* self) { todo(); }
+
+void* arena_alloc(arena_t* self, size_t size) {
+    if ((self->ptr + size) > self->block_end) {
+        panic("arena exhausted block size; failed to allocate %zu bytes", size);
+    }
+
+    void* ret_ptr = (void*)self->ptr;
+    self->ptr += size;
+
+    return ret_ptr;
 }

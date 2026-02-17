@@ -1,22 +1,183 @@
 #include "parser.h"
+#include "lexer.h"
+#include "logger.h"
+#include "panic.h"
+#include "str_utils.h"
+#include "todo.h"
+#include "token.h"
+#include "token_kind.h"
+#include "vector.h"
+#include "xalloc.h"
 
+token_t parser_expect(token_kind_t expected, token_t actual) {
+    if (expected != actual.kind) {
+        panic("expected token kind %s but found %s, \"%s\"",
+              token_kind_str(expected), token_kind_str(actual.kind),
+              actual.str.data);
+    }
 
-ast_t parser_parse(elx_parser_t* self) {}
+    return actual;
+}
 
-elx_struct_t parser_visit_struct(elx_parser_t* self) {}
+void parser_expect_and_free(token_kind_t expected, token_t actual) {
+    token_t token = parser_expect(expected, actual);
+    token_deinit(&token);
+}
 
-elx_module_t parser_visit_module(elx_parser_t* self) {}
+vector_t visit_module_inner(parser_t* self) {
+    token_t token = {0};
+    vector_t symbol_vec = {0};
+    vector_init(&symbol_vec, sizeof(symbol_t), 8);
 
-elx_func_t parser_visit_func(elx_parser_t* self) {}
+    while (true) {
+        token_deinit(&token);
+        token = lexer_next(&self->lexer);
+        switch (token.kind) {
+        case TOK_COMMENT:
+            continue;
+        case TOK_KW_STRUCT:
+            vector_push(&symbol_vec, self->visit_struct(self));
+            continue;
+        case TOK_KW_MODULE:
+            vector_push(&symbol_vec, self->visit_module(self));
+            continue;
+        case TOK_KW_LET:
+            vector_push(&symbol_vec, self->visit_global(self, false));
+            continue;
+        case TOK_KW_VAR:
+            vector_push(&symbol_vec, self->visit_global(self, true));
+            continue;
+        case TOK_KW_ENUM:
+            vector_push(&symbol_vec, self->visit_enum(self));
+            continue;
+        case TOK_KW_USE:
+            vector_push(&symbol_vec, self->visit_import(self));
+            continue;
+        case TOK_EOF:
+            break;
+        default:
+            panic("unexpected token encountered: %s\n", token_string(&token));
+        }
+    }
 
-elx_global_t parser_visit_global(elx_parser_t* self) {}
+    token_deinit(&token);
+    token = lexer_next(&self->lexer);
 
-elx_enum_t parser_visit_enum(elx_parser_t* self) {}
+    return symbol_vec;
+}
 
-elx_import_t parser_visit_import(elx_parser_t* self) {}
+ast_t parser_parse(parser_t* self) {
+    ast_t ast = {0};
+    visit_module_inner(self);
+    return ast;
+}
 
-elx_parser_t parser(lexer_t lexer) {
-    return (elx_parser_t){
+symbol_t* parser_visit_struct(parser_t* self) {
+    log("visiting struct\n");
+    symbol_t* symbol = new (symbol_t);
+    struct_t struct_ = {0};
+
+    token_t feed = parser_expect(TOK_IDENT, lexer_next(&self->lexer));
+    struct_.ident.name = strdup(feed.str.data);
+    token_deinit(&feed);
+
+    parser_expect_and_free(TOK_LBRACE, lexer_next(&self->lexer));
+
+    feed = lexer_next(&self->lexer);
+    log("%s\n", feed.str.data);
+
+    while (feed.kind != TOK_RBRACE) {
+        struct_field_t field = {0};
+        parser_expect(TOK_IDENT, feed);
+        field.name = strdup(feed.str.data);
+        token_deinit(&feed);
+
+        parser_expect_and_free(TOK_COLON, lexer_next(&self->lexer));
+
+        feed = parser_expect(TOK_IDENT, lexer_next(&self->lexer));
+        field.type.name = strdup(feed.str.data);
+        token_deinit(&feed);
+
+        feed = lexer_next(&self->lexer);
+
+        vector_push(&struct_.fields, &field);
+
+        if (feed.kind == TOK_COMMA) {
+            token_deinit(&feed);
+            feed = lexer_next(&self->lexer);
+        } else {
+            panic("expected either ',' or '}' but found %s", feed.str.data);
+        }
+    }
+
+    token_deinit(&feed);
+
+    symbol->kind = SYMBOL_STRUCT;
+    symbol->variant.struct_case = struct_;
+    return symbol;
+}
+
+symbol_t* parser_visit_module(parser_t* self) {
+    symbol_t* symbol = new (symbol_t);
+    module_t module = {0};
+
+    token_t module_name_token =
+        parser_expect(TOK_IDENT, lexer_next(&self->lexer));
+    module.ident.name = strdup(module_name_token.str.data);
+    token_deinit(&module_name_token);
+
+    parser_expect_and_free(TOK_LBRACE, lexer_next(&self->lexer));
+
+    module.symbol_vec = visit_module_inner(self);
+
+    parser_expect_and_free(TOK_RBRACE, lexer_next(&self->lexer));
+
+    symbol->kind = SYMBOL_MODULE;
+    symbol->variant.module_case = module;
+
+    return symbol;
+}
+
+symbol_t* parser_visit_func(parser_t* self) { todo(); }
+
+symbol_t* parser_visit_global(parser_t* self, bool mut) {
+    symbol_t* symbol = new (symbol_t);
+    global_t global = {0};
+
+    token_t feed = parser_expect(TOK_IDENT, lexer_next(&self->lexer));
+    global.name = strdup(feed.str.data);
+    token_deinit(&feed);
+
+    feed = lexer_next(&self->lexer);
+    if (feed.kind == TOK_COLON) {
+        token_deinit(&feed);
+        feed = parser_expect(TOK_IDENT, lexer_next(&self->lexer));
+        global.type.name = strdup(feed.str.data);
+    }
+
+    global.mut = mut;
+
+    symbol->kind = SYMBOL_GLOBAL;
+    symbol->variant.global_case = global;
+
+    return symbol;
+}
+
+symbol_t* parser_visit_enum(parser_t* self) {
+    symbol_t* symbol = new (symbol_t);
+    enum_t enm = {0};
+
+    token_t enum_name = parser_expect(TOK_IDENT, lexer_next(&self->lexer));
+    enm.name = strdup(enum_name.str.data);
+
+    todo();
+}
+
+symbol_t* parser_visit_import(parser_t* self) { todo(); }
+
+parser_t* parser_new(lexer_t lexer) {
+    parser_t* result = xmalloc(sizeof(parser_t));
+    *result = (parser_t){
         .lexer = lexer,
         .parse = &parser_parse,
         .visit_struct = &parser_visit_struct,
@@ -26,4 +187,10 @@ elx_parser_t parser(lexer_t lexer) {
         .visit_enum = &parser_visit_enum,
         .visit_import = &parser_visit_import,
     };
+
+    return result;
 }
+
+void parser_init(parser_t* self, lexer_t lexer);
+
+void parser_deinit(parser_t* self, lexer_t lexer) { todo(); }

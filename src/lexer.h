@@ -1,5 +1,4 @@
-#ifndef ELX_LEXER_H
-#define ELX_LEXER_H
+#pragma once
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -25,7 +24,7 @@ int64_t lexer_meta_str(lexer_t* stream, char* meta_str);
 
 void lexer_init(lexer_t* self, char* data);
 
-token_t* lexer_next(lexer_t* stream);
+token_t lexer_next(lexer_t* stream);
 
 char lexer_peek(lexer_t* stream);
 
@@ -34,5 +33,3 @@ char lexer_peek_next(lexer_t* self);
 char lexer_consume(lexer_t* stream);
 
 void lexer_deinit(lexer_t* stream);
-
-#endif

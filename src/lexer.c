@@ -5,6 +5,7 @@
 
 #include "array.h"
 #include "lexer.h"
+#include "logger.h"
 #include "str.h"
 #include "token.h"
 #include "token_kind.h"
@@ -56,27 +57,27 @@ static void lexer_skip_comment(lexer_t* self) {
     }
 }
 
-token_t* lexer_next(lexer_t* self) {
+token_t lexer_next(lexer_t* self) {
     char c;
 
-    token_t* token = xmalloc(sizeof(token_t));
-    token_init(token);
+    token_t token;
+    token_init(&token);
 
-    string_t* token_str = xmalloc(sizeof(string_t));
-    string_init(token_str);
+    string_t token_str;
+    string_init(&token_str);
 
     lexer_skip_whitespace(self);
     c = lexer_consume(self);
 
     if (c == -1) {
-        token->kind = TOK_EOF;
+        token.kind = TOK_EOF;
         return token;
     }
 
-    token->kind = single_char_token[(uint8_t)c];
+    token.kind = single_char_token[(uint8_t)c];
 
     // operator
-    if (token->kind != TOK_INVALID) {
+    if (token.kind != TOK_INVALID) {
         string_t op_string;
         string_init(&op_string);
         string_push_char(&op_string, c);
@@ -104,7 +105,7 @@ token_t* lexer_next(lexer_t* self) {
                 if (op_node.text == c_next) {
                     string_push_char(&op_string, lexer_consume(self));
                     op_iter = op_node.children;
-                    token->kind = op_node.kind;
+                    token.kind = op_node.kind;
                     found = true;
                     break;
                 }
@@ -127,7 +128,7 @@ token_t* lexer_next(lexer_t* self) {
     // identifier
     if (is_valid_ident_start(c)) {
         while (is_ident_char(c)) {
-            string_push_char(token_str, c);
+            string_push_char(&token_str, c);
             if (!is_ident_char(lexer_peek(self))) {
                 break;
             }
@@ -137,12 +138,12 @@ token_t* lexer_next(lexer_t* self) {
         size_t length = array_len(keyword_kind_table);
         for (uint8_t i = 0; i < length; i++) {
             string_token_t st = keyword_kind_table[i];
-            if (strcmp(st.text, token_str->data) == 0) {
-                token->kind = st.kind;
+            if (strcmp(st.text, token_str.data) == 0) {
+                token.kind = st.kind;
                 goto fn_next_exit;
             }
         }
-        token->kind = TOK_IDENT;
+        token.kind = TOK_IDENT;
         goto fn_next_exit;
     }
 
@@ -158,7 +159,7 @@ token_t* lexer_next(lexer_t* self) {
                 lexer_error(self, "invalid integer format");
             }
 
-            string_push_char(token_str, c);
+            string_push_char(&token_str, c);
             char c_next = lexer_peek(self);
             if ((c_next != '.') && (!isdigit(c_next))) {
                 break;
@@ -168,24 +169,25 @@ token_t* lexer_next(lexer_t* self) {
         }
 
         if (decimal_count) {
-            token->kind = TOK_FLOAT;
+            token.kind = TOK_FLOAT;
         } else {
-            token->kind = TOK_INTEGER;
+            token.kind = TOK_INTEGER;
         }
 
         goto fn_next_exit;
     }
 
 fn_next_exit:
-    if (token->kind == TOK_COMMENT) {
+    if (token.kind == TOK_COMMENT) {
         lexer_skip_comment(self);
     }
-    token->str = string_copy(token_str);
-    string_deinit(token_str);
+    token.str = string_copy(&token_str);
+    string_deinit(&token_str);
 
-    if (token->kind == TOK_INVALID) {
+    if (token.kind == TOK_INVALID) {
         lexer_error(self, "invalid token");
     }
+    log("found %s\n", token_string(&token));
     return token;
 }
 
@@ -234,6 +236,7 @@ char lexer_consume(lexer_t* self) {
 }
 
 void lexer_deinit(lexer_t* self) {
+    // TODO: does the lexer need a token_string??
     string_deinit(self->token_string);
     xfree(self);
 }

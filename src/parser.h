@@ -4,233 +4,231 @@
 #include <stdint.h>
 
 #include "lexer.h"
-#include "token.h"
-
-typedef struct elx_path {
-    char** paths;
-    uint32_t path_count;
-} elx_path_t;
-
-typedef struct elx_ident {
-    char* name;
-    elx_path_t path;
-} elx_ident_t;
-
-typedef struct elx_struct_field {
-    char* name;
-    elx_ident_t type;
-} elx_struct_field_t;
-
-typedef struct elx_struct {
-    elx_ident_t ident;
-    elx_struct_field_t* fields;
-    uint32_t field_count;
-} elx_struct_t;
-
-typedef struct elx_func_arg {
-    char* name;
-    elx_ident_t type;
-} elx_func_arg_t;
-
-typedef struct elx_expr {
-    token_t* tokens;
-    uint32_t token_count;
-} elx_expr_t;
-
-typedef struct elx_expr_stmt {
-    elx_expr_t expr;
-} elx_expr_stmt_t;
-
-typedef enum elx_assign_op_kind {
-    ELX_PLUS_EQUAL,
-    ELX_MINUS_EQUAL,
-    ELX_TIMES_EQUAL,
-    ELX_DIVIDE_EQUAL,
-    ELX_MOD_EQUAL,
-    ELX_SHL_EQUAL,
-    ELX_SHR_EQUAL,
-    ELX_AND_EQUAL,
-    ELX_OR_EQUAL,
-    ELX_XOR_EQUAL,
-    ELX_EQUAL,
-} elx_assign_op_kind_t;
-
-typedef struct elx_assign_stmt {
-    char* name;
-    elx_assign_op_kind_t assign_op;
-    elx_expr_t expr;
-} elx_assign_stmt_t;
-
-// typedef struct elx_variable {
-//     elx_ident_t ident;
-//     bool mut;
-//     elx_ident_t type;
-// } elx_variable_t;
-
-struct elx_stmt;
-
-typedef struct {
-    struct elx_stmt* stmts;
-    uint32_t stmt_count;
-} elx_body_t;
+#include "vector.h"
 
 typedef struct {
     char* name;
-    elx_expr_t expr;
-} elx_let_stmt_t;
+    vector_t path;
+} ident_t;
 
 typedef struct {
     char* name;
-    elx_expr_t expr;
-} elx_var_stmt_t;
+    ident_t type;
+} struct_field_t;
 
 typedef struct {
-    elx_expr_t expr;
-} elx_return_stmt_t;
+    ident_t ident;
+    vector_t fields;
+} struct_t;
+
+typedef struct {
+    char* name;
+    ident_t type;
+} func_arg_t;
+
+typedef struct {
+    vector_t tokens;
+} expr_t;
+
+typedef struct {
+    expr_t expr;
+} expr_stmt_t;
+
+typedef enum {
+    PLUS_EQUAL,
+    MINUS_EQUAL,
+    TIMES_EQUAL,
+    DIVIDE_EQUAL,
+    MOD_EQUAL,
+    SHL_EQUAL,
+    SHR_EQUAL,
+    AND_EQUAL,
+    OR_EQUAL,
+    XOR_EQUAL,
+    EQUAL,
+} assign_op_kind_t;
+
+typedef struct {
+    char* name;
+    assign_op_kind_t assign_op;
+    expr_t expr;
+} assign_stmt_t;
+
+struct stmt;
+
+typedef struct {
+    vector_t stmts;
+} body_t;
+
+typedef struct {
+    char* name;
+    expr_t expr;
+} let_stmt_t;
+
+typedef struct {
+    char* name;
+    expr_t expr;
+} var_stmt_t;
+
+typedef struct {
+    expr_t expr;
+} return_stmt_t;
 
 typedef struct {
     char* iterator;
-    elx_expr_t iterable;
-    elx_body_t body;
-} elx_for_stmt_t;
+    expr_t iterable;
+    body_t body;
+} for_stmt_t;
 
 typedef struct {
-    elx_expr_t condition;
-    elx_body_t body;
-} elx_while_stmt_t;
+    expr_t condition;
+    body_t body;
+} while_stmt_t;
 
 typedef struct {
-    elx_body_t body;
-} elx_else_clause_t;
+    body_t body;
+} else_clause_t;
 
 typedef struct {
-    elx_expr_t condition;
-    elx_body_t body;
-} elx_elif_clause_t;
+    expr_t condition;
+    body_t body;
+} elif_clause_t;
 
 typedef struct {
-    elx_expr_t condition;
-    elx_body_t body;
-    elx_elif_clause_t* elif_clauses;
+    expr_t condition;
+    body_t body;
+    elif_clause_t* elif_clauses;
     uint32_t elif_clause_count;
-    elx_else_clause_t else_clause;
-} elx_if_stmt_t;
+    else_clause_t else_clause;
+} if_stmt_t;
 
 typedef struct {
-    elx_ident_t* ident;
-} elx_break_stmt_t;
+    ident_t* ident;
+} break_stmt_t;
 
 typedef struct {
-    elx_ident_t* ident;
-} elx_continue_stmt_t;
+    ident_t* ident;
+} continue_stmt_t;
 
-struct elx_symbol;
+struct symbol;
 
 typedef struct {
-    elx_ident_t ident;
-    struct elx_symbol* symbols;
-    uint32_t symbol_count;
-} elx_module_t;
+    ident_t ident;
+    vector_t symbol_vec;
+    // struct symbol* symbols;
+    // uint32_t symbol_count;
+} module_t;
 
 typedef enum {
-    ELX_ASSIGN_STMT,
-    ELX_LET_STMT,
-    ELX_VAR_STMT,
-    ELX_RETURN_STMT,
-    ELX_EXPR_STMT,
-    ELX_FOR_STMT,
-    ELX_WHILE_STMT,
-    ELX_IF_STMT,
-    ELX_BREAK_STMT,
-    ELX_CONTINUE_STMT,
-    ELX_MODULE_STMT,
-} elx_stmt_kind_t;
+    ASSIGN_STMT,
+    LET_STMT,
+    VAR_STMT,
+    RETURN_STMT,
+    EXPR_STMT,
+    FOR_STMT,
+    WHILE_STMT,
+    IF_STMT,
+    BREAK_STMT,
+    CONTINUE_STMT,
+    MODULE_STMT,
+} stmt_kind_t;
 
 typedef union {
-    elx_expr_stmt_t expr_stmt;
-    elx_assign_stmt_t assign_stmt;
-} elx_stmt_variant_t;
+    expr_stmt_t expr_stmt;
+    assign_stmt_t assign_stmt;
+} stmt_variant_t;
 
 typedef struct {
-    elx_stmt_kind_t kind;
-    elx_stmt_variant_t variant;
-} elx_stmt_t;
+    stmt_kind_t kind;
+    stmt_variant_t variant;
+} stmt_t;
 
 typedef struct {
-    elx_ident_t ident;
-    elx_func_arg_t* args;
+    ident_t ident;
+    func_arg_t* args;
     uint32_t arg_count;
-    elx_body_t body;
-    elx_ident_t ret_type;
-} elx_func_t;
+    body_t body;
+    ident_t ret_type;
+} func_t;
 
 typedef struct {
     char* name;
-    elx_ident_t type;
-    elx_expr_t expr;
-} elx_global_t;
+    bool mut;
+    ident_t type;
+    expr_t expr;
+} global_t;
 
 typedef struct {
     char* name;
-    elx_ident_t* types;
+    ident_t* types;
     uint32_t type_count;
-} elx_enum_t;
+} enum_t;
 
 typedef struct {
-    elx_ident_t path;
-} elx_import_t;
+    ident_t path;
+} import_t;
 
 typedef enum {
-    ELX_STRUCT_KIND,
-    ELX_MODULE_KIND,
-    ELX_FUNC_KIND,
-    ELX_GLOBAL_KIND,
-    ELX_ENUM_KIND,
-    ELX_IMPORT_KIND,
-} elx_symbol_kind_t;
+    SYMBOL_UNDEFINED,
+    SYMBOL_STRUCT,
+    SYMBOL_MODULE,
+    SYMBOL_FUNC,
+    SYMBOL_GLOBAL,
+    SYMBOL_ENUM,
+    SYMBOL_IMPORT,
+} symbol_kind_t;
 
 typedef union {
-    elx_struct_t struct_kind;
-    elx_module_t module_kind;
-    elx_func_t func_kind;
-    elx_global_t global_kind;
-    elx_enum_t enum_kind;
-    elx_import_t import_kind;
-} elx_symbol_variant_t;
+    struct_t struct_case;
+    module_t module_case;
+    func_t func_case;
+    global_t global_case;
+    enum_t enum_case;
+    import_t import_case;
+} symbol_union_t;
 
-typedef struct elx_symbol {
-    elx_symbol_kind_t kind;
-    elx_symbol_variant_t variant;
-} elx_symbol_t;
+typedef struct {
+    symbol_kind_t kind;
+    symbol_union_t variant;
+    vector_t path;
+} symbol_t;
 
-typedef struct ast {
-    elx_module_t* modules;
-    uint32_t module_count;
+typedef struct {
+    symbol_t* symbols;
+    uint32_t symbol_count;
 } ast_t;
 
 typedef struct parser {
     lexer_t lexer;
     ast_t (*parse)(struct parser* self);
-    elx_struct_t (*visit_struct)(struct parser* self);
-    elx_module_t (*visit_module)(struct parser* self);
-    elx_func_t (*visit_func)(struct parser* self);
-    elx_global_t (*visit_global)(struct parser* self);
-    elx_enum_t (*visit_enum)(struct parser* self);
-    elx_import_t (*visit_import)(struct parser* self);
-} elx_parser_t;
+    symbol_t* (*visit_struct)(struct parser* self);
+    symbol_t* (*visit_module)(struct parser* self);
+    symbol_t* (*visit_func)(struct parser* self);
+    symbol_t* (*visit_global)(struct parser* self, bool mut);
+    symbol_t* (*visit_enum)(struct parser* self);
+    symbol_t* (*visit_import)(struct parser* self);
+} parser_t;
 
-ast_t parser_parse(elx_parser_t* self);
+ast_t parser_parse(parser_t* self);
 
-elx_struct_t parser_visit_struct(elx_parser_t* self);
+// symbol_t* parser_visit_struct(parser_t* self);
+//
+// symbol_t* parser_visit_module(parser_t* self);
+//
+// symbol_t* parser_visit_func(parser_t* self);
+//
+// symbol_t* parser_visit_global(parser_t* self);
+//
+// symbol_t* parser_visit_enum(parser_t* self);
+//
+// symbol_t* parser_visit_import(parser_t* self);
+//
+parser_t* parser_new(lexer_t lexer);
+//
+// token_t parser_expect(token_kind_t expected, token_t actual);
 
-elx_module_t parser_visit_module(elx_parser_t* self);
+void parser_init(parser_t* self, lexer_t lexer);
 
-elx_func_t parser_visit_func(elx_parser_t* self);
+void parser_deinit(parser_t* self, lexer_t lexer);
 
-elx_global_t parser_visit_global(elx_parser_t* self);
-
-elx_enum_t parser_visit_enum(elx_parser_t* self);
-
-elx_import_t parser_visit_import(elx_parser_t* self);
-
-elx_parser_t parser(lexer_t lexer);
+void parser_free(parser_t* self);
