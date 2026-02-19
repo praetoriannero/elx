@@ -1,42 +1,48 @@
 #include <stdint.h>
 
 #include "arena.h"
-#include "panic.h"
-#include "todo.h"
 #include "xalloc.h"
 
-arena_t* arena_new(size_t block_size) {
+arena_t* arena_new(void) {
     arena_t* arena = xmalloc(sizeof(arena_t));
-    arena_init(arena, block_size);
+    arena_init(arena);
     return arena;
 }
 
-void arena_free(arena_t* self) { todo(); }
-
-void arena_init(arena_t* self, size_t block_size) {
-    void* mem_base = xmalloc(block_size);
-    *self = (arena_t){
-        .block_head = mem_base,
-        .block_end = (uintptr_t)mem_base + block_size,
-        .block_size = block_size,
-        .ptr = (uintptr_t)mem_base,
-    };
-}
-
-void arena_deinit(arena_t* self) {
-    xfree(self->block_head);
+void arena_free(arena_t* self) {
+    arena_deinit(self);
     xfree(self);
 }
 
-void arena_reset(arena_t* self) { todo(); }
+scope_t* arena_new_scope(arena_t* self) { return self->node_end; }
+
+void arena_free_scope(arena_t* self, scope_t* scope) {
+    while (self->node_end != scope) {
+        node_t* node = self->node_end;
+        self->node_end = node->parent;
+
+        xfree(node->inner);
+        xfree(node);
+    }
+}
+
+void arena_init(arena_t* self) {
+    *self = (arena_t){
+        .node_end = NULL,
+    };
+}
+
+void arena_deinit(arena_t* self) { arena_free_scope(self, NULL); }
 
 void* arena_alloc(arena_t* self, size_t size) {
-    if ((self->ptr + size) > self->block_end) {
-        panic("arena exhausted block size; failed to allocate %zu bytes", size);
-    }
+    node_t* node = xmalloc(sizeof(*node));
+    void* ptr = xmalloc(size);
+    *node = (node_t){
+        .inner = ptr,
+        .parent = self->node_end,
+    };
 
-    void* ret_ptr = (void*)self->ptr;
-    self->ptr += size;
+    self->node_end = node;
 
-    return ret_ptr;
+    return ptr;
 }

@@ -3,26 +3,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-typedef struct {
-    uintptr_t* head;
-    uintptr_t* next;
-} block_t;
+typedef struct node {
+    void* inner;
+    struct node* parent;
+} node_t;
+
+typedef node_t scope_t;
 
 typedef struct {
-    block_t* block_head;
-    uintptr_t block_end;
-    uint64_t block_size;
-    uintptr_t ptr;
+    node_t* node_end;
 } arena_t;
 
-void arena_reset(arena_t* self);
+arena_t* arena_new(void);
 
 void arena_free(arena_t* self);
 
+node_t* arena_new_scope(arena_t* self);
+
+void arena_free_scope(arena_t* self, node_t* scope);
+
 void* arena_alloc(arena_t* self, size_t size);
 
-arena_t* arena_new(uint64_t block_size);
-
-void arena_init(arena_t* self, uint64_t block_size);
-
 void arena_deinit(arena_t* self);
+
+void arena_init(arena_t* self);

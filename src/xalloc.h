@@ -11,6 +11,7 @@ void free_impl(void* ptr);
 
 void not_null_impl(void* ptr, const char* file, int line);
 
+// clang-format off
 #define xmalloc(size) malloc_impl((size), __FILE__, __LINE__)
 
 #define xrealloc(ptr, size) realloc_impl((ptr), (size), __FILE__, __LINE__)
@@ -19,4 +20,5 @@ void not_null_impl(void* ptr, const char* file, int line);
 
 #define xnotnull(ptr) not_null_impl((ptr), __FILE__, __LINE__)
 
-#define new (type) xmalloc(sizeof(type))
+#define new(type_) xmalloc(sizeof(type_))
+// clang-format on
