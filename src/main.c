@@ -5,13 +5,14 @@
 #include <stdlib.h>
 
 #include "lexer.h"
+#include "modprim.h"
 #include "panic.h"
 #include "parser.h"
 #include "str.h"
 #include "xalloc.h"
 
-int32_t OK = 0;
-int32_t ERR = 1;
+u8 OK = 0;
+u8 ERR = 1;
 
 typedef struct {
     string_t token_str;
@@ -25,12 +26,12 @@ typedef struct {
     Token* values;
 } TokenArray;
 
-int64_t get_file_size(FILE* handle) {
+i64 get_file_size(FILE* handle) {
     if (fseek(handle, 0, SEEK_END) != 0) {
         return 0;
     };
 
-    int64_t file_size = ftell(handle);
+    i64 file_size = ftell(handle);
     if (file_size < 0) {
         return 0;
     }
@@ -41,11 +42,11 @@ int64_t get_file_size(FILE* handle) {
 
 char* read_file_content(const char* file_path);
 
-int32_t main(int argc, char** argv) {
+i32 main(int argc, char** argv) {
     FILE* file_handle = NULL;
     char* file_name;
     char* content;
-    int64_t file_size;
+    i64 file_size;
 
     if (argc >= 2) {
         file_name = argv[1];
@@ -64,15 +65,15 @@ int32_t main(int argc, char** argv) {
     if (file_size < 0) {
         panic("failed to read file %s\n", file_name);
     }
-    printf("%d\n", (int)file_size);
+    printf("%d\n", (i32)file_size);
 
-    content = xmalloc((uint64_t)file_size + 1);
-    size_t bytes_read = fread(content, 1, (uint64_t)file_size, file_handle);
+    content = xmalloc((u64)file_size + 1);
+    size_t bytes_read = fread(content, 1, (u64)file_size, file_handle);
     content[bytes_read] = '\0';
 
     printf("CONTENT START\n%s\nCONTENT END\n", content);
 
-    lexer_t* lexer = new (lexer_t);
+    lexer_t* lexer = xnew(lexer_t);
     lexer_init(lexer, content);
 
     parser_t* parser = parser_new(*lexer);

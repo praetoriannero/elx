@@ -4,14 +4,16 @@
 #include "xalloc.h"
 
 token_t* token_new(void) {
-    token_t* token = new (token_t);
+    token_t* token = xnew(token_t);
     token->init(token);
     return token;
 }
 
 void token_free(token_t* self) {
-    if (!self)
+    if (!self) {
         return;
+    }
+
     token_deinit(self);
     xfree(self);
 }
@@ -52,7 +54,7 @@ void token_deinit(token_t* self) {
 token_t* token_copy(token_t* self) {
     xnotnull(self);
 
-    token_t* token = new (token_t);
+    token_t* token = xnew(token_t);
 
     *token = (token_t){
         .kind = self->kind,

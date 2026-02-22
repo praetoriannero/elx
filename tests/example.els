@@ -2,6 +2,7 @@ module kez {
     struct Derp {
         y: u16,
     }
+
     let t: u32 = 42;
     static var u: str = "test";
     static v: f64 = 10.0;

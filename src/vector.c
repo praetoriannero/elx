@@ -18,7 +18,7 @@ void vector_init(vector_t* self, size_t datum_size, size_t initial_capacity) {
 }
 
 vector_t* vector_new(size_t datum_size, size_t initial_capacity) {
-    vector_t* vec = new (vector_t);
+    vector_t* vec = xnew(vector_t);
     vector_init(vec, datum_size, initial_capacity);
     return vec;
 }

@@ -20,5 +20,5 @@ void not_null_impl(void* ptr, const char* file, int line);
 
 #define xnotnull(ptr) not_null_impl((ptr), __FILE__, __LINE__)
 
-#define new(type_) xmalloc(sizeof(type_))
+#define xnew(type_) xmalloc(sizeof(type_))
 // clang-format on

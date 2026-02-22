@@ -6,6 +6,7 @@
 #include "array.h"
 #include "lexer.h"
 #include "logger.h"
+#include "modprim.h"
 #include "str.h"
 #include "token.h"
 #include "token_kind.h"
@@ -74,7 +75,7 @@ token_t lexer_next(lexer_t* self) {
         return token;
     }
 
-    token.kind = single_char_token[(uint8_t)c];
+    token.kind = single_char_token[(u8)c];
 
     // operator
     if (token.kind != TOK_INVALID) {
@@ -87,7 +88,7 @@ token_t lexer_next(lexer_t* self) {
         op_node_t op_node;
 
         char c_next = lexer_peek(self);
-        token_kind_t kind_next = single_char_token[(uint8_t)c_next];
+        token_kind_t kind_next = single_char_token[(u8)c_next];
 
         for (size_t i = 0; i < table_size; i++) {
             op_node = op_iter[i];
@@ -116,7 +117,7 @@ token_t lexer_next(lexer_t* self) {
             }
 
             c_next = lexer_peek(self);
-            kind_next = single_char_token[(uint8_t)c_next];
+            kind_next = single_char_token[(u8)c_next];
         }
 
         token_str = string_copy(&op_string);
@@ -136,7 +137,7 @@ token_t lexer_next(lexer_t* self) {
         }
 
         size_t length = array_len(keyword_kind_table);
-        for (uint8_t i = 0; i < length; i++) {
+        for (u8 i = 0; i < length; i++) {
             string_token_t st = keyword_kind_table[i];
             if (strcmp(st.text, token_str.data) == 0) {
                 token.kind = st.kind;
@@ -149,7 +150,7 @@ token_t lexer_next(lexer_t* self) {
 
     // integer/float
     if (isdigit(c)) {
-        uint8_t decimal_count = 0;
+        u8 decimal_count = 0;
         while (isdigit(c) || c == '.') {
             if (c == '.') {
                 decimal_count++;
@@ -191,7 +192,7 @@ fn_next_exit:
     return token;
 }
 
-int64_t lexer_meta_str(lexer_t* self, char* meta_str) {
+i64 lexer_meta_str(lexer_t* self, char* meta_str) {
     return sprintf(meta_str,
                    "lexer_t{token=%s, loc=%zu, length=%zu, line=%zu, col=%zu}",
                    self->token_string->data, self->meta.loc, self->meta.length,

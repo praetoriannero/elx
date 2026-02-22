@@ -74,7 +74,7 @@ ast_t parser_parse(parser_t* self) {
 
 symbol_t* parser_visit_struct(parser_t* self) {
     log("visiting struct\n");
-    symbol_t* symbol = new (symbol_t);
+    symbol_t* symbol = xnew(symbol_t);
     struct_t struct_ = {0};
 
     token_t feed = parser_expect(TOK_IDENT, lexer_next(&self->lexer));
@@ -118,7 +118,7 @@ symbol_t* parser_visit_struct(parser_t* self) {
 }
 
 symbol_t* parser_visit_module(parser_t* self) {
-    symbol_t* symbol = new (symbol_t);
+    symbol_t* symbol = xnew(symbol_t);
     module_t module = {0};
 
     token_t module_name_token =
@@ -141,7 +141,7 @@ symbol_t* parser_visit_module(parser_t* self) {
 symbol_t* parser_visit_func(parser_t* self) { todo(); }
 
 symbol_t* parser_visit_global(parser_t* self, bool mut) {
-    symbol_t* symbol = new (symbol_t);
+    symbol_t* symbol = xnew(symbol_t);
     global_t global = {0};
 
     token_t feed = parser_expect(TOK_IDENT, lexer_next(&self->lexer));
@@ -164,7 +164,7 @@ symbol_t* parser_visit_global(parser_t* self, bool mut) {
 }
 
 symbol_t* parser_visit_enum(parser_t* self) {
-    symbol_t* symbol = new (symbol_t);
+    symbol_t* symbol = xnew(symbol_t);
     enum_t enm = {0};
 
     token_t enum_name = parser_expect(TOK_IDENT, lexer_next(&self->lexer));
@@ -191,6 +191,6 @@ parser_t* parser_new(lexer_t lexer) {
     return result;
 }
 
-void parser_init(parser_t* self, lexer_t lexer);
+void parser_init(parser_t* self, lexer_t lexer) { todo(); }
 
 void parser_deinit(parser_t* self, lexer_t lexer) { todo(); }
