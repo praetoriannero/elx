@@ -4,8 +4,8 @@ module kez {
     }
 
     let t: u32 = 42;
-    static var u: str = "test";
-    static v: f64 = 10.0;
+    let u: str = "test";
+    let v: f64 = 10.0;
     let w: Derp = Derp { y: 31 };
 }
 
@@ -17,16 +17,16 @@ fn main() -> u8 {
     let x = 1;
     let d: kez::Derp = Derp { y: 0 };
     let j = "this";
-    var z: u32 = 4;
+    let z: u32 = 4;
     let u = &x;
     x && z;
-    x += 1;
+    x += 1;  // panics
     let j = false;
     let y = 0 - -1 + (2 * 3) << (4 / 5);
     let y = x + 1;
     print(x);
     return;
-    return x.new();
+    return x.new();  // emits warning: unreachable code
 }
 
 // test

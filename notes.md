@@ -5,14 +5,13 @@
 ## Struct
 ex:
 ```
-struct Foo {
-a: u8,
-    b: &str,
-    c: std::String,
+struct Foo<T, U>(Bar<T, U>): Baz<T> {
+    a: T,
+    b: U,
 
-    fn __init__(&mut self, b: str) -> Self {
+    fn __init__(&mut self, a: T, b: U) -> Self {
+        self.a = a;
         self.b = b;
-        self.c = std::String(b);
     }
 }
 ```

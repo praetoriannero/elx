@@ -1,6 +1,7 @@
 #include <ctype.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "array.h"
@@ -29,9 +30,9 @@ void lexer_init(lexer_t* self, char* data) {
     self->meta.length = strlen(data);
     self->meta.line = 0;
 
-    string_t* string = xmalloc(sizeof(string_t));
-    string_init(string);
-    self->token_string = string;
+    // string_t* string = xmalloc(sizeof(string_t));
+    // string_init(string);
+    // self->token_string = string;
 }
 
 static const char* whitespace = " \t\n\r";
@@ -77,10 +78,11 @@ token_t lexer_next(lexer_t* self) {
 
     token.kind = single_char_token[(u8)c];
 
+    string_t op_string;
+    string_init(&op_string);
+
     // operator
     if (token.kind != TOK_INVALID) {
-        string_t op_string;
-        string_init(&op_string);
         string_push_char(&op_string, c);
 
         const op_node_t* op_iter = op_table;
@@ -120,8 +122,9 @@ token_t lexer_next(lexer_t* self) {
             kind_next = single_char_token[(u8)c_next];
         }
 
-        token_str = string_copy(&op_string);
-        string_clear(&op_string);
+        string_deinit(&token_str);
+        string_move(&op_string, &token_str);
+        string_deinit(&op_string);
 
         goto fn_next_exit;
     }
@@ -182,13 +185,20 @@ fn_next_exit:
     if (token.kind == TOK_COMMENT) {
         lexer_skip_comment(self);
     }
-    token.str = string_copy(&token_str);
-    string_deinit(&token_str);
+
+    string_deinit(&token.str);
+    string_move(&token_str, &token.str);
 
     if (token.kind == TOK_INVALID) {
         lexer_error(self, "invalid token");
     }
-    log("found %s\n", token_string(&token));
+
+    char* tok_str = token_string(&token);
+    log("found %s\n", tok_str);
+    xfree(tok_str);
+
+    string_deinit(&op_string);
+
     return token;
 }
 

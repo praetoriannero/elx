@@ -28,12 +28,12 @@ add_cflags(
 	"-Wdouble-promotion",
 	"-Wundef",
 	"-rdynamic",
-	-- "-fsanitize=address",
+	"-fsanitize=address",
 	"-g",
 	-- "-no-pie",
 	"-fno-omit-frame-pointer"
 )
 
 if is_mode("debug") then
-	add_ldflags("-rdynamic", "-no-pie") --, "-fsanitize=address")
+	add_ldflags("-rdynamic", "-no-pie", "-fsanitize=address")
 end

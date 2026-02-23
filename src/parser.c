@@ -8,6 +8,7 @@
 #include "token_kind.h"
 #include "vector.h"
 #include "xalloc.h"
+#include <stdio.h>
 
 token_t parser_expect(token_kind_t expected, token_t actual) {
     if (expected != actual.kind) {
@@ -27,7 +28,8 @@ void parser_expect_and_free(token_kind_t expected, token_t actual) {
 vector_t visit_module_inner(parser_t* self) {
     token_t token = {0};
     vector_t symbol_vec = {0};
-    vector_init(&symbol_vec, sizeof(symbol_t), 8);
+    char* tok_str;
+    // vector_init(&symbol_vec, sizeof(symbol_t), 8);
 
     while (true) {
         token_deinit(&token);
@@ -36,32 +38,35 @@ vector_t visit_module_inner(parser_t* self) {
         case TOK_COMMENT:
             continue;
         case TOK_KW_STRUCT:
-            vector_push(&symbol_vec, self->visit_struct(self));
+            self->visit_struct(self);
             continue;
         case TOK_KW_MODULE:
-            vector_push(&symbol_vec, self->visit_module(self));
+            self->visit_module(self);
             continue;
         case TOK_KW_LET:
-            vector_push(&symbol_vec, self->visit_global(self, false));
-            continue;
-        case TOK_KW_VAR:
-            vector_push(&symbol_vec, self->visit_global(self, true));
+            self->visit_global(self);
             continue;
         case TOK_KW_ENUM:
-            vector_push(&symbol_vec, self->visit_enum(self));
+            self->visit_enum(self);
             continue;
         case TOK_KW_USE:
-            vector_push(&symbol_vec, self->visit_import(self));
+            self->visit_import(self);
             continue;
         case TOK_EOF:
             break;
         default:
-            panic("unexpected token encountered: %s\n", token_string(&token));
+            tok_str = token_string(&token);
+            snprintf(PANIC_MSG_BUFF, PANIC_MSG_SIZE, "unexpected token encountered: %s\n", tok_str);
+            xfree(tok_str);
+            token_deinit(&token);
+            xfree(token.str.data);
+            panic(PANIC_MSG_BUFF);
+            // panic("unexpected token encountered: %s\n", token_string(&token));
         }
     }
 
     token_deinit(&token);
-    token = lexer_next(&self->lexer);
+    // token = lexer_next(&self->lexer);
 
     return symbol_vec;
 }
@@ -74,11 +79,11 @@ ast_t parser_parse(parser_t* self) {
 
 symbol_t* parser_visit_struct(parser_t* self) {
     log("visiting struct\n");
-    symbol_t* symbol = xnew(symbol_t);
+    symbol_t* symbol = NULL;  // xnew(symbol_t);
     struct_t struct_ = {0};
 
     token_t feed = parser_expect(TOK_IDENT, lexer_next(&self->lexer));
-    struct_.ident.name = strdup(feed.str.data);
+    // struct_.ident.name = strdup(feed.str.data);
     token_deinit(&feed);
 
     parser_expect_and_free(TOK_LBRACE, lexer_next(&self->lexer));
@@ -89,13 +94,13 @@ symbol_t* parser_visit_struct(parser_t* self) {
     while (feed.kind != TOK_RBRACE) {
         struct_field_t field = {0};
         parser_expect(TOK_IDENT, feed);
-        field.name = strdup(feed.str.data);
+        // field.name = strdup(feed.str.data);
         token_deinit(&feed);
 
         parser_expect_and_free(TOK_COLON, lexer_next(&self->lexer));
 
         feed = parser_expect(TOK_IDENT, lexer_next(&self->lexer));
-        field.type.name = strdup(feed.str.data);
+        // field.type.name = strdup(feed.str.data);
         token_deinit(&feed);
 
         feed = lexer_next(&self->lexer);
@@ -106,25 +111,25 @@ symbol_t* parser_visit_struct(parser_t* self) {
             token_deinit(&feed);
             feed = lexer_next(&self->lexer);
         } else {
+            token_deinit(&feed);
             panic("expected either ',' or '}' but found %s", feed.str.data);
         }
     }
 
     token_deinit(&feed);
 
-    symbol->kind = SYMBOL_STRUCT;
-    symbol->variant.struct_case = struct_;
+    // symbol->kind = SYMBOL_STRUCT;
+    // symbol->variant.struct_case = struct_;
     return symbol;
 }
 
 symbol_t* parser_visit_module(parser_t* self) {
-    symbol_t* symbol = xnew(symbol_t);
+    symbol_t* symbol = NULL; // xnew(symbol_t);
     module_t module = {0};
 
-    token_t module_name_token =
-        parser_expect(TOK_IDENT, lexer_next(&self->lexer));
-    module.ident.name = strdup(module_name_token.str.data);
-    token_deinit(&module_name_token);
+    token_t feed = parser_expect(TOK_IDENT, lexer_next(&self->lexer));
+    // module.ident.name = strdup(feed.str.data);
+    token_deinit(&feed);
 
     parser_expect_and_free(TOK_LBRACE, lexer_next(&self->lexer));
 
@@ -132,34 +137,35 @@ symbol_t* parser_visit_module(parser_t* self) {
 
     parser_expect_and_free(TOK_RBRACE, lexer_next(&self->lexer));
 
-    symbol->kind = SYMBOL_MODULE;
-    symbol->variant.module_case = module;
+    // symbol->kind = SYMBOL_MODULE;
+    // symbol->variant.module_case = module;
 
     return symbol;
 }
 
 symbol_t* parser_visit_func(parser_t* self) { todo(); }
 
-symbol_t* parser_visit_global(parser_t* self, bool mut) {
-    symbol_t* symbol = xnew(symbol_t);
+symbol_t* parser_visit_global(parser_t* self) {
+    symbol_t* symbol = NULL; // xnew(symbol_t);
     global_t global = {0};
 
     token_t feed = parser_expect(TOK_IDENT, lexer_next(&self->lexer));
-    global.name = strdup(feed.str.data);
+    // global.name = strdup(feed.str.data);
     token_deinit(&feed);
 
     feed = lexer_next(&self->lexer);
     if (feed.kind == TOK_COLON) {
         token_deinit(&feed);
         feed = parser_expect(TOK_IDENT, lexer_next(&self->lexer));
-        global.type.name = strdup(feed.str.data);
+        // global.type.name = strdup(feed.str.data);
     }
 
-    global.mut = mut;
+    // global.mut = mut;
 
-    symbol->kind = SYMBOL_GLOBAL;
-    symbol->variant.global_case = global;
+    // symbol->kind = SYMBOL_GLOBAL;
+    // symbol->variant.global_case = global;
 
+    token_deinit(&feed);
     return symbol;
 }
 

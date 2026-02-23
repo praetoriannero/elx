@@ -21,12 +21,9 @@ void token_free(token_t* self) {
 void token_init(token_t* self) {
     xnotnull(self);
 
-    string_t str;
-    string_init(&str);
 
     *self = (token_t){
         .kind = TOK_INVALID,
-        .str = str,
         .length = 0,
         .line = 0,
         .column = 0,
@@ -36,6 +33,8 @@ void token_init(token_t* self) {
         .copy = token_copy,
         .string = token_string,
     };
+
+    string_init(&self->str);
 }
 
 void token_deinit(token_t* self) {
@@ -70,9 +69,8 @@ token_t* token_copy(token_t* self) {
 char* token_string(token_t* self) {
     xnotnull(self);
 
-    char* str = NULL;
-    str = fmt("Token(str=\"%s\", kind=\"%s\")", self->str.data,
-              token_kind_str(self->kind));
+    char* str = fmt("Token(str=\"%s\", kind=\"%s\")", self->str.data,
+                    token_kind_str(self->kind));
 
     return str;
 }

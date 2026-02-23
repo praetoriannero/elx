@@ -204,28 +204,14 @@ typedef struct parser {
     symbol_t* (*visit_struct)(struct parser* self);
     symbol_t* (*visit_module)(struct parser* self);
     symbol_t* (*visit_func)(struct parser* self);
-    symbol_t* (*visit_global)(struct parser* self, bool mut);
+    symbol_t* (*visit_global)(struct parser* self);
     symbol_t* (*visit_enum)(struct parser* self);
     symbol_t* (*visit_import)(struct parser* self);
 } parser_t;
 
 ast_t parser_parse(parser_t* self);
 
-// symbol_t* parser_visit_struct(parser_t* self);
-//
-// symbol_t* parser_visit_module(parser_t* self);
-//
-// symbol_t* parser_visit_func(parser_t* self);
-//
-// symbol_t* parser_visit_global(parser_t* self);
-//
-// symbol_t* parser_visit_enum(parser_t* self);
-//
-// symbol_t* parser_visit_import(parser_t* self);
-//
 parser_t* parser_new(lexer_t lexer);
-//
-// token_t parser_expect(token_kind_t expected, token_t actual);
 
 void parser_init(parser_t* self, lexer_t lexer);
 
