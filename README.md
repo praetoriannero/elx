@@ -2,7 +2,7 @@
 # Compilation Stages
 
 ## Discovery
-During the discovery phase, elx.config is used to determine the location of all source files.
+During the discovery phase, `elx.config` is used to determine the location of all source files.
 
 ## Lexing
 Source code is lexed into individual tokens.
