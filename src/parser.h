@@ -18,7 +18,7 @@ typedef struct {
 
 typedef struct {
     ident_t ident;
-    vector_t fields;
+    vector_t field_vec;
 } struct_t;
 
 typedef struct {
@@ -114,9 +114,7 @@ struct symbol;
 
 typedef struct {
     ident_t ident;
-    vector_t symbol_vec;
-    // struct symbol* symbols;
-    // uint32_t symbol_count;
+    vector_t* symbol_vec;
 } module_t;
 
 typedef enum {
@@ -179,12 +177,12 @@ typedef enum {
 } symbol_kind_t;
 
 typedef union {
-    struct_t struct_case;
-    module_t module_case;
-    func_t func_case;
-    global_t global_case;
-    enum_t enum_case;
-    import_t import_case;
+    struct_t* struct_case;
+    module_t* module_case;
+    func_t* func_case;
+    global_t* global_case;
+    enum_t* enum_case;
+    import_t* import_case;
 } symbol_union_t;
 
 typedef struct {
@@ -194,8 +192,7 @@ typedef struct {
 } symbol_t;
 
 typedef struct {
-    symbol_t* symbols;
-    uint32_t symbol_count;
+    vector_t* module_vec;
 } ast_t;
 
 typedef struct parser {

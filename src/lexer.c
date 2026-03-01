@@ -57,7 +57,7 @@ static void lexer_skip_comment(lexer_t* self) {
 }
 
 token_t lexer_next(arena_t* arena, lexer_t* self) {
-    log("entering lexer_next\n");
+    // log("entering lexer_next\n");
     arena_t local_arena;
     arena_init(&local_arena);
 
@@ -177,22 +177,15 @@ fn_next_exit:
         lexer_skip_comment(self);
     }
 
-    // string_deinit(&token.str);
-    // string_move(&token.str, &token.str);
-
     if (token.kind == TOK_INVALID) {
         lexer_error(self, "invalid token");
     }
 
     char* tok_str = token_string(&local_arena, &token);
     log("found %s\n", tok_str);
-    // xfree(tok_str);
-
-    // string_deinit(&op_string);
 
     arena_deinit(&local_arena);
-    log("exiting lexer_next\n");
-    // arena_free(&local_arena);
+    // log("exiting lexer_next\n");
     return token;
 }
 
