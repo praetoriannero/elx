@@ -191,9 +191,10 @@ fn_next_exit:
 
 // i64 lexer_meta_str(lexer_t* self, char* meta_str) {
 //     return sprintf(meta_str,
-//                    "lexer_t{token=%s, loc=%zu, length=%zu, line=%zu, col=%zu}",
-//                    self->token_string->data, self->meta.loc, self->meta.length,
-//                    self->meta.line + 1, self->meta.col + 1);
+//                    "lexer_t{token=%s, loc=%zu, length=%zu, line=%zu,
+//                    col=%zu}", self->token_string->data, self->meta.loc,
+//                    self->meta.length, self->meta.line + 1, self->meta.col +
+//                    1);
 // }
 
 char lexer_peek(lexer_t* self) { return self->data[self->meta.loc]; }

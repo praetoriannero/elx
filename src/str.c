@@ -1,7 +1,7 @@
+#include "str.h"
 #include "arena.h"
 #include "modprim.h"
 #include "panic.h"
-#include "str.h"
 #include "str_utils.h"
 #include "xalloc.h"
 

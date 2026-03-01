@@ -97,24 +97,23 @@ typedef struct {
 typedef struct {
     expr_t condition;
     body_t body;
-    elif_clause_t* elif_clauses;
-    uint32_t elif_clause_count;
+    vector_t elif_clause_vec;
     else_clause_t else_clause;
 } if_stmt_t;
 
 typedef struct {
-    ident_t* ident;
+    ident_t ident;
 } break_stmt_t;
 
 typedef struct {
-    ident_t* ident;
+    ident_t ident;
 } continue_stmt_t;
 
 struct symbol;
 
 typedef struct {
     ident_t ident;
-    vector_t* symbol_vec;
+    vector_t symbol_vec;
 } module_t;
 
 typedef enum {
@@ -128,7 +127,7 @@ typedef enum {
     IF_STMT,
     BREAK_STMT,
     CONTINUE_STMT,
-    MODULE_STMT,
+    // MODULE_STMT,  // Is this realistic?
 } stmt_kind_t;
 
 typedef union {
@@ -143,8 +142,7 @@ typedef struct {
 
 typedef struct {
     ident_t ident;
-    func_arg_t* args;
-    uint32_t arg_count;
+    vector_t arg_vec;
     body_t body;
     ident_t ret_type;
 } func_t;
@@ -158,7 +156,7 @@ typedef struct {
 
 typedef struct {
     char* name;
-    ident_t* types;
+    ident_t types;
     uint32_t type_count;
 } enum_t;
 
@@ -177,12 +175,12 @@ typedef enum {
 } symbol_kind_t;
 
 typedef union {
-    struct_t* struct_case;
-    module_t* module_case;
-    func_t* func_case;
-    global_t* global_case;
-    enum_t* enum_case;
-    import_t* import_case;
+    struct_t struct_case;
+    module_t module_case;
+    func_t func_case;
+    global_t global_case;
+    enum_t enum_case;
+    import_t import_case;
 } symbol_union_t;
 
 typedef struct {
@@ -192,7 +190,7 @@ typedef struct {
 } symbol_t;
 
 typedef struct {
-    vector_t* module_vec;
+    vector_t module_vec;
 } ast_t;
 
 typedef struct parser {

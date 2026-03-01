@@ -3,7 +3,7 @@ module kez {
         y: u16,
     }
 
-    let t: u32 = 42;
+    let mut t: u32 = 42;
     let u: str = "test";
     let v: f64 = 10.0;
     let w: Derp = Derp { y: 31 };

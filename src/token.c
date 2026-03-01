@@ -12,7 +12,6 @@ token_t* token_new(arena_t* arena) {
 void token_init(arena_t* arena, token_t* self) {
     xnotnull(self);
 
-
     *self = (token_t){
         .kind = TOK_INVALID,
         .length = 0,
@@ -46,8 +45,7 @@ token_t* token_copy(arena_t* arena, token_t* self) {
 char* token_string(arena_t* arena, token_t* self) {
     xnotnull(self);
 
-    char* str = fmt(arena,
-                    "Token(str=\"%s\", kind=\"%s\")", self->str.data,
+    char* str = fmt(arena, "Token(str=\"%s\", kind=\"%s\")", self->str.data,
                     token_kind_str(self->kind));
 
     return str;

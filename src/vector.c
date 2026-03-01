@@ -3,13 +3,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "vector.h"
 #include "panic.h"
+#include "vector.h"
 #include "xalloc.h"
 
 #define DEFAULT_VEC_SIZE 8
 
-void vector_init(arena_t* arena, vector_t* self, size_t datum_size, size_t initial_capacity) {
+void vector_init(arena_t* arena, vector_t* self, size_t datum_size,
+                 size_t initial_capacity) {
     xnotnull(self);
 
     self->data = arena_alloc(arena, datum_size * initial_capacity);
@@ -18,7 +19,8 @@ void vector_init(arena_t* arena, vector_t* self, size_t datum_size, size_t initi
     self->size = 0;
 }
 
-vector_t* vector_new(arena_t* arena, size_t datum_size, size_t initial_capacity) {
+vector_t* vector_new(arena_t* arena, size_t datum_size,
+                     size_t initial_capacity) {
     vector_t* vec = arena_alloc(arena, sizeof(vector_t));
     vector_init(arena, vec, datum_size, initial_capacity);
     return vec;
@@ -55,7 +57,7 @@ void* vector_pop(vector_t* self) {
 
 void* vector_get(vector_t* self, usize index) {
     if (index > self->size) {
-        panic("vector_get on index value greater than vector size");
+        panic("vector_get on out of bounds index");
     }
 
     return (u8*)self->data + (index * self->datum_size);

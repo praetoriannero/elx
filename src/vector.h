@@ -13,9 +13,11 @@ typedef struct vector {
     size_t size;
 } vector_t;
 
-void vector_init(arena_t* arena, vector_t* self, size_t datum_size, size_t initial_capacity);
+void vector_init(arena_t* arena, vector_t* self, size_t datum_size,
+                 size_t initial_capacity);
 
-vector_t* vector_new(arena_t* arena, size_t datum_size, size_t initial_capacity);
+vector_t* vector_new(arena_t* arena, size_t datum_size,
+                     size_t initial_capacity);
 
 void vector_push(arena_t* arena, vector_t* self, const void* datum);
 
