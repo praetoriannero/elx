@@ -1,6 +1,25 @@
 
-# Symbol Types
+# Compilation Stages
 
+## Discovery
+During the discovery phase, elx.config is used to determine the location of all source files.
+
+## Lexing
+Source code is lexed into individual tokens.
+
+## Parsing
+An abstract syntax tree (AST) is generated from the tokens.
+
+## Analysis
+An analysis pass occurs over the AST to ensure correctness to the Elamite language standard.
+
+## Transpilation
+The AST is converted into C source code.
+
+## Compilation
+The generated C source code is compiled into the resulting executable or library.
+
+# Symbol Types
 
 ## Struct
 ex:
