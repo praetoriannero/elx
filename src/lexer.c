@@ -175,6 +175,7 @@ token_t lexer_next(arena_t* arena, lexer_t* self) {
 fn_next_exit:
     if (token.kind == TOK_COMMENT) {
         lexer_skip_comment(self);
+        return lexer_next(arena, self);
     }
 
     if (token.kind == TOK_INVALID) {

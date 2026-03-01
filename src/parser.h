@@ -142,7 +142,7 @@ typedef struct {
 
 typedef struct {
     ident_t ident;
-    vector_t arg_vec;
+    vector_t arg_vec;  // vec<func_arg_t>
     body_t body;
     ident_t ret_type;
 } func_t;
