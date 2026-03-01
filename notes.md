@@ -1,19 +1,38 @@
 
-# Symbol Types:
+# Symbol Types
 
 
 ## Struct
 ex:
 ```
-struct Foo<T, U>(Bar<T, U>): Baz<T> {
-    a: T,
-    b: U,
+struct Foo<T, U, V>(Bar<T, U>): Baz<V> {
+    a: T;
+    b: vec<U>;
 
-    fn __init__(&mut self, a: T, b: U) -> Self {
+    fn __new__(a: T) -> *Self {
+        return &Self(a = a, b = vec<U>::new());
+    }
+
+    fn __move__(other: Self) -> Self {
+
+    }
+
+    fn __copy__(&self) -> Self {
+
+    }
+
+    fn __init__(&mut self, a: T, b: vec<U>) -> Self {
         self.a = a;
         self.b = b;
     }
+
+    fn __free__(&mut self) -> None {
+        free(self.b);
+        free(self);
+    }
 }
+
+impl<T, U> Foo<T, U>(Bar<T, U>)
 ```
 
 

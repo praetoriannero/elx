@@ -1,6 +1,6 @@
-#ifndef ELX_FMT_H
-#define ELX_FMT_H
+#pragma once
 
-char* fmt(const char* fmt, ...);
+#include "arena.h"
 
-#endif
+char* fmt(arena_t* arena, const char* fmt, ...);
+

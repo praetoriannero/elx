@@ -3,7 +3,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "str.h"
+#include "arena.h"
+// #include "str.h"
 #include "token.h"
 
 typedef struct {
@@ -16,15 +17,15 @@ typedef struct {
 
 typedef struct lexer {
     char* data;
-    string_t* token_string;
+    // string_t* token_string;
     lexer_meta_t meta;
 } lexer_t;
 
-int64_t lexer_meta_str(lexer_t* stream, char* meta_str);
+// int64_t lexer_meta_str(lexer_t* stream, char* meta_str);
 
 void lexer_init(lexer_t* self, char* data);
 
-token_t lexer_next(lexer_t* stream);
+token_t lexer_next(arena_t* arena, lexer_t* stream);
 
 char lexer_peek(lexer_t* stream);
 

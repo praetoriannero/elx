@@ -200,21 +200,14 @@ typedef struct {
 
 typedef struct parser {
     lexer_t lexer;
-    ast_t (*parse)(struct parser* self);
-    symbol_t* (*visit_struct)(struct parser* self);
-    symbol_t* (*visit_module)(struct parser* self);
-    symbol_t* (*visit_func)(struct parser* self);
-    symbol_t* (*visit_global)(struct parser* self);
-    symbol_t* (*visit_enum)(struct parser* self);
-    symbol_t* (*visit_import)(struct parser* self);
 } parser_t;
 
-ast_t parser_parse(parser_t* self);
+ast_t parser_parse(arena_t* arena, parser_t* self);
 
-parser_t* parser_new(lexer_t lexer);
+parser_t* parser_new(arena_t* arena, lexer_t lexer);
 
 void parser_init(parser_t* self, lexer_t lexer);
 
-void parser_deinit(parser_t* self, lexer_t lexer);
+// void parser_deinit(parser_t* self, lexer_t lexer);
 
-void parser_free(parser_t* self);
+// void parser_free(parser_t* self);

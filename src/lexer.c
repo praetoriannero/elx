@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "arena.h"
 #include "array.h"
 #include "lexer.h"
 #include "logger.h"
@@ -29,10 +30,6 @@ void lexer_init(lexer_t* self, char* data) {
     self->meta.last_col = 0;
     self->meta.length = strlen(data);
     self->meta.line = 0;
-
-    // string_t* string = xmalloc(sizeof(string_t));
-    // string_init(string);
-    // self->token_string = string;
 }
 
 static const char* whitespace = " \t\n\r";
@@ -59,14 +56,15 @@ static void lexer_skip_comment(lexer_t* self) {
     }
 }
 
-token_t lexer_next(lexer_t* self) {
+token_t lexer_next(arena_t* arena, lexer_t* self) {
+    log("entering lexer_next\n");
+    arena_t local_arena;
+    arena_init(&local_arena);
+
     char c;
 
     token_t token;
-    token_init(&token);
-
-    string_t token_str;
-    string_init(&token_str);
+    token_init(arena, &token);
 
     lexer_skip_whitespace(self);
     c = lexer_consume(self);
@@ -78,12 +76,9 @@ token_t lexer_next(lexer_t* self) {
 
     token.kind = single_char_token[(u8)c];
 
-    string_t op_string;
-    string_init(&op_string);
-
     // operator
     if (token.kind != TOK_INVALID) {
-        string_push_char(&op_string, c);
+        string_push_char(arena, &token.str, c);
 
         const op_node_t* op_iter = op_table;
         size_t table_size = array_len(op_table);
@@ -106,7 +101,7 @@ token_t lexer_next(lexer_t* self) {
             for (size_t i = 0; i < table_size; i++) {
                 op_node = op_iter[i];
                 if (op_node.text == c_next) {
-                    string_push_char(&op_string, lexer_consume(self));
+                    string_push_char(arena, &token.str, lexer_consume(self));
                     op_iter = op_node.children;
                     token.kind = op_node.kind;
                     found = true;
@@ -122,17 +117,13 @@ token_t lexer_next(lexer_t* self) {
             kind_next = single_char_token[(u8)c_next];
         }
 
-        string_deinit(&token_str);
-        string_move(&op_string, &token_str);
-        string_deinit(&op_string);
-
         goto fn_next_exit;
     }
 
     // identifier
     if (is_valid_ident_start(c)) {
         while (is_ident_char(c)) {
-            string_push_char(&token_str, c);
+            string_push_char(arena, &token.str, c);
             if (!is_ident_char(lexer_peek(self))) {
                 break;
             }
@@ -142,7 +133,7 @@ token_t lexer_next(lexer_t* self) {
         size_t length = array_len(keyword_kind_table);
         for (u8 i = 0; i < length; i++) {
             string_token_t st = keyword_kind_table[i];
-            if (strcmp(st.text, token_str.data) == 0) {
+            if (strcmp(st.text, token.str.data) == 0) {
                 token.kind = st.kind;
                 goto fn_next_exit;
             }
@@ -163,7 +154,7 @@ token_t lexer_next(lexer_t* self) {
                 lexer_error(self, "invalid integer format");
             }
 
-            string_push_char(&token_str, c);
+            string_push_char(arena, &token.str, c);
             char c_next = lexer_peek(self);
             if ((c_next != '.') && (!isdigit(c_next))) {
                 break;
@@ -186,36 +177,31 @@ fn_next_exit:
         lexer_skip_comment(self);
     }
 
-    string_deinit(&token.str);
-    string_move(&token_str, &token.str);
+    // string_deinit(&token.str);
+    // string_move(&token.str, &token.str);
 
     if (token.kind == TOK_INVALID) {
         lexer_error(self, "invalid token");
     }
 
-    char* tok_str = token_string(&token);
+    char* tok_str = token_string(&local_arena, &token);
     log("found %s\n", tok_str);
-    xfree(tok_str);
+    // xfree(tok_str);
 
-    string_deinit(&op_string);
+    // string_deinit(&op_string);
 
+    arena_deinit(&local_arena);
+    log("exiting lexer_next\n");
+    // arena_free(&local_arena);
     return token;
 }
 
-i64 lexer_meta_str(lexer_t* self, char* meta_str) {
-    return sprintf(meta_str,
-                   "lexer_t{token=%s, loc=%zu, length=%zu, line=%zu, col=%zu}",
-                   self->token_string->data, self->meta.loc, self->meta.length,
-                   self->meta.line + 1, self->meta.col + 1);
-}
-
-void lexer_reset(lexer_t* self) {
-    string_clear(self->token_string);
-    self->meta.loc = 0;
-    self->meta.line = 0;
-    self->meta.col = 0;
-    self->meta.last_col = 0;
-}
+// i64 lexer_meta_str(lexer_t* self, char* meta_str) {
+//     return sprintf(meta_str,
+//                    "lexer_t{token=%s, loc=%zu, length=%zu, line=%zu, col=%zu}",
+//                    self->token_string->data, self->meta.loc, self->meta.length,
+//                    self->meta.line + 1, self->meta.col + 1);
+// }
 
 char lexer_peek(lexer_t* self) { return self->data[self->meta.loc]; }
 
@@ -244,10 +230,4 @@ char lexer_consume(lexer_t* self) {
     }
 
     return c;
-}
-
-void lexer_deinit(lexer_t* self) {
-    // TODO: does the lexer need a token_string??
-    string_deinit(self->token_string);
-    xfree(self);
 }

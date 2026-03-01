@@ -2,9 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "arena.h"
 #include "xalloc.h"
 
-char* fmt(const char* fmt, ...) {
+char* fmt(arena_t* arena, const char* fmt, ...) {
     xnotnull((void*)fmt);
 
     va_list ap;
@@ -17,10 +18,7 @@ char* fmt(const char* fmt, ...) {
         return NULL;
     }
 
-    char* buf = xmalloc((size_t)n + 1);
-    if (!buf) {
-        return NULL;
-    }
+    char* buf = arena_alloc(arena, (size_t)n + 1);
 
     va_start(ap, fmt);
     vsnprintf(buf, (size_t)n + 1, fmt, ap);

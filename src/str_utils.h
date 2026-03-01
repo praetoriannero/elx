@@ -1,5 +1,7 @@
 #pragma once
 
-char* strdup(const char* str);
+#include "arena.h"
+
+char* strdup(arena_t* arena, const char* str);
 
 char* strmov(char** str);

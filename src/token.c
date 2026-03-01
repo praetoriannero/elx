@@ -3,22 +3,13 @@
 #include "str.h"
 #include "xalloc.h"
 
-token_t* token_new(void) {
-    token_t* token = xnew(token_t);
-    token->init(token);
+token_t* token_new(arena_t* arena) {
+    token_t* token = arena_alloc(arena, sizeof(token_t));
+    token->init(arena, token);
     return token;
 }
 
-void token_free(token_t* self) {
-    if (!self) {
-        return;
-    }
-
-    token_deinit(self);
-    xfree(self);
-}
-
-void token_init(token_t* self) {
+void token_init(arena_t* arena, token_t* self) {
     xnotnull(self);
 
 
@@ -29,35 +20,21 @@ void token_init(token_t* self) {
         .column = 0,
 
         .init = token_init,
-        .deinit = token_deinit,
         .copy = token_copy,
         .string = token_string,
     };
 
-    string_init(&self->str);
+    string_init(arena, &self->str);
 }
 
-void token_deinit(token_t* self) {
-    if (!self) {
-        return;
-    }
-
-    string_deinit(&self->str);
-
-    self->kind = TOK_INVALID;
-    self->length = 0;
-    self->line = 0;
-    self->column = 0;
-}
-
-token_t* token_copy(token_t* self) {
+token_t* token_copy(arena_t* arena, token_t* self) {
     xnotnull(self);
 
-    token_t* token = xnew(token_t);
+    token_t* token = arena_alloc(arena, sizeof(token_t));
 
     *token = (token_t){
         .kind = self->kind,
-        .str = string_copy(&self->str),
+        .str = string_copy(arena, &self->str),
         .length = self->length,
         .line = self->line,
         .column = self->column,
@@ -66,10 +43,11 @@ token_t* token_copy(token_t* self) {
     return token;
 }
 
-char* token_string(token_t* self) {
+char* token_string(arena_t* arena, token_t* self) {
     xnotnull(self);
 
-    char* str = fmt("Token(str=\"%s\", kind=\"%s\")", self->str.data,
+    char* str = fmt(arena,
+                    "Token(str=\"%s\", kind=\"%s\")", self->str.data,
                     token_kind_str(self->kind));
 
     return str;

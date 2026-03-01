@@ -1,14 +1,13 @@
 #include <string.h>
 
 #include "str_utils.h"
-#include "xalloc.h"
 
-char* strdup(const char* str) {
+char* strdup(arena_t* arena, const char* str) {
     if (!str)
         return NULL;
 
     size_t len = strlen(str) + 1;
-    char* copy = xmalloc(len);
+    char* copy = arena_alloc(arena, len);
     if (copy) {
         memcpy(copy, str, len);
     }

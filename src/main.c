@@ -4,7 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "arena.h"
 #include "lexer.h"
+#include "logger.h"
 #include "modprim.h"
 #include "panic.h"
 #include "parser.h"
@@ -48,6 +50,9 @@ i32 main(int argc, char** argv) {
     char* content;
     i64 file_size;
 
+    arena_t arena;
+    arena_init(&arena);
+
     if (argc >= 2) {
         file_name = argv[1];
         file_handle = fopen(file_name, "r");
@@ -73,15 +78,17 @@ i32 main(int argc, char** argv) {
 
     printf("CONTENT START\n%s\nCONTENT END\n", content);
 
-    lexer_t* lexer = xnew(lexer_t);
+    lexer_t* lexer = arena_alloc(&arena, sizeof(lexer_t));
     lexer_init(lexer, content);
 
-    parser_t* parser = parser_new(*lexer);
-    parser->parse(parser);
+    parser_t* parser = parser_new(&arena, *lexer);
+    parser_parse(&arena, parser);
 
     // clean up
     fclose(file_handle);
-    lexer_deinit(lexer);
+    // lexer_deinit(lexer);
     xfree(content);
+
+    arena_deinit(&arena);
     return OK;
 }
