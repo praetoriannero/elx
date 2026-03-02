@@ -10,7 +10,7 @@
 # Features in v0.2.0
 - [ ] enums
 - [ ] unions
-- [ ] struct to string method (aka __str__)
+- [ ] struct to string method (aka \_\_str\_\_)
 
 # Compilation Stages
 
