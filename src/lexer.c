@@ -76,6 +76,21 @@ token_t lexer_next(arena_t* arena, lexer_t* self) {
 
     token.kind = single_char_token[(u8)c];
 
+    // string literal
+    if (token.kind == TOK_DQUOTE) {
+        string_push_char(arena, &token.str, c);
+        while (lexer_peek(self) != '"') {
+            if (lexer_peek(self) == -1) {
+                token.kind = TOK_EOF;
+                return token;
+            }
+            string_push_char(arena, &token.str, lexer_consume(self));
+        }
+        string_push_char(arena, &token.str, lexer_consume(self));
+        token.kind = TOK_STRING;
+        goto fn_next_exit;
+    }
+
     // operator
     if (token.kind != TOK_INVALID) {
         string_push_char(arena, &token.str, c);
@@ -186,7 +201,6 @@ fn_next_exit:
     log("found %s\n", tok_str);
 
     arena_deinit(&local_arena);
-    // log("exiting lexer_next\n");
     return token;
 }
 

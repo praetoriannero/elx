@@ -9,24 +9,52 @@ module kez {
     let w: Derp = Derp { y: 31 };
 }
 
-
 // this is a comment
 // foo()()[1].(m) <<==
 
+enum Bool {
+    True,
+    False(u8),
+
+    fn create_true() -> Self {
+        return Self::True;
+    }
+
+    fn create_false() -> Self {
+        return Self::False(0);
+    }
+}
+
+trait Baz {
+    fn squeak(&self) -> std::String {
+        return std::String("Baz");
+    }
+}
+
+struct Foo {
+    a: bool,
+
+    fn __init__(&mut self) -> Self {
+        self.a = false;
+    }
+
+    fn __deinit__(self) -> None {
+        return;
+    }
+}
+
+struct Bar(Foo) {
+    b: f64,
+}
+
+impl Baz for Bar {
+
+}
+
 fn main() -> u8 {
-    let x = 1;
     let d: kez::Derp = Derp { y: 0 };
-    let j = "this";
-    let z: u32 = 4;
-    let u = &x;
-    x && z;
-    x += 1;  // panics
-    let j = false;
-    let y = 0 - -1 + (2 * 3) << (4 / 5);
-    let y = x + 1;
-    print(x);
-    return;
-    return x.new();  // emits warning: unreachable code
+    std::println("Hello, world!");
 }
 
 // test
+"

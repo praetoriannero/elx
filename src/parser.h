@@ -6,14 +6,25 @@
 #include "lexer.h"
 #include "vector.h"
 
+typedef enum {
+    TYPE_RAW,
+    TYPE_PTR,
+    TYPE_REF,
+} type_kind_t;
+
 typedef struct {
     char* name;
     vector_t path;
 } ident_t;
 
+typedef struct type_ {
+    type_kind_t kind;
+    ident_t ident;
+} type_t;
+
 typedef struct {
     char* name;
-    ident_t type;
+    type_t type;
 } struct_field_t;
 
 typedef struct {
@@ -23,7 +34,7 @@ typedef struct {
 
 typedef struct {
     char* name;
-    ident_t type;
+    type_t type;
 } func_arg_t;
 
 typedef struct {
@@ -127,7 +138,6 @@ typedef enum {
     IF_STMT,
     BREAK_STMT,
     CONTINUE_STMT,
-    // MODULE_STMT,  // Is this realistic?
 } stmt_kind_t;
 
 typedef union {
@@ -144,7 +154,7 @@ typedef struct {
     ident_t ident;
     vector_t arg_vec;  // vec<func_arg_t>
     body_t body;
-    ident_t ret_type;
+    type_t ret_type;
 } func_t;
 
 typedef struct {
@@ -154,11 +164,26 @@ typedef struct {
     expr_t expr;
 } global_t;
 
+typedef enum {
+    ENUM_VARIANT_NOM,
+    ENUM_VARIANT_ALG,
+} enum_variant_t;
+
 typedef struct {
     char* name;
-    ident_t types;
-    uint32_t type_count;
+    type_t type;
+    enum_variant_t variant;
+} enum_kind_t;
+
+typedef struct {
+    ident_t ident;
+    vector_t kind_vec;  // vec<enum_kind_t>
 } enum_t;
+
+typedef struct {
+    ident_t ident;
+    vector_t fn_vec;
+} impl_t;
 
 typedef struct {
     ident_t path;
@@ -172,6 +197,7 @@ typedef enum {
     SYMBOL_GLOBAL,
     SYMBOL_ENUM,
     SYMBOL_IMPORT,
+    SYMBOL_IMPL,
 } symbol_kind_t;
 
 typedef union {
@@ -181,6 +207,7 @@ typedef union {
     global_t global_case;
     enum_t enum_case;
     import_t import_case;
+    impl_t impl_case;
 } symbol_union_t;
 
 typedef struct {

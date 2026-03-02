@@ -108,6 +108,9 @@ typedef enum token_kind {
     // integer
     TOK_INTEGER,
 
+    // string literal
+    TOK_STRING,
+
     // end of file
     TOK_EOF,
 } token_kind_t;

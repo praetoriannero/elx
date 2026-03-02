@@ -13,19 +13,19 @@
 #include "vector.h"
 #include "xalloc.h"
 
-symbol_t parser_visit_struct(arena_t* arena, parser_t* self);
+symbol_t visit_struct(arena_t* arena, parser_t* self);
 
-symbol_t parser_visit_module(arena_t* arena, parser_t* self);
+symbol_t visit_module(arena_t* arena, parser_t* self);
 
-symbol_t parser_visit_global(arena_t* arena, parser_t* self);
+symbol_t visit_global(arena_t* arena, parser_t* self);
 
-symbol_t parser_visit_enum(arena_t* arena, parser_t* self);
+symbol_t visit_enum(arena_t* arena, parser_t* self);
 
-symbol_t parser_visit_import(arena_t* arena, parser_t* self);
+symbol_t visit_import(arena_t* arena, parser_t* self);
 
-symbol_t parser_visit_func(arena_t* arena, parser_t* self);
+symbol_t visit_func(arena_t* arena, parser_t* self);
 
-stmt_t* parser_visit_expr_stmt(arena_t* arena, parser_t* self);
+stmt_t* visit_expr_stmt(arena_t* arena, parser_t* self);
 
 expr_t visit_expr(arena_t* arena, parser_t* self);
 
@@ -44,20 +44,19 @@ expr_t visit_expr(arena_t* arena, parser_t* self) {
      * Consume tokens until we reach a semicolon
      */
 
-    token_t* feed = arena_alloc(arena, sizeof(token_t));
-    *feed = (token_t){0};
+    token_t feed = {0};
 
     arena_t local_arena = {0};
     arena_init(&local_arena);
 
     expr_t expr = (expr_t){0};
 
-    *feed = lexer_next(arena, &self->lexer);
-    while (feed->kind != TOK_SEMICOLON) {
-        vector_push(arena, &expr.tokens, feed);
-        *feed = lexer_next(arena, &self->lexer);
-        if (feed->kind == TOK_EOF) {
-            panic("invalid syntax\n");
+    feed = lexer_next(arena, &self->lexer);
+    while (feed.kind != TOK_SEMICOLON) {
+        vector_push(arena, &expr.tokens, &feed);
+        feed = lexer_next(arena, &self->lexer);
+        if (feed.kind == TOK_EOF) {
+            panic("unexpected end of expression\n");
         }
     }
 
@@ -89,22 +88,22 @@ vector_t visit_module_inner(arena_t* arena, parser_t* self, u8 is_source) {
         case TOK_COMMENT:
             continue;
         case TOK_KW_STRUCT:
-            parser_visit_struct(arena, self);
+            visit_struct(arena, self);
             continue;
         case TOK_KW_MODULE:
-            parser_visit_module(arena, self);
+            visit_module(arena, self);
             continue;
         case TOK_KW_LET:
-            parser_visit_global(arena, self);
+            visit_global(arena, self);
             continue;
         case TOK_KW_ENUM:
-            parser_visit_enum(arena, self);
+            visit_enum(arena, self);
             continue;
         case TOK_KW_USE:
-            parser_visit_import(arena, self);
+            visit_import(arena, self);
             continue;
         case TOK_KW_FN:
-            parser_visit_func(arena, self);
+            visit_func(arena, self);
             continue;
         case TOK_EOF:
             goto module_exit;
@@ -146,12 +145,12 @@ void print_struct(struct_t* struct_) {
         struct_field_t* field = vector_get(&struct_->field_vec, i);
         xnotnull(field);
         printf("    Field{ident=%s, type=%s},\n", field->name,
-               field->type.name);
+               field->type.ident.name);
     }
     printf("}\n");
 }
 
-symbol_t parser_visit_struct(arena_t* arena, parser_t* self) {
+symbol_t visit_struct(arena_t* arena, parser_t* self) {
     log("visiting struct\n");
     arena_t local_arena = {0};
     arena_init(&local_arena);
@@ -179,7 +178,7 @@ symbol_t parser_visit_struct(arena_t* arena, parser_t* self) {
         parser_expect(TOK_COLON, lexer_next(&local_arena, &self->lexer));
 
         feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
-        field.type.name = strdup(arena, feed.str.data);
+        field.type.ident.name = strdup(arena, feed.str.data);
 
         vector_push(arena, &struct_.field_vec, &field);
 
@@ -203,7 +202,7 @@ symbol_t parser_visit_struct(arena_t* arena, parser_t* self) {
     return symbol;
 }
 
-symbol_t parser_visit_module(arena_t* arena, parser_t* self) {
+symbol_t visit_module(arena_t* arena, parser_t* self) {
     log("visiting module\n");
     arena_t local_arena = {0};
     symbol_t symbol = (symbol_t){0};
@@ -230,7 +229,7 @@ symbol_t parser_visit_module(arena_t* arena, parser_t* self) {
     return symbol;
 }
 
-symbol_t parser_visit_func(arena_t* arena, parser_t* self) {
+symbol_t visit_func(arena_t* arena, parser_t* self) {
     log("visiting func\n");
     xnotnull(arena);
     xnotnull(self);
@@ -253,7 +252,7 @@ symbol_t parser_visit_func(arena_t* arena, parser_t* self) {
         arg.name = strdup(arena, feed.str.data);
         parser_expect(TOK_SEMICOLON, lexer_next(&local_arena, &self->lexer));
         feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
-        arg.type.name = strdup(arena, feed.str.data);
+        arg.type.ident.name = strdup(arena, feed.str.data);
         vector_push(arena, &func.arg_vec, &arg);
 
         feed = lexer_next(&local_arena, &self->lexer);
@@ -268,7 +267,7 @@ symbol_t parser_visit_func(arena_t* arena, parser_t* self) {
 
     parser_expect(TOK_ARROW, lexer_next(&local_arena, &self->lexer));
     feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
-    func.ret_type.name = strdup(arena, feed.str.data);
+    func.ret_type.ident.name = strdup(arena, feed.str.data);
 
     parser_expect(TOK_LBRACE, lexer_next(&local_arena, &self->lexer));
 
@@ -293,7 +292,7 @@ symbol_t parser_visit_func(arena_t* arena, parser_t* self) {
     return symbol;
 }
 
-symbol_t parser_visit_global(arena_t* arena, parser_t* self) {
+symbol_t visit_global(arena_t* arena, parser_t* self) {
     /*
      *  Parse a global identifier declaration
      *  examples:
@@ -345,22 +344,60 @@ symbol_t parser_visit_global(arena_t* arena, parser_t* self) {
     return symbol;
 }
 
-symbol_t parser_visit_enum(arena_t* arena, parser_t* self) {
+symbol_t visit_enum(arena_t* arena, parser_t* self) {
     log("visiting enum\n");
-    todo();
     xnotnull(arena);
     xnotnull(self);
-    symbol_t symbol = (symbol_t){0};
-    // enum_t enum_ = {0};
-    //
-    // token_t enum_name = parser_expect(TOK_IDENT, lexer_next(arena,
-    // &self->lexer)); enum_.name = strdup(enum_name.str.data);
 
+    arena_t local_arena = {0};
+    arena_init(&local_arena);
+
+    symbol_t symbol = (symbol_t){0};
+    enum_t enum_ = {0};
+
+    token_t feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
+    enum_.ident.name = strdup(arena, feed.str.data);
+
+    parser_expect(TOK_LBRACE, lexer_next(&local_arena, &self->lexer));
+
+    feed = lexer_next(&local_arena, &self->lexer);
+    while (feed.kind != TOK_RBRACE) {
+        if (feed.kind == TOK_EOF) {
+            panic("invalid syntax\n");
+        }
+
+        enum_kind_t* enum_kind = arena_alloc(arena, sizeof(enum_kind_t));
+
+        parser_expect(TOK_IDENT, feed);
+        enum_kind->name = strdup(arena, feed.str.data);
+
+        feed = lexer_next(&local_arena, &self->lexer);
+        if (feed.kind == TOK_COMMA) {
+            enum_kind->variant = ENUM_VARIANT_NOM;
+            feed = lexer_next(&local_arena, &self->lexer);
+            continue;
+        }
+
+        if (feed.kind == TOK_LPAREN) {
+            enum_kind->variant = ENUM_VARIANT_ALG;
+            feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
+            enum_kind->type.ident.name = strdup(arena, feed.str.data);
+            parser_expect(TOK_RPAREN, lexer_next(&local_arena, &self->lexer));
+            parser_expect(TOK_COMMA, lexer_next(&local_arena, &self->lexer));
+        }
+    }
+
+    parser_expect(TOK_RBRACE, feed);
+
+    symbol.kind = SYMBOL_ENUM;
+    symbol.variant.enum_case = enum_;
+
+    arena_deinit(&local_arena);
     log("leaving enum\n");
     return symbol;
 }
 
-symbol_t parser_visit_import(arena_t* arena, parser_t* self) {
+symbol_t visit_import(arena_t* arena, parser_t* self) {
     log("visiting import\n");
     todo();
     xnotnull(arena);

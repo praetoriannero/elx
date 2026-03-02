@@ -1,4 +1,17 @@
 
+# Features in v0.1.0
+- [x] lexer
+- [ ] parser (in-progress)
+- [ ] analyzer
+- [ ] transpiler
+- [ ] compiler
+- [ ] struct member methods
+
+# Features in v0.2.0
+- [ ] enums
+- [ ] unions
+- [ ] struct to string method (aka __str__)
+
 # Compilation Stages
 
 ## Discovery
@@ -24,35 +37,23 @@ The generated C source code is compiled into the resulting executable or library
 ## Struct
 ex:
 ```
-struct Foo<T, U, V>(Bar<T, U>): Baz<V> {
-    a: T;
-    b: vec<U>;
+struct Foo {
+    a: u32;
+    b: *bool;
 
-    fn __new__(a: T) -> *Self {
-        return &Self(a = a, b = vec<U>::new());
-    }
-
-    fn __move__(other: Self) -> Self {
-
-    }
-
-    fn __copy__(&self) -> Self {
-
-    }
-
-    fn __init__(&mut self, a: T, b: vec<U>) -> Self {
+    fn __init__(&mut self, a: u32, b: bool) -> Self {
         self.a = a;
-        self.b = b;
+        self.b = new(bool(b));
     }
 
-    fn __free__(&mut self) -> None {
+    fn __deinit__(self) -> None {
         free(self.b);
-        free(self);
     }
 }
-
-impl<T, U> Foo<T, U>(Bar<T, U>)
 ```
+
+
+## Function
 
 
 ## Enum
@@ -65,10 +66,11 @@ enum Bar {
 }
 ```
 
-## Function
-
 
 ## Module
+
+
+## Trait
 
 
 ## Impl
