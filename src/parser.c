@@ -25,7 +25,7 @@ symbol_t visit_import(arena_t* arena, parser_t* self);
 
 symbol_t visit_func(arena_t* arena, parser_t* self);
 
-stmt_t* visit_expr_stmt(arena_t* arena, parser_t* self);
+stmt_t visit_expr_stmt(arena_t* arena, parser_t* self);
 
 expr_t visit_expr(arena_t* arena, parser_t* self);
 
@@ -63,19 +63,119 @@ expr_t visit_expr(arena_t* arena, parser_t* self) {
     return expr;
 }
 
-stmt_t visit_stmt(arena_t* arena, parser_t* self) {
+stmt_t visit_expr_stmt(arena_t* arena, parser_t* self) {
+    todo();
     stmt_t stmt = {0};
     visit_expr(arena, self);
 
     return stmt;
 }
 
-vector_t visit_module_inner(arena_t* arena, parser_t* self, u8 is_source) {
-    log("entering visit_module_inner\n");
-    token_t token = {0};
-    char* tok_str;
+stmt_t visit_for_stmt(arena_t* arena, parser_t* self) {
+    todo();
+}
+
+stmt_t visit_if_stmt(arena_t* arena, parser_t* self) {
     arena_t local_arena = {0};
     arena_init(&local_arena);
+
+    stmt_t stmt = {0};
+    if_stmt_t if_stmt = {0};
+
+    token_t feed = lexer_next(arena, &self->lexer);
+
+    stmt.kind = STMT_KIND_IF;
+    stmt.variant.if_stmt = if_stmt;
+
+    todo();
+    return stmt;
+}
+
+stmt_t visit_while_stmt(arena_t* arena, parser_t* self) {
+    todo();
+}
+
+stmt_t visit_return_stmt(arena_t* arena, parser_t* self) {
+    todo();
+}
+
+stmt_t visit_continue_stmt(arena_t* arena, parser_t* self) {
+    todo();
+}
+
+stmt_t visit_let_stmt(arena_t* arena, parser_t* self) {
+    todo();
+}
+
+body_t visit_body(arena_t* arena, parser_t* self) {
+    body_t body = {0};
+    vector_init(arena, &body.stmts, sizeof(stmt_t), 4);
+
+    stmt_t stmt = {0};
+
+    arena_t local_arena = {0};
+    arena_init(&local_arena);
+
+    char* tok_str = NULL;
+
+    while (true) {
+        token_t feed = lexer_next(&local_arena, &self->lexer);
+        switch (feed.kind) {
+            case TOK_IDENT:
+                stmt = visit_expr_stmt(arena, self);
+                vector_push(arena, &body.stmts, &stmt);
+                continue;
+            case TOK_KW_FOR:
+                stmt = visit_for_stmt(arena, self);
+                vector_push(arena, &body.stmts, &stmt);
+                continue;
+            case TOK_KW_IF:
+                stmt = visit_if_stmt(arena, self);
+                vector_push(arena, &body.stmts, &stmt);
+                continue;
+            case TOK_KW_WHILE:
+                stmt = visit_while_stmt(arena, self);
+                vector_push(arena, &body.stmts, &stmt);
+                continue;
+            case TOK_KW_RETURN:
+                stmt = visit_return_stmt(arena, self);
+                vector_push(arena, &body.stmts, &stmt);
+                continue;
+            case TOK_KW_CONTINUE:
+                stmt = visit_continue_stmt(arena, self);
+                vector_push(arena, &body.stmts, &stmt);
+                continue;
+            case TOK_KW_LET:
+                stmt = visit_let_stmt(arena, self);
+                vector_push(arena, &body.stmts, &stmt);
+                continue;
+            case TOK_RBRACE:
+                goto visit_body_exit;
+            default:
+                tok_str = token_string(&local_arena, &feed);
+                snprintf(PANIC_MSG_BUFF, PANIC_MSG_SIZE,
+                         "unexpected token encountered: %s\n", tok_str);
+                arena_deinit(&local_arena);
+                panic(PANIC_MSG_BUFF);
+        }
+
+    }
+
+visit_body_exit:
+    arena_deinit(&local_arena);
+    return body;
+}
+
+vector_t visit_module_inner(arena_t* arena, parser_t* self, u8 is_source) {
+    log("entering visit_module_inner\n");
+
+    token_t token = {0};
+    char* tok_str;
+
+    arena_t local_arena = {0};
+    arena_init(&local_arena);
+
+    symbol_t symbol = {0};
 
     vector_t symbol_vec = {0};
     vector_init(arena, &symbol_vec, sizeof(symbol_t), 8);
@@ -88,22 +188,28 @@ vector_t visit_module_inner(arena_t* arena, parser_t* self, u8 is_source) {
         case TOK_COMMENT:
             continue;
         case TOK_KW_STRUCT:
-            visit_struct(arena, self);
+            symbol = visit_struct(arena, self);
+            vector_push(arena, &symbol_vec, &symbol);
             continue;
         case TOK_KW_MODULE:
-            visit_module(arena, self);
+            symbol = visit_module(arena, self);
+            vector_push(arena, &symbol_vec, &symbol);
             continue;
         case TOK_KW_LET:
-            visit_global(arena, self);
+            symbol = visit_global(arena, self);
+            vector_push(arena, &symbol_vec, &symbol);
             continue;
         case TOK_KW_ENUM:
-            visit_enum(arena, self);
+            symbol = visit_enum(arena, self);
+            vector_push(arena, &symbol_vec, &symbol);
             continue;
         case TOK_KW_USE:
-            visit_import(arena, self);
+            symbol = visit_import(arena, self);
+            vector_push(arena, &symbol_vec, &symbol);
             continue;
         case TOK_KW_FN:
-            visit_func(arena, self);
+            symbol = visit_func(arena, self);
+            vector_push(arena, &symbol_vec, &symbol);
             continue;
         case TOK_EOF:
             goto module_exit;
@@ -193,7 +299,7 @@ symbol_t visit_struct(arena_t* arena, parser_t* self) {
 
     print_struct(&struct_);
 
-    symbol.kind = SYMBOL_STRUCT;
+    symbol.kind = SYMBOL_KIND_STRUCT;
     symbol.variant.struct_case = struct_;
 
     arena_deinit(&local_arena);
@@ -221,12 +327,28 @@ symbol_t visit_module(arena_t* arena, parser_t* self) {
 
     // parser_expect(TOK_RBRACE, lexer_next(&local_arena, &self->lexer));
 
-    symbol.kind = SYMBOL_MODULE;
+    symbol.kind = SYMBOL_KIND_MODULE;
     symbol.variant.module_case = module;
 
     arena_deinit(&local_arena);
     log("leaving module\n");
     return symbol;
+}
+
+void print_func(func_t* func) {
+    printf("Func{\n    ident=%s,\n    args={", func->ident.name);
+    if (func->arg_vec.size) {
+        printf("\n");
+        for (usize idx = 0; idx < func->arg_vec.size; idx++) {
+            func_arg_t* func_arg = vector_get(&func->arg_vec, idx);
+            printf("        %s: %s,\n", func_arg->name, func_arg->type.ident.name);
+        }
+        printf("    }\n");
+    } else {
+        printf("},\n");
+    }
+    printf("    return_type=%s,\n    body={\n", func->ret_type.ident.name);
+    printf("    },\n}\n");
 }
 
 symbol_t visit_func(arena_t* arena, parser_t* self) {
@@ -250,7 +372,7 @@ symbol_t visit_func(arena_t* arena, parser_t* self) {
     while (feed.kind != TOK_RPAREN) {
         func_arg_t arg = {0};
         arg.name = strdup(arena, feed.str.data);
-        parser_expect(TOK_SEMICOLON, lexer_next(&local_arena, &self->lexer));
+        parser_expect(TOK_COLON, lexer_next(&local_arena, &self->lexer));
         feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
         arg.type.ident.name = strdup(arena, feed.str.data);
         vector_push(arena, &func.arg_vec, &arg);
@@ -258,8 +380,6 @@ symbol_t visit_func(arena_t* arena, parser_t* self) {
         feed = lexer_next(&local_arena, &self->lexer);
         if (feed.kind == TOK_COMMA) {
             feed = lexer_next(arena, &self->lexer);
-        } else {
-            panic("expected ',' but found %s", feed.str.data);
         }
     }
 
@@ -271,23 +391,13 @@ symbol_t visit_func(arena_t* arena, parser_t* self) {
 
     parser_expect(TOK_LBRACE, lexer_next(&local_arena, &self->lexer));
 
-    feed = lexer_next(arena, &self->lexer);
-    while (feed.kind != TOK_RBRACE) {
-        while (feed.kind != TOK_SEMICOLON) {
-            // need to parse statements here
-            feed = lexer_next(arena, &self->lexer);
-        }
-        feed = lexer_next(arena, &self->lexer);
+    func.body = visit_body(arena, self);
 
-        if (feed.kind == TOK_EOF) {
-            panic("invalid syntax\n");
-        }
-    }
-
-    symbol.kind = SYMBOL_FUNC;
+    symbol.kind = SYMBOL_KIND_FUNC;
     symbol.variant.func_case = func;
 
     arena_deinit(&local_arena);
+    print_func(&func);
     log("leaving func\n");
     return symbol;
 }
@@ -304,6 +414,7 @@ symbol_t visit_global(arena_t* arena, parser_t* self) {
      *  an assignment on the right hand side.
      *
      */
+
     log("visiting global\n");
 
     token_t feed = (token_t){0};
@@ -336,7 +447,7 @@ symbol_t visit_global(arena_t* arena, parser_t* self) {
     // remaining tokens become expression
     global.expr = visit_expr(arena, self);
 
-    symbol.kind = SYMBOL_GLOBAL;
+    symbol.kind = SYMBOL_KIND_GLOBAL;
     symbol.variant.global_case = global;
 
     arena_deinit(&local_arena);
@@ -389,7 +500,7 @@ symbol_t visit_enum(arena_t* arena, parser_t* self) {
 
     parser_expect(TOK_RBRACE, feed);
 
-    symbol.kind = SYMBOL_ENUM;
+    symbol.kind = SYMBOL_KIND_ENUM;
     symbol.variant.enum_case = enum_;
 
     arena_deinit(&local_arena);

@@ -1,0 +1,33 @@
+struct Foo {
+    a: i32,
+    b: f64,
+}
+
+fn foo(x: u8) -> bool {
+    if x > 4 {
+        x = 4;
+    } else if x > 2 {
+        x = 2;
+    } else {
+        return false;
+    }
+
+    while x >= 100 {
+        x += 1;
+    }
+
+    let j = 4..10;
+
+    for i in j {
+        x += i;
+    }
+}
+
+fn main(argv: u32) -> void {
+    let mut x = Foo{0, 10.0};
+    x.a = 0;
+    x.b = 4.0;
+
+    std::println("Hello, world!");
+    std::println("x = {}", x);
+}

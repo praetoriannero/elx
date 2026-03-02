@@ -12,7 +12,11 @@ module kez {
 // this is a comment
 // foo()()[1].(m) <<==
 
-enum Bool {
+enum Base {
+    Undefined,
+}
+
+enum Bool: Base {
     True,
     False(u8),
 

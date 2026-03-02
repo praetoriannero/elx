@@ -7,9 +7,9 @@
 #include "vector.h"
 
 typedef enum {
-    TYPE_RAW,
-    TYPE_PTR,
-    TYPE_REF,
+    TYPE_KIND_RAW,
+    TYPE_KIND_PTR,
+    TYPE_KIND_REF,
 } type_kind_t;
 
 typedef struct {
@@ -46,17 +46,17 @@ typedef struct {
 } expr_stmt_t;
 
 typedef enum {
-    PLUS_EQUAL,
-    MINUS_EQUAL,
-    TIMES_EQUAL,
-    DIVIDE_EQUAL,
-    MOD_EQUAL,
-    SHL_EQUAL,
-    SHR_EQUAL,
-    AND_EQUAL,
-    OR_EQUAL,
-    XOR_EQUAL,
-    EQUAL,
+    ASSIGN_OP_KIND_PLUS_EQUAL,
+    ASSIGN_OP_KIND_MINUS_EQUAL,
+    ASSIGN_OP_KIND_TIMES_EQUAL,
+    ASSIGN_OP_KIND_DIVIDE_EQUAL,
+    ASSIGN_OP_KIND_MOD_EQUAL,
+    ASSIGN_OP_KIND_SHL_EQUAL,
+    ASSIGN_OP_KIND_SHR_EQUAL,
+    ASSIGN_OP_KIND_AND_EQUAL,
+    ASSIGN_OP_KIND_OR_EQUAL,
+    ASSIGN_OP_KIND_XOR_EQUAL,
+    ASSIGN_OP_KIND_EQUAL,
 } assign_op_kind_t;
 
 typedef struct {
@@ -128,21 +128,28 @@ typedef struct {
 } module_t;
 
 typedef enum {
-    ASSIGN_STMT,
-    LET_STMT,
-    VAR_STMT,
-    RETURN_STMT,
-    EXPR_STMT,
-    FOR_STMT,
-    WHILE_STMT,
-    IF_STMT,
-    BREAK_STMT,
-    CONTINUE_STMT,
+    STMT_KIND_UNDEFINED,
+    STMT_KIND_ASSIGN,
+    STMT_KIND_LET,
+    STMT_KIND_RETURN,
+    STMT_KIND_EXPR,
+    STMT_KIND_FOR,
+    STMT_KIND_WHILE,
+    STMT_KIND_IF,
+    STMT_KIND_BREAK,
+    STMT_KIND_CONTINUE,
 } stmt_kind_t;
 
 typedef union {
-    expr_stmt_t expr_stmt;
     assign_stmt_t assign_stmt;
+    let_stmt_t let_stmt;
+    return_stmt_t return_stmt;
+    expr_stmt_t expr_stmt;
+    for_stmt_t for_stmt;
+    while_stmt_t while_stmt;
+    if_stmt_t if_stmt;
+    break_stmt_t break_stmt;
+    continue_stmt_t cont_stmt;
 } stmt_variant_t;
 
 typedef struct {
@@ -190,14 +197,14 @@ typedef struct {
 } import_t;
 
 typedef enum {
-    SYMBOL_UNDEFINED,
-    SYMBOL_STRUCT,
-    SYMBOL_MODULE,
-    SYMBOL_FUNC,
-    SYMBOL_GLOBAL,
-    SYMBOL_ENUM,
-    SYMBOL_IMPORT,
-    SYMBOL_IMPL,
+    SYMBOL_KIND_UNDEFINED,
+    SYMBOL_KIND_STRUCT,
+    SYMBOL_KIND_MODULE,
+    SYMBOL_KIND_FUNC,
+    SYMBOL_KIND_GLOBAL,
+    SYMBOL_KIND_ENUM,
+    SYMBOL_KIND_IMPORT,
+    SYMBOL_KIND_IMPL,
 } symbol_kind_t;
 
 typedef union {
@@ -229,7 +236,3 @@ ast_t parser_parse(arena_t* arena, parser_t* self);
 parser_t* parser_new(arena_t* arena, lexer_t lexer);
 
 void parser_init(parser_t* self, lexer_t lexer);
-
-// void parser_deinit(parser_t* self, lexer_t lexer);
-
-// void parser_free(parser_t* self);
