@@ -11,7 +11,7 @@ target("elx")
 set_kind("binary")
 add_files("src/*.c")
 -- add_packages("libunwind", "libbacktrace")
-set_languages("c99")
+set_languages("c11")
 
 set_warnings("all", "extra", "pedantic")
 -- set_policy("build.sanitizer.address", true)
@@ -30,10 +30,11 @@ add_cflags(
 	"-rdynamic",
 	"-fsanitize=address",
 	"-g",
+	"-std=c11",
 	-- "-no-pie",
 	"-fno-omit-frame-pointer"
 )
 
 if is_mode("debug") then
-	add_ldflags("-rdynamic", "-no-pie", "-fsanitize=address")
+	add_ldflags("-rdynamic", "-no-pie", "-fsanitize=address", "-std=c11")
 end

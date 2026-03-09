@@ -1,9 +1,21 @@
 struct Foo {
     a: i32,
     b: f64,
+
+    fn simple(x: i32) -> i32 {
+        return x;
+    }
+}
+
+// AZE94K
+
+fn two() -> i8 {
+    return 2;
 }
 
 fn foo(x: u8) -> bool {
+    let f = Foo{0, 4.0};
+    let m = 1 * 2 - (3 + -two()) + f.simple(f.a) / 10;
     if x > 4 {
         x = 4;
     } else if x > 2 {

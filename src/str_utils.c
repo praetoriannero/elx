@@ -14,3 +14,5 @@ char* strdup(arena_t* arena, const char* str) {
 
     return copy;
 }
+
+bool streq(const char* lhs, const char* rhs) { return (strcmp(lhs, rhs) == 0); }
