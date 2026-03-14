@@ -201,8 +201,9 @@ let x: u32 = 42;
 // foo(x);                     // panics; wrong type error
 
 let y: &u32 = &x;
-foo(y);                        // okay 
+foo(y);                        // okay
 foo(&x);                       // okay
+foo(&mut x);                   // warning; keyword `mut` not required
 
 let z: *u32 = new(u32{42});
 // foo(z);                     // panics; wrong type error
