@@ -1,3 +1,5 @@
+# Purpose
+This document currently reflects the design intentions of the Elamite language. It is not meant to currently reflect the 
 
 # Features in v0.1.0
 - [x] lexer
@@ -33,6 +35,12 @@ The AST is converted into C source code.
 ## Compilation
 The generated C source code is compiled into the resulting executable or library.
 
+# Keywords
+| Keyword | Meaning |
+| --- | --- |
+| `test` | defines a module that, when imported in a project, will be called with `elx test` |
+
+
 # Symbol Types
 
 ## Struct
@@ -44,11 +52,11 @@ struct Foo {
 
     fn __init__(&mut self, a: u32, b: bool) -> Self {
         self.a = a;
-        self.b = new(bool(b));
+        self.b = new(b);
     }
 
     fn __deinit__(self) -> None {
-        free(self.b);
+        del(self.b);
     }
 }
 ```
@@ -102,15 +110,24 @@ bitfield Waldo {
 }
 ```
 
-
-# Object Internals
-Objects store both inherited struct and implemented trait data in their headers.
-
-Elamite definition:
+# Mutable and Immutable Variables
+All variables are `const` by default.
 ```
-struct Foo<U, T>: Bar<U, T> {
+let x = 0;
+x += 1;         // panics; variable `x` is immutable
+```
 
-}
+The keyword `var` is used to describe mutable types.
+```
+var x = 0;
+x += 1;         // okay
+
+var y = &x;
+let z = 4;      // a variable may be assigned to a constant (i.e., `let`) value
+y = &z;         // okay
+
+let m = 3;
+var y = &m; // panics; a mutable reference cannot be created from a constant
 ```
 
 # Memory Management
@@ -119,7 +136,7 @@ struct Foo<U, T>: Bar<U, T> {
 `new` creates a heap allocated contiguous memory region at least of size `T`. `new` will never return a pointer to `null` as out-of-memory (OOM) errors result in a call to `panic` resulting in program termination.
 ex:
 ```
-let x: *T = new(T{});
+let x: *bool = new(true);
 ```
 
 ## Freeing objects on the heap
@@ -137,6 +154,7 @@ del(y);                 // does not panic, successfully frees memory
 let x: *T;
 del(x);                 // panics
 ```
+
 
 
 # Builtin Types
@@ -161,7 +179,6 @@ del(x);                 // panics
 
 # References and Pointers
 
-## Reference Types
 A reference is defined as a memory address to either a heap or stack allocated object.
 ex:
 ```
@@ -171,7 +188,7 @@ let x: &u32 = &y;
 
 Only one mutable reference may exist for an object at a time.
 ```
-let i: u32 = 42;
+let mut i: u32 = 42;
 let j: &mut u32 = &mut i;
 let k: &mut u32 = &mut i;   // panics, more than one mutable reference is defined for i
 ```
@@ -183,7 +200,7 @@ let j: &u32 = &i;
 let k: &u32 = &i;   // this is fine
 ```
 
-The `*` operator dereferences a reference.
+The `*` operator dereferences references and pointers.
 ```
 let x: u32 = 42;
 let y: &u32 = &x;   // equals an immutable pointer to a stack allocated value
@@ -197,27 +214,27 @@ fn foo(x: &u32) -> u32 {
     return *x;
 }
 
-let x: u32 = 42;
+let x = 42;
 // foo(x);                     // panics; wrong type error
 
-let y: &u32 = &x;
+let y = &x;
 foo(y);                        // okay
 foo(&x);                       // okay
 foo(&mut x);                   // warning; keyword `mut` not required
 
-let z: *u32 = new(u32{42});
+let z = new(42);
+
 // foo(z);                     // panics; wrong type error
-foo(&(*z));                    // okay but weird
+foo(&*z);                      // okay
 ```
 
 A function may not manipulate immutable reference types or their contents.
 ```
 fn foo(x: &u32) {
-    x.* += 2;                     // panics; the reference and its contents cannot be mutated
+    (*x) += 2;                     // panics; the reference and its contents cannot be mutated
 }
 ```
 
-## Pointer Types
 Pointer types refer to heap memory addresses.
 ```
 let x: *u8 = new(u8{42});       // allocates a 64-bit pointer
@@ -225,7 +242,7 @@ let x: *u8 = new(u8{42});       // allocates a 64-bit pointer
 
 Pointer types can create memory leaks if not freed after creation.
 ```
-del(x);                         // deletes/frees the allocated memory for x
+del(x);                         // deletes/frees the allocated memory for x and sets x to `null`
 ```
 
 Similar to reference types, a function which takes in a pointer type cannot implicitly accept a value type.
