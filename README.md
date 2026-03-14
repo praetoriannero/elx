@@ -55,7 +55,21 @@ struct Foo {
 
 
 ## Function
+ex:
+```
+fn foo(x: &u32) -> () {
+    println("the value of x is {}", *x);
+}
 
+fn bar(x: &mut u32) -> () {
+    x += 4;
+    println("the value of x changed to {}", *x);
+}
+
+fn baz(x: &u32) -> u32 {
+    return *x;              // returns a copy of *x
+}
+```
 
 ## Enum
 ex:
@@ -101,22 +115,126 @@ struct Foo<U, T>: Bar<U, T> {
 
 # Memory Management
 
-## Builtin Functions
-`alloc` creates a heap allocated contiguous memory region at least of size `T`. `alloc` will never return a pointer to `null` as out-of-memory (OOM) errors are handled by a call to `panic` resulting in program termination.
+## Creating objects on the heap
+`new` creates a heap allocated contiguous memory region at least of size `T`. `new` will never return a pointer to `null` as out-of-memory (OOM) errors result in a call to `panic` resulting in program termination.
 ex:
 ```
-let x: *T = alloc(sizeof(T));
+let x: *T = new(T{});
 ```
 
-`free` deallocates a heap allocated region of memory defined by the size of the originally allocated region. Once `free` is called on a pointer type, the pointer is set to `null` automatically.
+## Freeing objects on the heap
+`del` deallocates a heap allocated region of memory defined by the size of the originally allocated region. Once `del` is called on a pointer type, the pointer is set to `null` automatically.
 ex:
 ```
-free(x);
+del(x);
 ```
 
-Calling `free` on a stack allocated pointer type results in a call to `panic`:
+Calling `del` on a stack allocated pointer type results in a call to `panic`:
 ```
+let y: *T = new(T{});
+del(y);                 // does not panic, successfully frees memory
+
 let x: *T;
-free(x)     // panics
+del(x);                 // panics
 ```
 
+
+# Builtin Types
+- u8
+- i8
+- u16
+- i16
+- u32
+- i32
+- u64
+- i64
+- f32
+- f64
+- uchar
+- ichar
+- str
+- ()
+- usize
+- isize
+- bool
+
+
+# References and Pointers
+
+## Reference Types
+A reference is defined as a memory address to either a heap or stack allocated object.
+ex:
+```
+let y: u32 = 0;
+let x: &u32 = &y;
+```
+
+Only one mutable reference may exist for an object at a time.
+```
+let i: u32 = 42;
+let j: &mut u32 = &mut i;
+let k: &mut u32 = &mut i;   // panics, more than one mutable reference is defined for i
+```
+
+Any number of immutable references may exist for an object, however.
+```
+let i: u32 = 42;
+let j: &u32 = &i;
+let k: &u32 = &i;   // this is fine
+```
+
+The `*` operator dereferences a reference.
+```
+let x: u32 = 42;
+let y: &u32 = &x;   // equals an immutable pointer to a stack allocated value
+let z: u32 = *y;    // equals 42
+```
+
+A function which takes in a reference type must explicitly be passed a reference type. No implicit conversions occur when attempting to pass value types as reference types.
+ex:
+```
+fn foo(x: &u32) -> u32 {
+    return *x;
+}
+
+let x: u32 = 42;
+// foo(x);                     // panics; wrong type error
+
+let y: &u32 = &x;
+foo(y);                        // okay 
+foo(&x);                       // okay
+
+let z: *u32 = new(u32{42});
+// foo(z);                     // panics; wrong type error
+foo(&(*z));                    // okay but weird
+```
+
+A function may not manipulate immutable reference types or their contents.
+```
+fn foo(x: &u32) {
+    x.* += 2;                     // panics; the reference and its contents cannot be mutated
+}
+```
+
+## Pointer Types
+Pointer types refer to heap memory addresses.
+```
+let x: *u8 = new(u8{42});       // allocates a 64-bit pointer
+```
+
+Pointer types can create memory leaks if not freed after creation.
+```
+del(x);                         // deletes/frees the allocated memory for x
+```
+
+Similar to reference types, a function which takes in a pointer type cannot implicitly accept a value type.
+```
+fn foo(x: *u32) -> u32 {
+    println("The memory address of x is {}", x);
+    println("The value of x is {}", *x);
+}
+```
+
+# Helpful Builtin Types
+- Box<T>
+- Option<T>

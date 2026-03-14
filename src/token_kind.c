@@ -2,6 +2,8 @@
 
 char* token_kind_str(token_kind_t kind) {
     switch (kind) {
+    case TOK_UNIT:
+        return "TOK_UNIT";
     case TOK_STRING:
         return "TOK_STRING";
     case TOK_FLOAT:

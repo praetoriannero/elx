@@ -49,7 +49,7 @@ string_t string_copy(arena_t* arena, string_t* self) {
     string_t string = (string_t){
         .size = self->size,
         .capacity = self->capacity,
-        .data = strdup(arena, self->data),
+        .data = strdup2(arena, self->data),
     };
 
     return string;

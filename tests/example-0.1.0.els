@@ -7,15 +7,13 @@ struct Foo {
     }
 }
 
-// AZE94K
-
 fn two() -> i8 {
     return 2;
 }
 
 fn foo(x: u8) -> bool {
     let f = Foo{0, 4.0};
-    let m = 1 * 2 - (3 + -two()) + f.simple(f.a) / 10;
+    let m = 1 * 2 - (3 + -two()) + (f.simple(f.a as i32) as u8) / 10;
     if x > 4 {
         x = 4;
     } else if x > 2 {
@@ -33,9 +31,11 @@ fn foo(x: u8) -> bool {
     for i in j {
         x += i;
     }
+
+    return (x > 1);
 }
 
-fn main(argv: u32) -> void {
+fn main(argv: u32) -> () {
     let mut x = Foo{0, 10.0};
     x.a = 0;
     x.b = 4.0;

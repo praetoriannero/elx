@@ -259,7 +259,7 @@ symbol_t visit_struct(arena_t* arena, parser_t* self) {
 
     // struct name
     token_t feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
-    struct_.name = strdup(arena, feed.str.data);
+    struct_.name = strdup2(arena, feed.str.data);
 
     parser_expect(TOK_LBRACE, lexer_next(&local_arena, &self->lexer));
 
@@ -270,12 +270,12 @@ symbol_t visit_struct(arena_t* arena, parser_t* self) {
         struct_field_t field = {0};
 
         parser_expect(TOK_IDENT, feed);
-        field.name = strdup(arena, feed.str.data);
+        field.name = strdup2(arena, feed.str.data);
 
         parser_expect(TOK_COLON, lexer_next(&local_arena, &self->lexer));
 
         feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
-        field.type.name = strdup(arena, feed.str.data);
+        field.type.name = strdup2(arena, feed.str.data);
 
         vector_push(arena, &struct_.field_vec, &field);
 
@@ -310,7 +310,7 @@ symbol_t visit_module(arena_t* arena, parser_t* self) {
     vector_init(arena, &module.symbol_vec, sizeof(symbol_t), 8);
 
     token_t feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
-    module.name = strdup(arena, feed.str.data);
+    module.name = strdup2(arena, feed.str.data);
 
     parser_expect(TOK_LBRACE, lexer_next(&local_arena, &self->lexer));
 
@@ -353,7 +353,7 @@ symbol_t visit_func(arena_t* arena, parser_t* self) {
 
     // function name
     token_t feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
-    func.name = strdup(arena, feed.str.data);
+    func.name = strdup2(arena, feed.str.data);
 
     parser_expect(TOK_LPAREN, lexer_next(&local_arena, &self->lexer));
 
@@ -362,10 +362,10 @@ symbol_t visit_func(arena_t* arena, parser_t* self) {
     // function arguments
     while (feed.kind != TOK_RPAREN) {
         func_arg_t arg = {0};
-        arg.name = strdup(arena, feed.str.data);
+        arg.name = strdup2(arena, feed.str.data);
         parser_expect(TOK_COLON, lexer_next(&local_arena, &self->lexer));
         feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
-        arg.type.name = strdup(arena, feed.str.data);
+        arg.type.name = strdup2(arena, feed.str.data);
         vector_push(arena, &func.arg_vec, &arg);
 
         feed = lexer_next(&local_arena, &self->lexer);
@@ -378,7 +378,7 @@ symbol_t visit_func(arena_t* arena, parser_t* self) {
 
     parser_expect(TOK_ARROW, lexer_next(&local_arena, &self->lexer));
     feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
-    func.ret_type.name = strdup(arena, feed.str.data);
+    func.ret_type.name = strdup2(arena, feed.str.data);
 
     parser_expect(TOK_LBRACE, lexer_next(&local_arena, &self->lexer));
 
@@ -425,13 +425,13 @@ symbol_t visit_global(arena_t* arena, parser_t* self) {
 
     // variable name
     feed = parser_expect(TOK_IDENT, feed);
-    global.name = strdup(arena, feed.str.data);
+    global.name = strdup2(arena, feed.str.data);
 
     feed = parser_expect(TOK_COLON, lexer_next(arena, &self->lexer));
 
     // type name
     feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
-    global.type.name = strdup(arena, feed.str.data);
+    global.type.name = strdup2(arena, feed.str.data);
 
     feed = parser_expect(TOK_EQ, lexer_next(arena, &self->lexer));
 
@@ -458,7 +458,7 @@ symbol_t visit_enum(arena_t* arena, parser_t* self) {
     enum_t enum_ = {0};
 
     token_t feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
-    enum_.name = strdup(arena, feed.str.data);
+    enum_.name = strdup2(arena, feed.str.data);
 
     parser_expect(TOK_LBRACE, lexer_next(&local_arena, &self->lexer));
 
@@ -471,7 +471,7 @@ symbol_t visit_enum(arena_t* arena, parser_t* self) {
         enum_kind_t* enum_kind = arena_alloc(arena, sizeof(enum_kind_t));
 
         parser_expect(TOK_IDENT, feed);
-        enum_kind->name = strdup(arena, feed.str.data);
+        enum_kind->name = strdup2(arena, feed.str.data);
 
         feed = lexer_next(&local_arena, &self->lexer);
         if (feed.kind == TOK_COMMA) {
@@ -483,7 +483,7 @@ symbol_t visit_enum(arena_t* arena, parser_t* self) {
         if (feed.kind == TOK_LPAREN) {
             enum_kind->variant = ENUM_VARIANT_ALG;
             feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
-            enum_kind->type.name = strdup(arena, feed.str.data);
+            enum_kind->type.name = strdup2(arena, feed.str.data);
             parser_expect(TOK_RPAREN, lexer_next(&local_arena, &self->lexer));
             parser_expect(TOK_COMMA, lexer_next(&local_arena, &self->lexer));
         }

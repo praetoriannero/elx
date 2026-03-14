@@ -37,6 +37,7 @@ typedef enum token_kind {
     TOK_SEMICOLON, // ;
     TOK_COMMA,     // ,
     TOK_DECIMAL,   // .
+    TOK_UNIT,      // ()
 
     // multi-char operators
     TOK_LOR,     // ||

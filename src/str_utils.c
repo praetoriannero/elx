@@ -1,8 +1,9 @@
 #include <string.h>
 
+#include "arena.h"
 #include "str_utils.h"
 
-char* strdup(arena_t* arena, const char* str) {
+char* strdup2(arena_t* arena, const char* str) {
     if (!str)
         return NULL;
 
