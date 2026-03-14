@@ -36,9 +36,9 @@ The AST is converted into C source code.
 The generated C source code is compiled into the resulting executable or library.
 
 # Keywords
-| Keyword | Meaning |
-| --- | --- |
-| `test` | defines a module that, when imported in a project, will be called with `elx test` |
+| Keyword | Usage | Meaning |
+| --- | --- | --- |
+| `test` | `test { ... }` | defines a module that, when imported in a project, will be called with `elx test` |
 
 
 # Symbol Types
