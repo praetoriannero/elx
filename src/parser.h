@@ -8,6 +8,9 @@
 #include "str_utils.h"
 #include "vector.h"
 
+struct expr_t;
+typedef struct expr_t expr_t;
+
 typedef struct {
     vector_t stmts;
 } body_t;
@@ -56,7 +59,8 @@ typedef struct {
 
 typedef struct {
     char* name;
-    vector_t field_vec; // vec<struct_field_t>
+    vector_t field_vec;  // vec<struct_field_t>
+    vector_t method_vec; // vec<funct_t>
 } struct_t;
 
 typedef struct {
@@ -84,93 +88,117 @@ typedef struct {
 } literal_t;
 
 typedef enum {
-    //   LiteralExpression
-    //   PathExpression
-    //   OperatorExpression
-    //   GroupedExpression
-    //   ArrayExpression
-    //   AwaitExpression
-    //   IndexExpression
-    //   TupleExpression
-    //   TupleIndexingExpression
-    //   StructExpression
-    //   CallExpression
-    //   MethodCallExpression
-    //   FieldExpression
-    //   ClosureExpression
-    //   AsyncBlockExpression
-    //   ContinueExpression
-    //   BreakExpression
-    //   RangeExpression
-    //   ReturnExpression
-    //   UnderscoreExpression
+    // EmptyExpression
+    EXPR_KIND_EMPTY,
 
-    EXPR_KIND_BINARY,
-    EXPR_KIND_UNARY,
-    // EXPR_KIND_GROUP,
-    EXPR_KIND_ARRAY,
-    EXPR_KIND_STRUCT,
-    EXPR_KIND_METHOD_CALL,
-    EXPR_KIND_CALL,
-    EXPR_KIND_FIELD,
-    EXPR_KIND_PATH,
-    EXPR_KIND_ARRAY_INDEX,
-    EXPR_KIND_TUPLE_INDEX,
-    EXPR_KIND_IDENT,
-    EXPR_KIND_AS,
+    // LiteralExpression
     EXPR_KIND_LITERAL,
 
+    // PathExpression
+    EXPR_KIND_PATH,
+
+    // OperatorExpression
+    EXPR_KIND_BINARY,
+    EXPR_KIND_UNARY,
+
+    // GroupedExpression
+    EXPR_KIND_GROUP,
+
+    // ArrayExpression
+    EXPR_KIND_ARRAY,
+
+    // IndexExpression
+    EXPR_KIND_ARRAY_INDEX,
+
+    // TupleExpression
+    EXPR_KIND_TUPLE,
+
+    // note: this is really a field expression
+    // TupleIndexingExpression
+    // EXPR_KIND_TUPLE_INDEX,
+
+    // StructExpression
+    EXPR_KIND_STRUCT,
+
+    // CallExpression
+    EXPR_KIND_CALL,
+
+    // MethodCallExpression
+    EXPR_KIND_METHOD_CALL,
+
+    // FieldExpression
+    EXPR_KIND_FIELD,
+
+    // ClosureExpression
+    EXPR_KIND_CLOSURE,
+
+    // RangeExpression
+    EXPR_KIND_RANGE,
+
+    // AssignmentExpression
+    EXPR_KIND_ASSIGN,
+
+    // future
+    // AwaitExpression
+    // AsyncBlockExpression
+    // UnderscoreExpression
+
+    // JumpExpression
+    // EXPR_KIND_RETURN,
+    // EXPR_KIND_BREAK,
+    // EXPR_KIND_CONTINUE,
+
+    EXPR_KIND_IDENT,
 } expr_kind_t;
 
-typedef struct expr_t expr_t;
-
 typedef enum {
-    PREC_LOR,
-    PREC_LAND,
-    PREC_COMP,
-    PREC_BOR,
-    PREC_BXOR,
-    PREC_BAND,
-    PREC_SHIFT,
-    PREC_ADDSUB,
-    PREC_MULDIV,
-    PREC_CAST,
-    PREC_UNARY,
-    PREC_CALL,
-    PREC_STRUCT,
-    PREC_PATH,
-} precedence_t;
+    // return break continue yield
+    EXPR_PREC_JUMP = 10,
 
-static precedence_t get_precedence(const expr_kind_t expr_kind, const char* operator) {
-    switch (expr_kind) {
-    case EXPR_KIND_BINARY:
-        if (streq("||", operator)) {
-            return PREC_LOR;
-        } else if (streq("&&", operator)) {
-            return PREC_LAND;
-        } else if (streq("==", operator) || streq("!=", operator) ||
-                   streq("<", operator) || streq(">", operator) ||
-                   streq("<=", operator) || streq(">=", operator)) {
-            return PREC_COMP;
-        } else if (streq("|", operator)) {
-            return PREC_BOR;
-        } else if (streq("&", operator)) {
-            return PREC_BAND;
-        } else if (streq(">>", operator) || streq(">>", operator)) {
-            return PREC_SHIFT;
-        } else if (streq("+", operator) || streq("-", operator)) {
-            return PREC_ADDSUB;
-        } else if (streq("*", operator) || streq("/", operator)) {
-            return PREC_MULDIV;
-        }
-    case EXPR_KIND_UNARY:
-        return PREC_UNARY;
-    case EXPR_KIND_AS:
-        return PREC_CAST;
-    case EXPR_KIND_STRUCT:
-        return PREC_STRUCT;
-    }
-}
+    // = += -= *= /= %= &= |= ^= <<= >>=
+    EXPR_PREC_ASSIGN = 20,
+
+    // .. ..=
+    EXPR_PREC_RANGE = 30,
+
+    // ||
+    EXPR_PREC_LOR = 40,
+
+    // &&
+    EXPR_PREC_LAND = 50,
+
+    // == != >= <= > <
+    EXPR_PREC_COMP = 60,
+
+    // |
+    EXPR_PREC_BOR = 70,
+
+    // ^
+    EXPR_PREC_BXOR = 80,
+
+    // &
+    EXPR_PREC_BAND = 90,
+
+    // >> <<
+    EXPR_PREC_SHIFT = 100,
+
+    // + -
+    EXPR_PREC_ADDSUB = 110,
+
+    // % * /
+    EXPR_PREC_MULDIV = 120,
+
+    // unary + - ^ !
+    EXPR_PREC_PREFIX = 130,
+
+    // function calls, array indexing, field expressions, method calls
+    EXPR_PREC_POSTFIX = 140,
+
+    // paths identifiers
+    EXPR_PREC_UNAMBIGUOUS = 250,
+} expr_precedence_t;
+
+expr_precedence_t get_precedence(const expr_kind_t expr_kind, const char* operator);
 
 struct expr_t {
     expr_kind_t expr_kind;
@@ -178,54 +206,65 @@ struct expr_t {
     union {
         struct {
             expr_t* lhs;
-            token_t op;
             expr_t* rhs;
-        } binary_op;
+            token_t op;
+        } binary_expr;
 
         struct {
             expr_t* inner;
             token_t op;
-        } unary_op;
-
-        // expr_t* group;
+        } unary_expr;
 
         struct {
             expr_t* kind;
             expr_t* size;
-        } array;
+        } array_expr;
 
         struct {
+            expr_t* object;
             vector_t field_init_vec;
-        } struct_;
+        } struct_init_expr;
 
         struct {
             expr_t* object;
             vector_t arg_vec; // vec<expr_t>
-        } call;
+        } call_expr;
 
         struct {
             expr_t* object;
             char* name;
-        } field;
+        } field_expr;
 
         struct {
             expr_t* object;
             expr_t* index;
-        } array_index;
+        } array_index_expr;
 
-        // vector_t path;  // vec<char*>
         struct {
             vector_t path;
         } path_expr;
 
-        char* identifier;
-
         struct {
-            char* name;
-            type_t type;
-        } object;
+            expr_t* object;
+            char* method;
+            vector_t args; // vec<expr_t>
+        } method_call_expr;
 
-        literal_t literal;
+        char* ident_expr;
+
+        literal_t literal_expr;
+
+        // struct {
+        //     expr_t* expr;
+        // } break_expr;
+        //
+        // struct {
+        //     expr_t* expr;
+        // } return_expr;
+        //
+        // struct {
+        //     expr_t* expr;
+        // } continue_expr;
     };
 };
 
@@ -263,7 +302,7 @@ typedef struct {
 } let_stmt_t;
 
 typedef struct {
-    expr_stream_t expr;
+    expr_t expr;
 } return_stmt_t;
 
 typedef struct {
@@ -406,3 +445,21 @@ ast_t parser_parse(arena_t* arena, parser_t* self);
 parser_t* parser_new(arena_t* arena, lexer_t lexer);
 
 void parser_init(parser_t* self, lexer_t lexer);
+
+type_t parse_type(arena_t* arena, parser_t self);
+
+symbol_t visit_struct(arena_t* arena, parser_t* self);
+
+symbol_t visit_module(arena_t* arena, parser_t* self);
+
+symbol_t visit_global(arena_t* arena, parser_t* self, bool is_var);
+
+symbol_t visit_enum(arena_t* arena, parser_t* self);
+
+symbol_t visit_import(arena_t* arena, parser_t* self);
+
+symbol_t visit_func(arena_t* arena, parser_t* self);
+
+stmt_t visit_expr_stmt(arena_t* arena, parser_t* self);
+
+expr_stream_t visit_expr(arena_t* arena, parser_t* self, token_kind_t stop_token);

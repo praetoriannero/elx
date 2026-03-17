@@ -11,8 +11,7 @@ typedef struct vector {
     usize size;
 } vector_t;
 
-void vector_init(arena_t* arena, vector_t* self, usize datum_size,
-                 usize initial_capacity);
+void vector_init(arena_t* arena, vector_t* self, usize datum_size, usize initial_capacity);
 
 vector_t* vector_new(arena_t* arena, usize datum_size, usize initial_capacity);
 

@@ -9,8 +9,7 @@
 
 #define DEFAULT_VEC_SIZE 8
 
-void vector_init(arena_t* arena, vector_t* self, size_t datum_size,
-                 size_t initial_capacity) {
+void vector_init(arena_t* arena, vector_t* self, size_t datum_size, size_t initial_capacity) {
     xnotnull(self);
 
     self->data = arena_alloc(arena, datum_size * initial_capacity);
@@ -19,8 +18,7 @@ void vector_init(arena_t* arena, vector_t* self, size_t datum_size,
     self->size = 0;
 }
 
-vector_t* vector_new(arena_t* arena, size_t datum_size,
-                     size_t initial_capacity) {
+vector_t* vector_new(arena_t* arena, size_t datum_size, size_t initial_capacity) {
     vector_t* vec = arena_alloc(arena, sizeof(vector_t));
     vector_init(arena, vec, datum_size, initial_capacity);
     return vec;
@@ -31,8 +29,7 @@ void vector_push(arena_t* arena, vector_t* self, const void* datum) {
 
     size_t new_len = self->size + 1;
     if (new_len == self->capacity) {
-        size_t new_capacity =
-            self->capacity ? self->capacity * 2 : DEFAULT_VEC_SIZE;
+        size_t new_capacity = self->capacity ? self->capacity * 2 : DEFAULT_VEC_SIZE;
         size_t new_alloc = new_capacity * self->datum_size;
 
         void* new_data = arena_realloc(arena, self->data, new_alloc);
@@ -40,8 +37,7 @@ void vector_push(arena_t* arena, vector_t* self, const void* datum) {
         self->data = new_data;
     }
 
-    memcpy((char*)self->data + self->size * self->datum_size, datum,
-           self->datum_size);
+    memcpy((char*)self->data + self->size * self->datum_size, datum, self->datum_size);
 
     self->size++;
 }
@@ -75,9 +71,7 @@ void vector_clear(vector_t* self, free_inner inner_cb) {
     self->capacity = 0;
 }
 
-void vector_deinit(vector_t* self, free_inner inner_cb) {
-    vector_clear(self, inner_cb);
-}
+void vector_deinit(vector_t* self, free_inner inner_cb) { vector_clear(self, inner_cb); }
 
 void vector_free(vector_t* self, free_inner inner_cb) {
     size_t idx;

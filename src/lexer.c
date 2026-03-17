@@ -17,8 +17,7 @@
 #include "xalloc.h"
 
 void lexer_error(lexer_t* self, char* msg) {
-    panic("lexing error: %s at location %d:%d in file FILE\n", msg,
-          self->meta.line, self->meta.col);
+    panic("lexing error: %s at location %d:%d in file FILE\n", msg, self->meta.line, self->meta.col);
 }
 
 void lexer_init(lexer_t* self, char* data) {
@@ -35,28 +34,29 @@ void lexer_init(lexer_t* self, char* data) {
 static const char* whitespace = " \t\n\r";
 
 static void lexer_skip_whitespace(lexer_t* self) {
-    char c = lexer_peek(self);
+    char c = lexer_peek_char(self);
     while (strchr(whitespace, c)) {
         c = lexer_consume(self);
         if (c == -1) {
             break;
         }
-        c = lexer_peek(self);
+        c = lexer_peek_char(self);
     }
 }
 
 static void lexer_skip_comment(lexer_t* self) {
-    char c = lexer_peek(self);
+    char c = lexer_peek_char(self);
     while (c != '\n') {
         c = lexer_consume(self);
         if (c == -1) {
             break;
         }
-        c = lexer_peek(self);
+        c = lexer_peek_char(self);
     }
 }
 
 token_t lexer_next(arena_t* arena, lexer_t* self) {
+    // lexer_peek(arena, self);
     // log("entering lexer_next\n");
     arena_t local_arena;
     arena_init(&local_arena);
@@ -79,8 +79,8 @@ token_t lexer_next(arena_t* arena, lexer_t* self) {
     // string literal
     if (token.kind == TOK_DQUOTE) {
         string_push_char(arena, &token.str, c);
-        while (lexer_peek(self) != '"') {
-            if (lexer_peek(self) == -1) {
+        while (lexer_peek_char(self) != '"') {
+            if (lexer_peek_char(self) == -1) {
                 token.kind = TOK_EOF;
                 return token;
             }
@@ -99,7 +99,7 @@ token_t lexer_next(arena_t* arena, lexer_t* self) {
         size_t table_size = array_len(op_table);
         op_node_t op_node;
 
-        char c_next = lexer_peek(self);
+        char c_next = lexer_peek_char(self);
         token_kind_t kind_next = single_char_token[(u8)c_next];
 
         for (size_t i = 0; i < table_size; i++) {
@@ -111,8 +111,7 @@ token_t lexer_next(arena_t* arena, lexer_t* self) {
         }
 
         bool found = false;
-        while (op_iter && (kind_next != TOK_INVALID) &&
-               (!strchr(whitespace, c_next))) {
+        while (op_iter && (kind_next != TOK_INVALID) && (!strchr(whitespace, c_next))) {
             for (size_t i = 0; i < table_size; i++) {
                 op_node = op_iter[i];
                 if (op_node.text == c_next) {
@@ -128,7 +127,7 @@ token_t lexer_next(arena_t* arena, lexer_t* self) {
                 break;
             }
 
-            c_next = lexer_peek(self);
+            c_next = lexer_peek_char(self);
             kind_next = single_char_token[(u8)c_next];
         }
 
@@ -139,7 +138,7 @@ token_t lexer_next(arena_t* arena, lexer_t* self) {
     if (is_valid_ident_start(c)) {
         while (is_ident_char(c)) {
             string_push_char(arena, &token.str, c);
-            if (!is_ident_char(lexer_peek(self))) {
+            if (!is_ident_char(lexer_peek_char(self))) {
                 break;
             }
             c = lexer_consume(self);
@@ -170,7 +169,7 @@ token_t lexer_next(arena_t* arena, lexer_t* self) {
             }
 
             string_push_char(arena, &token.str, c);
-            char c_next = lexer_peek(self);
+            char c_next = lexer_peek_char(self);
             if ((c_next != '.') && (!isdigit(c_next))) {
                 break;
             }
@@ -203,23 +202,38 @@ fn_next_exit:
     return token;
 }
 
-// i64 lexer_meta_str(lexer_t* self, char* meta_str) {
-//     return sprintf(meta_str,
-//                    "lexer_t{token=%s, loc=%zu, length=%zu, line=%zu,
-//                    col=%zu}", self->token_string->data, self->meta.loc,
-//                    self->meta.length, self->meta.line + 1, self->meta.col +
-//                    1);
-// }
+token_t lexer_peek(arena_t* arena, lexer_t* self) {
+    lexer_meta_t meta = self->meta;
+    token_t token = lexer_next(arena, self);
+    self->meta = meta;
+    return token;
+}
 
-char lexer_peek(lexer_t* self) { return self->data[self->meta.loc]; }
+i64 lexer_scan(lexer_t* self, token_kind_t key) {
+    lexer_meta_t start_meta = self->meta;
+    arena_t local_arena = {};
+    i64 pos = -1;
 
-char lexer_peek_next(lexer_t* self) {
-    if (self->meta.loc == self->meta.length - 1) {
-        return -1;
+    arena_init(&local_arena);
+
+    while (true) {
+        lexer_meta_t cursor = self->meta;
+        token_t token = lexer_next(&local_arena, self);
+        if (token.kind == key) {
+            pos = (i64)cursor.loc;
+            break;
+        } else if (token.kind == TOK_EOF) {
+            break;
+        }
     }
 
-    return self->data[self->meta.loc + 1];
+    arena_deinit(&local_arena);
+    self->meta = start_meta;
+
+    return pos;
 }
+
+char lexer_peek_char(lexer_t* self) { return self->data[self->meta.loc]; }
 
 char lexer_consume(lexer_t* self) {
     if (self->meta.loc == self->meta.length - 1) {

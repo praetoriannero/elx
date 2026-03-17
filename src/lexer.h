@@ -6,6 +6,7 @@
 #include "arena.h"
 // #include "str.h"
 #include "token.h"
+#include "token_kind.h"
 
 typedef struct {
     size_t loc;
@@ -25,11 +26,13 @@ typedef struct lexer {
 
 void lexer_init(lexer_t* self, char* data);
 
-token_t lexer_next(arena_t* arena, lexer_t* stream);
+token_t lexer_next(arena_t* arena, lexer_t* self);
 
-char lexer_peek(lexer_t* stream);
+token_t lexer_peek(arena_t* arena, lexer_t* self);
 
-char lexer_peek_next(lexer_t* self);
+i64 lexer_scan(lexer_t* self, token_kind_t key);
+
+char lexer_peek_char(lexer_t* stream);
 
 char lexer_consume(lexer_t* stream);
 

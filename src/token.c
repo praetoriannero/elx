@@ -45,8 +45,7 @@ token_t* token_copy(arena_t* arena, token_t* self) {
 char* token_string(arena_t* arena, token_t* self) {
     xnotnull(self);
 
-    char* str = fmt(arena, "Token(str=\"%s\", kind=\"%s\")", self->str.data,
-                    token_kind_str(self->kind));
+    char* str = fmt(arena, "Token(str=\"%s\", kind=\"%s\")", self->str.data, token_kind_str(self->kind));
 
     return str;
 }

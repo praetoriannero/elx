@@ -84,8 +84,10 @@ static const op_node_t fs_children[] = {
     {'=', TOK_DIVEQ, NULL, 0},
 };
 
+static const op_node_t range_children[] = {{'=', TOK_RANGEINCL, NULL, 0}};
+
 static const op_node_t dec_children[] = {
-    {'.', TOK_RANGE, NULL, 0},
+    {'.', TOK_RANGE, range_children, 1},
 };
 
 static const op_node_t colon_children[] = {
@@ -138,22 +140,18 @@ typedef struct string_token {
 } string_token_t;
 
 static const string_token_t keyword_kind_table[] = {
-    {"as", TOK_KW_AS},         {"async", TOK_KW_ASYNC},
-    {"await", TOK_KW_AWAIT},   {"break", TOK_KW_BREAK},
-    {"const", TOK_KW_CONST},   {"continue", TOK_KW_CONTINUE},
-    {"else", TOK_KW_ELSE},     {"enum", TOK_KW_ENUM},
-    {"false", TOK_KW_FALSE},   {"fn", TOK_KW_FN},
-    {"for", TOK_KW_FOR},       {"if", TOK_KW_IF},
-    {"impl", TOK_KW_IMPL},     {"in", TOK_KW_IN},
-    {"let", TOK_KW_LET},       {"match", TOK_KW_MATCH},
-    {"module", TOK_KW_MODULE}, {"mut", TOK_KW_MUT},
-    {"pub", TOK_KW_PUB},       {"ref", TOK_KW_REF},
-    {"return", TOK_KW_RETURN}, {"self", TOK_KW_SELF},
-    {"Self", TOK_KW_SELFTYPE}, {"static", TOK_KW_STATIC},
-    {"struct", TOK_KW_STRUCT}, {"super", TOK_KW_SUPER},
-    {"trait", TOK_KW_TRAIT},   {"true", TOK_KW_TRUE},
-    {"type", TOK_KW_TYPE},     {"use", TOK_KW_USE},
-    {"var", TOK_KW_VAR},       {"while", TOK_KW_WHILE},
+    {"as", TOK_KW_AS},         {"async", TOK_KW_ASYNC},   {"await", TOK_KW_AWAIT},
+    {"break", TOK_KW_BREAK},   {"const", TOK_KW_CONST},   {"continue", TOK_KW_CONTINUE},
+    {"else", TOK_KW_ELSE},     {"enum", TOK_KW_ENUM},     {"false", TOK_KW_FALSE},
+    {"fn", TOK_KW_FN},         {"for", TOK_KW_FOR},       {"if", TOK_KW_IF},
+    {"impl", TOK_KW_IMPL},     {"in", TOK_KW_IN},         {"let", TOK_KW_LET},
+    {"match", TOK_KW_MATCH},   {"module", TOK_KW_MODULE}, {"pub", TOK_KW_PUB},
+    {"ref", TOK_KW_REF},       {"return", TOK_KW_RETURN}, {"self", TOK_KW_SELF},
+    {"Self", TOK_KW_SELFTYPE}, {"static", TOK_KW_STATIC}, {"struct", TOK_KW_STRUCT},
+    {"super", TOK_KW_SUPER},   {"trait", TOK_KW_TRAIT},   {"true", TOK_KW_TRUE},
+    {"type", TOK_KW_TYPE},     {"use", TOK_KW_USE},       {"var", TOK_KW_VAR},
+    {"while", TOK_KW_WHILE},   {"yield", TOK_KW_YIELD},
+    // {"mut", TOK_KW_MUT},
 };
 
 typedef struct lookup_result {

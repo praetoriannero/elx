@@ -51,11 +51,13 @@ struct Foo {
     b: *bool;
 
     fn __init__(&mut self, a: u32, b: bool) -> Self {
+        // __init__ defines a constructor, like `T()`
         self.a = a;
         self.b = new(b);
     }
 
     fn __deinit__(self) -> None {
+        // __deinit__ is called when a variable exits the scope it is defined in
         del(self.b);
     }
 }
@@ -238,6 +240,8 @@ fn foo(x: &u32) {
 Pointer types refer to heap memory addresses.
 ```
 let x: *u8 = new(u8{42});       // allocates a 64-bit pointer
+// or use shorthand
+let x = new(42);
 ```
 
 Pointer types can create memory leaks if not freed after creation.

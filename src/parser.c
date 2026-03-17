@@ -13,52 +13,265 @@
 #include "vector.h"
 #include "xalloc.h"
 
-type_t parse_type(arena_t* arena, parser_t self);
+expr_precedence_t postfix_precedence(token_kind_t kind) {
+    switch (kind) {
+    case TOK_LBRACE:
+    case TOK_LPAREN:
+    case TOK_DECIMAL:
+    case TOK_LBRACK:
+        return EXPR_PREC_POSTFIX;
+    default:
+        return 0;
+    }
+}
 
-symbol_t visit_struct(arena_t* arena, parser_t* self);
+expr_precedence_t infix_precedence(token_kind_t kind) {
+    switch (kind) {
+    case TOK_LOR:
+        return EXPR_PREC_LOR;
 
-symbol_t visit_module(arena_t* arena, parser_t* self);
+    case TOK_LAND:
+        return EXPR_PREC_LAND;
 
-symbol_t visit_global(arena_t* arena, parser_t* self);
+    case TOK_EQEQ:
+    case TOK_NOTEQ:
+    case TOK_LT:
+    case TOK_LTE:
+    case TOK_GT:
+    case TOK_GTE:
+        return EXPR_PREC_COMP;
 
-symbol_t visit_enum(arena_t* arena, parser_t* self);
+    case TOK_PIPE:
+        return EXPR_PREC_LOR;
 
-symbol_t visit_import(arena_t* arena, parser_t* self);
+    case TOK_XOR:
+        return EXPR_PREC_BXOR;
 
-symbol_t visit_func(arena_t* arena, parser_t* self);
+    case TOK_AMPER:
+        return EXPR_PREC_BAND;
 
-stmt_t visit_expr_stmt(arena_t* arena, parser_t* self);
+    case TOK_SHL:
+    case TOK_SHR:
+        return EXPR_PREC_SHIFT;
 
-expr_stream_t visit_expr(arena_t* arena, parser_t* self);
+    case TOK_PLUS:
+    case TOK_MINUS:
+        return EXPR_PREC_ADDSUB;
+
+    case TOK_STAR:
+    case TOK_FSLASH:
+        return EXPR_PREC_MULDIV;
+
+    case TOK_EQ:
+    case TOK_PLUSEQ:
+    case TOK_MINEQ:
+    case TOK_TIMESEQ:
+    case TOK_DIVEQ:
+    case TOK_MODEQ:
+    case TOK_XOREQ:
+    case TOK_ANDEQ:
+    case TOK_OREQ:
+    case TOK_SHLEQ:
+    case TOK_SHREQ:
+        return EXPR_PREC_ASSIGN;
+
+    case TOK_RANGE:
+    case TOK_RANGEINCL:
+        return EXPR_PREC_RANGE;
+
+    default:
+        return EXPR_PREC_UNAMBIGUOUS;
+    }
+}
 
 token_t parser_expect(token_kind_t expected, token_t actual) {
     if (expected != actual.kind) {
-        panic("expected token kind %s but found %s, \"%s\"",
-              token_kind_str(expected), token_kind_str(actual.kind),
+        panic("expected token kind %s but found %s, \"%s\"", token_kind_str(expected), token_kind_str(actual.kind),
               actual.str.data);
     }
 
     return actual;
 }
 
-expr_stream_t visit_expr(arena_t* arena, parser_t* self) {
-    /*
-     * Consume tokens until we reach a semicolon
-     */
+char* expr_to_string(arena_t* arena, expr_t expr, u64 str_size) {
+    todo();
+    return NULL;
+}
 
-    token_t feed = {0};
-
-    arena_t local_arena = {0};
+expr_t* parse_expr_prec(arena_t* arena, parser_t* self, token_kind_t stop_token, expr_precedence_t min_prec) {
+    arena_t local_arena = {};
     arena_init(&local_arena);
 
-    expr_stream_t expr = (expr_stream_t){0};
+    token_t left_tok = lexer_next(&local_arena, &self->lexer);
+    expr_t* lhs = arena_alloc(&local_arena, sizeof(expr_t));
+    expr_t* prev_lhs;
+
+    if (left_tok.kind == stop_token) {
+        // empty expression
+        lhs->expr_kind = EXPR_KIND_EMPTY;
+        return lhs;
+
+    } else if (left_tok.kind == TOK_IDENT) {
+        // identifier
+        lhs->expr_kind = EXPR_KIND_IDENT;
+        lhs->ident_expr = strdup2(arena, left_tok.str.data);
+
+    } else if (left_tok.kind == TOK_FLOAT) {
+        // float literal
+        lhs->expr_kind = EXPR_KIND_LITERAL;
+        lhs->literal_expr.float_ = strdup2(arena, left_tok.str.data);
+
+    } else if (left_tok.kind == TOK_INTEGER) {
+        // integer literal
+        lhs->expr_kind = EXPR_KIND_LITERAL;
+        lhs->literal_expr.integer = strdup2(arena, left_tok.str.data);
+
+    } else if (left_tok.kind == TOK_STRING) {
+        // string literal
+        lhs->expr_kind = EXPR_KIND_LITERAL;
+        lhs->literal_expr.string = strdup2(arena, left_tok.str.data);
+
+    } else if (left_tok.kind == TOK_LBRACK) {
+        // array literal
+        // todo: support explicit element list designation, ex: [1, 2, 3]
+        expr_t* element_type = parse_expr_prec(arena, self, TOK_SEMICOLON, 0);
+        expr_t* element_count = parse_expr_prec(arena, self, TOK_RBRACK, 0);
+        lhs->expr_kind = EXPR_KIND_ARRAY;
+        lhs->array_expr.kind = element_type;
+        lhs->array_expr.size = element_count;
+
+    } else if (left_tok.kind == TOK_LPAREN) {
+        // group expression
+        // todo: support tuples, ex: (1, 2, 3)
+        lhs = parse_expr_prec(arena, self, TOK_RPAREN, 0);
+
+    } else if (is_valid_op(left_tok.kind)) {
+        // unary expression
+        lhs->expr_kind = EXPR_KIND_UNARY;
+        lhs->unary_expr.op = *token_copy(arena, &left_tok);
+        lhs->unary_expr.inner = parse_expr_prec(arena, self, stop_token, EXPR_PREC_PREFIX - 1);
+    }
+
+    while (true) {
+        token_t operator_tok = lexer_peek(arena, &self->lexer);
+        if (!is_valid_op(operator_tok.kind)) {
+            // invalid operator
+            panic("invalid token encountered during expression parse: '%s'", token_string(arena, &operator_tok));
+
+        } else if (operator_tok.kind == stop_token) {
+            // end of expression
+            break;
+        }
+
+        expr_precedence_t postfix_prec = postfix_precedence(operator_tok.kind);
+        if (postfix_prec) {
+            if (postfix_prec < min_prec) {
+                break;
+            }
+
+            if (operator_tok.kind == TOK_LBRACE) {
+                // struct init expression
+                lhs->expr_kind = EXPR_KIND_STRUCT;
+                vector_init(arena, &lhs->struct_init_expr.field_init_vec, sizeof(expr_t), 1);
+                // need to handle each value in the struct init, divide by commas
+                continue;
+
+            } else if (operator_tok.kind == TOK_LPAREN) {
+                // call expression
+                lhs->expr_kind = EXPR_KIND_CALL;
+                vector_init(arena, &lhs->call_expr.arg_vec, sizeof(expr_t), 1);
+                // need to handle each value in the function argument list, divide by commas
+                continue;
+
+            } else if (operator_tok.kind == TOK_DECIMAL) {
+                // field access
+                operator_tok = lexer_next(arena, &self->lexer); // decimal
+                operator_tok = lexer_next(arena, &self->lexer); // field
+                if (TOK_IDENT != operator_tok.kind) {
+                    panic("expected field identifier after token '.'");
+                }
+
+                token_t temp = lexer_peek(arena, &self->lexer); // possible method call
+                if (temp.kind == TOK_LPAREN) {
+                    // method call expression
+                    prev_lhs = lhs;
+
+                    lhs = arena_alloc(arena, sizeof(expr_t));
+                    vector_init(arena, &lhs->method_call_expr.args, sizeof(expr_t), 1);
+
+                    lhs->expr_kind = EXPR_KIND_METHOD_CALL;
+                    lhs->method_call_expr.object = prev_lhs;
+                    lhs->method_call_expr.method = strdup2(arena, operator_tok.str.data);
+                    // lhs->method_call_expr.args = parse_expr_prec(arena, self, TOK_RPAREN, EXPR_PREC_POSTFIX);
+                    parser_expect(TOK_RPAREN, lexer_next(arena, &self->lexer));
+                    continue;
+                }
+
+                prev_lhs = lhs;
+
+                lhs = arena_alloc(arena, sizeof(expr_t));
+                lhs->field_expr.object = prev_lhs;
+
+                token_t field = lexer_next(arena, &self->lexer);
+                parser_expect(TOK_IDENT, field);
+                lhs->field_expr.name = strdup2(arena, field.str.data);
+                continue;
+
+            } else if (operator_tok.kind == TOK_LBRACK) {
+                // array index expression
+                prev_lhs = lhs;
+                lhs = arena_alloc(arena, sizeof(expr_t));
+                lhs->expr_kind = EXPR_KIND_ARRAY_INDEX;
+                lhs->array_index_expr.object = prev_lhs;
+                lhs->array_index_expr.index = parse_expr_prec(arena, self, TOK_RBRACK, EXPR_PREC_POSTFIX - 1);
+                continue;
+
+            }
+        }
+
+        expr_precedence_t infix_prec = infix_precedence(operator_tok.kind);
+        if (infix_prec) {
+            if (infix_prec < min_prec) {
+                break;
+            }
+
+            prev_lhs = lhs;
+            lhs = arena_alloc(arena, sizeof(expr_t));
+            lhs->expr_kind = EXPR_KIND_BINARY;
+            lhs->binary_expr.lhs = prev_lhs;
+            lhs->binary_expr.op = *token_copy(arena, &operator_tok);
+            lhs->binary_expr.rhs = parse_expr_prec(arena, self, TOK_SEMICOLON, infix_prec - 1);
+            continue;
+        }
+
+        break;
+    }
+
+    return lhs;
+}
+
+expr_t* parse_expr(arena_t* arena, parser_t* self, token_kind_t stop_token) {
+    return parse_expr_prec(arena, self, stop_token, 0);
+}
+
+expr_stream_t visit_expr(arena_t* arena, parser_t* self, token_kind_t stop_token) {
+    /*
+     * Consume tokens until we reach the stop token, creating an expression tree
+     */
+
+    token_t feed = {};
+    arena_t local_arena = {};
+    expr_stream_t expr = {};
+
+    arena_init(&local_arena);
 
     feed = lexer_next(arena, &self->lexer);
-    while (feed.kind != TOK_SEMICOLON) {
-        vector_push(arena, &expr.tokens, &feed);
+    while (feed.kind != stop_token) {
+
+        // vector_push(arena, &expr.tokens, &feed);
         feed = lexer_next(arena, &self->lexer);
         if (feed.kind == TOK_EOF) {
-            panic("unexpected end of expression\n");
+            panic("encountered EOF during expression parse\n");
         }
     }
 
@@ -66,9 +279,10 @@ expr_stream_t visit_expr(arena_t* arena, parser_t* self) {
 }
 
 stmt_t visit_expr_stmt(arena_t* arena, parser_t* self) {
-    todo();
-    stmt_t stmt = {0};
-    visit_expr(arena, self);
+    stmt_t stmt = {};
+    expr_t expr = {};
+
+    visit_expr(arena, self, TOK_SEMICOLON);
 
     return stmt;
 }
@@ -76,13 +290,14 @@ stmt_t visit_expr_stmt(arena_t* arena, parser_t* self) {
 stmt_t visit_for_stmt(arena_t* arena, parser_t* self) { todo(); }
 
 stmt_t visit_if_stmt(arena_t* arena, parser_t* self) {
-    arena_t local_arena = {0};
+    arena_t local_arena = {};
+    stmt_t stmt = {};
+    if_stmt_t if_stmt = {};
+    token_t feed = {};
+
     arena_init(&local_arena);
 
-    stmt_t stmt = {0};
-    if_stmt_t if_stmt = {0};
-
-    token_t feed = lexer_next(arena, &self->lexer);
+    feed = lexer_next(arena, &self->lexer);
 
     stmt.kind = STMT_KIND_IF;
     stmt.if_stmt = if_stmt;
@@ -93,19 +308,29 @@ stmt_t visit_if_stmt(arena_t* arena, parser_t* self) {
 
 stmt_t visit_while_stmt(arena_t* arena, parser_t* self) { todo(); }
 
-stmt_t visit_return_stmt(arena_t* arena, parser_t* self) { todo(); }
+stmt_t visit_return_stmt(arena_t* arena, parser_t* self) {
+    stmt_t stmt = {};
+    expr_t expr = {};
+
+    visit_expr(arena, self, TOK_SEMICOLON);
+
+    stmt.kind = STMT_KIND_RETURN;
+    stmt.return_stmt.expr = expr;
+
+    return stmt;
+}
 
 stmt_t visit_continue_stmt(arena_t* arena, parser_t* self) { todo(); }
 
-stmt_t visit_let_stmt(arena_t* arena, parser_t* self) { todo(); }
+stmt_t visit_assign_stmt(arena_t* arena, parser_t* self, bool is_var) { todo(); }
 
 body_t visit_body(arena_t* arena, parser_t* self) {
-    body_t body = {0};
+    body_t body = {};
     vector_init(arena, &body.stmts, sizeof(stmt_t), 4);
 
-    stmt_t stmt = {0};
+    stmt_t stmt = {};
 
-    arena_t local_arena = {0};
+    arena_t local_arena = {};
     arena_init(&local_arena);
 
     char* tok_str = NULL;
@@ -137,16 +362,19 @@ body_t visit_body(arena_t* arena, parser_t* self) {
             stmt = visit_continue_stmt(arena, self);
             vector_push(arena, &body.stmts, &stmt);
             continue;
+        case TOK_KW_VAR:
+            stmt = visit_assign_stmt(arena, self, true);
+            vector_push(arena, &body.stmts, &stmt);
+            continue;
         case TOK_KW_LET:
-            stmt = visit_let_stmt(arena, self);
+            stmt = visit_assign_stmt(arena, self, false);
             vector_push(arena, &body.stmts, &stmt);
             continue;
         case TOK_RBRACE:
             goto visit_body_exit;
         default:
             tok_str = token_string(&local_arena, &feed);
-            snprintf(PANIC_MSG_BUFF, PANIC_MSG_SIZE,
-                     "unexpected token encountered: %s\n", tok_str);
+            snprintf(PANIC_MSG_BUFF, PANIC_MSG_SIZE, "unexpected token encountered: %s\n", tok_str);
             arena_deinit(&local_arena);
             panic(PANIC_MSG_BUFF);
         }
@@ -160,15 +388,13 @@ visit_body_exit:
 vector_t visit_module_inner(arena_t* arena, parser_t* self, u8 is_source) {
     log("entering visit_module_inner\n");
 
-    token_t token = {0};
-    char* tok_str;
+    token_t token = {};
+    char* tok_str = NULL;
+    arena_t local_arena = {};
+    symbol_t symbol = {};
+    vector_t symbol_vec = {};
 
-    arena_t local_arena = {0};
     arena_init(&local_arena);
-
-    symbol_t symbol = {0};
-
-    vector_t symbol_vec = {0};
     vector_init(arena, &symbol_vec, sizeof(symbol_t), 8);
 
     while (true) {
@@ -186,8 +412,12 @@ vector_t visit_module_inner(arena_t* arena, parser_t* self, u8 is_source) {
             symbol = visit_module(arena, self);
             vector_push(arena, &symbol_vec, &symbol);
             continue;
+        case TOK_KW_VAR:
+            symbol = visit_global(arena, self, true);
+            vector_push(arena, &symbol_vec, &symbol);
+            continue;
         case TOK_KW_LET:
-            symbol = visit_global(arena, self);
+            symbol = visit_global(arena, self, false);
             vector_push(arena, &symbol_vec, &symbol);
             continue;
         case TOK_KW_ENUM:
@@ -213,8 +443,7 @@ vector_t visit_module_inner(arena_t* arena, parser_t* self, u8 is_source) {
 
         module_error:
             tok_str = token_string(&local_arena, &token);
-            snprintf(PANIC_MSG_BUFF, PANIC_MSG_SIZE,
-                     "unexpected token encountered: %s\n", tok_str);
+            snprintf(PANIC_MSG_BUFF, PANIC_MSG_SIZE, "unexpected token encountered: %s\n", tok_str);
             arena_deinit(&local_arena);
             panic(PANIC_MSG_BUFF);
         }
@@ -230,7 +459,7 @@ module_exit:
 
 ast_t parser_parse(arena_t* arena, parser_t* self) {
     log("entering parser_parse\n");
-    ast_t ast = {0};
+    ast_t ast = {};
     ast.module_vec = visit_module_inner(arena, self, 1);
     return ast;
 }
@@ -241,21 +470,21 @@ void print_struct(struct_t* struct_) {
     for (u32 i = 0; i < struct_->field_vec.size; i++) {
         struct_field_t* field = vector_get(&struct_->field_vec, i);
         xnotnull(field);
-        printf("    Field{ident=%s, type=%s},\n", field->name,
-               field->type.name);
+        printf("    Field{ident=%s, type=%s},\n", field->name, field->type.name);
     }
     printf("}\n");
 }
 
 symbol_t visit_struct(arena_t* arena, parser_t* self) {
     log("visiting struct\n");
-    arena_t local_arena = {0};
+
+    arena_t local_arena = {};
+    symbol_t symbol = {};
+    struct_t struct_ = {};
+
     arena_init(&local_arena);
-
-    symbol_t symbol = (symbol_t){0};
-
-    struct_t struct_ = (struct_t){0};
-    vector_init(arena, &struct_.field_vec, sizeof(struct_field_t), 2);
+    vector_init(arena, &struct_.field_vec, sizeof(struct_field_t), 1);
+    vector_init(arena, &struct_.method_vec, sizeof(symbol_t), 1);
 
     // struct name
     token_t feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
@@ -265,27 +494,35 @@ symbol_t visit_struct(arena_t* arena, parser_t* self) {
 
     feed = lexer_next(arena, &self->lexer);
 
-    // struct fields
+    // struct contents
     while (feed.kind != TOK_RBRACE) {
-        struct_field_t field = {0};
 
-        parser_expect(TOK_IDENT, feed);
-        field.name = strdup2(arena, feed.str.data);
+        // struct field
+        if (feed.kind == TOK_IDENT) {
+            struct_field_t field = {};
 
-        parser_expect(TOK_COLON, lexer_next(&local_arena, &self->lexer));
+            field.name = strdup2(arena, feed.str.data);
 
-        feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
-        field.type.name = strdup2(arena, feed.str.data);
+            parser_expect(TOK_COLON, lexer_next(&local_arena, &self->lexer));
 
-        vector_push(arena, &struct_.field_vec, &field);
+            feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
+            field.type.name = strdup2(arena, feed.str.data);
+            vector_push(arena, &struct_.field_vec, &field);
 
-        feed = lexer_next(&local_arena, &self->lexer);
+            parser_expect(TOK_SEMICOLON, lexer_next(&local_arena, &self->lexer));
 
-        if (feed.kind == TOK_COMMA) {
-            feed = lexer_next(arena, &self->lexer);
+            // struct method
+        } else if (feed.kind == TOK_KW_FN) {
+            symbol_t method = visit_func(arena, self);
+            vector_push(arena, &struct_.method_vec, &method);
+
+            // unexpected input
         } else {
-            panic("expected ',' but found %s", feed.str.data);
+            panic("unexpected token '%s'", feed.str.data);
         }
+
+        // advance stream
+        feed = lexer_next(&local_arena, &self->lexer);
     }
 
     print_struct(&struct_);
@@ -301,12 +538,11 @@ symbol_t visit_struct(arena_t* arena, parser_t* self) {
 
 symbol_t visit_module(arena_t* arena, parser_t* self) {
     log("visiting module\n");
-    arena_t local_arena = {0};
-    symbol_t symbol = (symbol_t){0};
 
-    // module_t* module = arena_alloc(arena, sizeof(module_t));
-    module_t module = (module_t){0};
-    // module.symbol_vec = arena_alloc(arena, sizeof(vector_t));
+    arena_t local_arena = {};
+    symbol_t symbol = {};
+    module_t module = {};
+
     vector_init(arena, &module.symbol_vec, sizeof(symbol_t), 8);
 
     token_t feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
@@ -346,10 +582,12 @@ symbol_t visit_func(arena_t* arena, parser_t* self) {
     log("visiting func\n");
     xnotnull(arena);
     xnotnull(self);
-    arena_t local_arena = {0};
-    symbol_t symbol = (symbol_t){0};
-    func_t func = (func_t){0};
-    vector_init(arena, &func.arg_vec, sizeof(func_arg_t), 4);
+
+    arena_t local_arena = {};
+    symbol_t symbol = {};
+    func_t func = {};
+
+    vector_init(arena, &func.arg_vec, sizeof(func_arg_t), 1);
 
     // function name
     token_t feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
@@ -361,7 +599,7 @@ symbol_t visit_func(arena_t* arena, parser_t* self) {
 
     // function arguments
     while (feed.kind != TOK_RPAREN) {
-        func_arg_t arg = {0};
+        func_arg_t arg = {};
         arg.name = strdup2(arena, feed.str.data);
         parser_expect(TOK_COLON, lexer_next(&local_arena, &self->lexer));
         feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
@@ -393,7 +631,7 @@ symbol_t visit_func(arena_t* arena, parser_t* self) {
     return symbol;
 }
 
-symbol_t visit_global(arena_t* arena, parser_t* self) {
+symbol_t visit_global(arena_t* arena, parser_t* self, bool is_var) {
     /*
      *  Parse a global identifier declaration
      *  examples:
@@ -408,20 +646,19 @@ symbol_t visit_global(arena_t* arena, parser_t* self) {
 
     log("visiting global\n");
 
-    token_t feed = (token_t){0};
+    token_t feed = {};
+    arena_t local_arena = {};
+    symbol_t symbol = {};
+    global_t global = {};
 
-    arena_t local_arena = {0};
     arena_init(&local_arena);
 
-    symbol_t symbol = (symbol_t){0};
-
-    global_t global = (global_t){0};
-
     feed = lexer_next(arena, &self->lexer);
-    if (feed.kind == TOK_KW_MUT) {
-        global.mut = true;
-        feed = lexer_next(arena, &self->lexer);
-    }
+    global.mut = is_var;
+    // if (feed.kind == TOK_KW_MUT) {
+    //     global.mut = true;
+    //     feed = lexer_next(arena, &self->lexer);
+    // }
 
     // variable name
     feed = parser_expect(TOK_IDENT, feed);
@@ -436,7 +673,7 @@ symbol_t visit_global(arena_t* arena, parser_t* self) {
     feed = parser_expect(TOK_EQ, lexer_next(arena, &self->lexer));
 
     // remaining tokens become expression
-    global.expr = visit_expr(arena, self);
+    global.expr = visit_expr(arena, self, TOK_SEMICOLON);
 
     symbol.kind = SYMBOL_KIND_GLOBAL;
     symbol.global_case = global;
@@ -451,13 +688,14 @@ symbol_t visit_enum(arena_t* arena, parser_t* self) {
     xnotnull(arena);
     xnotnull(self);
 
-    arena_t local_arena = {0};
+    arena_t local_arena = {};
+    symbol_t symbol = {};
+    enum_t enum_ = {};
+    token_t feed = {};
+
     arena_init(&local_arena);
 
-    symbol_t symbol = (symbol_t){0};
-    enum_t enum_ = {0};
-
-    token_t feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
+    feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
     enum_.name = strdup2(arena, feed.str.data);
 
     parser_expect(TOK_LBRACE, lexer_next(&local_arena, &self->lexer));
@@ -504,7 +742,7 @@ symbol_t visit_import(arena_t* arena, parser_t* self) {
     todo();
     xnotnull(arena);
     xnotnull(self);
-    symbol_t symbol = (symbol_t){0};
+    symbol_t symbol = {};
 
     log("leaving import\n");
     return symbol;
@@ -521,3 +759,62 @@ void parser_init(parser_t* self, lexer_t lexer) {
         .lexer = lexer,
     };
 }
+
+// expr_precedence_t get_precedence(const expr_kind_t expr_kind, const char* operator) {
+//     switch (expr_kind) {
+//     case EXPR_KIND_BINARY:
+//         if (streq("||", operator)) {
+//             return EXPR_PREC_LOR;
+//         } else if (streq("&&", operator)) {
+//             return EXPR_PREC_LAND;
+//         } else if (streq("==", operator) || streq("!=", operator) || streq("<", operator) || streq(">", operator) ||
+//                    streq("<=", operator) || streq(">=", operator)) {
+//             return EXPR_PREC_COMP;
+//         } else if (streq("|", operator)) {
+//             return EXPR_PREC_BOR;
+//         } else if (streq("^", operator)) {
+//             return EXPR_PREC_BXOR;
+//         } else if (streq("&", operator)) {
+//             return EXPR_PREC_BAND;
+//         } else if (streq(">>", operator) || streq(">>", operator)) {
+//             return EXPR_PREC_SHIFT;
+//         } else if (streq("+", operator) || streq("-", operator)) {
+//             return EXPR_PREC_ADDSUB;
+//         } else if (streq("*", operator) || streq("/", operator)) {
+//             return EXPR_PREC_MULDIV;
+//         }
+//
+//     case EXPR_KIND_ASSIGN:
+//         return EXPR_PREC_ASSIGN;
+//
+//     case EXPR_KIND_RANGE:
+//         return EXPR_PREC_RANGE;
+//
+//     case EXPR_KIND_UNARY:
+//         return EXPR_PREC_PREFIX;
+//
+//     case EXPR_KIND_STRUCT:
+//     case EXPR_KIND_ARRAY_INDEX:
+//     case EXPR_KIND_CALL:
+//     case EXPR_KIND_FIELD:
+//     case EXPR_KIND_METHOD_CALL:
+//         return EXPR_PREC_POSTFIX;
+//
+//     case EXPR_KIND_CLOSURE:
+//     case EXPR_KIND_TUPLE:
+//     case EXPR_KIND_GROUP:
+//     case EXPR_KIND_ARRAY:
+//     case EXPR_KIND_PATH:
+//     case EXPR_KIND_LITERAL:
+//     case EXPR_KIND_IDENT:
+//         return EXPR_PREC_UNAMBIGUOUS;
+//
+//     default:
+//         return EXPR_PREC_UNAMBIGUOUS;
+//
+//         // case EXPR_KIND_BREAK:
+//         // case EXPR_KIND_CONTINUE:
+//         // case EXPR_KIND_RETURN:
+//         //     return EXPR_PREC_JUMP;
+//     }
+// }

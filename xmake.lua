@@ -10,15 +10,9 @@ set_defaultmode("debug")
 target("elx")
 set_kind("binary")
 add_files("src/*.c")
--- add_packages("libunwind", "libbacktrace")
-set_languages("c11")
+set_languages("c23")
 
 set_warnings("all", "extra", "pedantic")
--- set_policy("build.sanitizer.address", true)
--- set_policy("build.sanitizer.thread", true)
--- set_policy("build.sanitizer.undefined", true)
--- set_policy("build.sanitizer.memory", true)
--- set_policy("build.sanitizer.leak", true)
 
 add_cflags(
 	"-Wshadow",
@@ -30,11 +24,11 @@ add_cflags(
 	"-rdynamic",
 	"-fsanitize=address",
 	"-g",
-	"-std=c11",
+	"-std=c23",
 	-- "-no-pie",
 	"-fno-omit-frame-pointer"
 )
 
 if is_mode("debug") then
-	add_ldflags("-rdynamic", "-no-pie", "-fsanitize=address", "-std=c11")
+	add_ldflags("-rdynamic", "-no-pie", "-fsanitize=address", "-std=c23")
 end
