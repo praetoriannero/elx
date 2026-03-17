@@ -98,6 +98,75 @@ char* expr_to_string(arena_t* arena, expr_t expr, u64 str_size) {
     return NULL;
 }
 
+u64 count_commas_in_separator_pair(parser_t* self, token_kind_t start) {
+    u64 brack = 0;
+    u64 brace = 0;
+    u64 paren = 0;
+    u64* actual = NULL;
+    u64 comma_count = 0;
+    arena_t local_arena = {};
+    arena_init(&local_arena);
+
+    if (start == TOK_LBRACK) {
+        actual = &brack;
+        brack++;
+    } else if (start == TOK_LBRACE) {
+        actual = &brace;
+        brace++;
+    } else if (start == TOK_LPAREN) {
+        actual = &paren;
+        paren++;
+    }
+
+    lexer_meta_t meta = self->lexer.meta;
+
+    while (true) {
+        token_t tok = lexer_next(&local_arena, &self->lexer);
+
+        if (tok.kind == TOK_COMMA) {
+            if ((start == TOK_LBRACK) && !brace && !paren) {
+                comma_count++;
+            }
+
+            if ((start == TOK_LBRACE) && !brack && !paren) {
+                comma_count++;
+            }
+
+            if ((start == TOK_LPAREN) && !brack && !brace) {
+                comma_count++;
+            }
+        }
+
+        if (tok.kind == TOK_EOF) {
+            return comma_count;
+        }
+
+        if (tok.kind == TOK_LBRACK) {
+            brack++;
+        } else if (tok.kind == TOK_LBRACE) {
+            brace++;
+        } else if (tok.kind == TOK_LPAREN) {
+            paren++;
+        }
+
+        if (tok.kind == TOK_RBRACK) {
+            brack--;
+        } else if (tok.kind == TOK_RBRACE) {
+            brace--;
+        } else if (tok.kind == TOK_RPAREN) {
+            paren--;
+        }
+
+        if (*actual == 0) {
+            break;
+        }
+    }
+
+    self->lexer.meta = meta;
+    arena_deinit(&local_arena);
+    return comma_count;
+}
+
 expr_t* parse_expr_prec(arena_t* arena, parser_t* self, token_kind_t stop_token, expr_precedence_t min_prec) {
     arena_t local_arena = {};
     arena_init(&local_arena);
