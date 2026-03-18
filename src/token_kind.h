@@ -166,8 +166,8 @@ static const u32 valid_ops[] = {
     TOK_PIPE,      // |
     TOK_GT,        // >
     TOK_LT,        // <
-    TOK_SEMICOLON, // ;
-    TOK_COMMA,     // ,
+    // TOK_SEMICOLON, // ;
+    // TOK_COMMA,     // ,
     TOK_DECIMAL,   // .
     // TOK_UNIT,      // ()
 

@@ -158,6 +158,7 @@ token_t lexer_next(arena_t* arena, lexer_t* self) {
 
     // integer/float
     if (isdigit(c)) {
+        // lexer_meta_t meta = self->meta; // used if we need to roll-back during range operator lexing
         u8 decimal_count = 0;
         while (isdigit(c) || c == '.') {
             if (c == '.') {
@@ -165,6 +166,7 @@ token_t lexer_next(arena_t* arena, lexer_t* self) {
             }
 
             if (decimal_count > 1) {
+                // todo: handle range expressions
                 lexer_error(self, "invalid integer format");
             }
 
@@ -176,6 +178,23 @@ token_t lexer_next(arena_t* arena, lexer_t* self) {
 
             c = lexer_consume(self);
         }
+
+        // bool has_decimal = false;
+        // while (isdigit(c)) {
+        //     string_push_char(arena, &token.str, c);
+        //     char c_next = lexer_peek_char(self);
+        //     if (!isdigit(c_next)) {
+        //         break;
+        //     }
+        //     c = lexer_consume(self);
+        // }
+        //
+        // if (c == '.') {
+        //     has_decimal = true;
+        //     if (lexer_peek_char(self) == '.') { // likely a range expression
+        //
+        //     }
+        // }
 
         if (decimal_count) {
             token.kind = TOK_FLOAT;

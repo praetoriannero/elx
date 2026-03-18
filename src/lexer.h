@@ -18,7 +18,6 @@ typedef struct {
 
 typedef struct lexer {
     char* data;
-    // string_t* token_string;
     lexer_meta_t meta;
 } lexer_t;
 

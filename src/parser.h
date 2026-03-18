@@ -74,6 +74,7 @@ typedef enum {
     LITERAL_KIND_INTEGER,
     LITERAL_KIND_FLOAT,
     LITERAL_KIND_BYTE,
+    LITERAL_KIND_BOOL,
 } literal_kind_t;
 
 typedef struct {
@@ -84,6 +85,7 @@ typedef struct {
         char* integer;
         char* float_;
         char* byte;
+        char* bool_;
     };
 } literal_t;
 
@@ -105,7 +107,8 @@ typedef enum {
     EXPR_KIND_GROUP,
 
     // ArrayExpression
-    EXPR_KIND_ARRAY,
+    EXPR_KIND_ARRAY_EXPLICIT,
+    EXPR_KIND_ARRAY_IMPLICIT,
 
     // IndexExpression
     EXPR_KIND_ARRAY_INDEX,
@@ -205,6 +208,11 @@ struct expr_t {
 
     union {
         struct {
+            bool mut;
+            expr_t* expr;
+        } assign_expr;
+
+        struct {
             expr_t* lhs;
             expr_t* rhs;
             token_t op;
@@ -218,11 +226,15 @@ struct expr_t {
         struct {
             expr_t* kind;
             expr_t* size;
-        } array_expr;
+        } array_implicit_expr;
+
+        struct {
+            vector_t arg_vec;
+        } array_explicit_expr;
 
         struct {
             expr_t* object;
-            vector_t field_init_vec;
+            vector_t arg_vec;
         } struct_init_expr;
 
         struct {
@@ -241,13 +253,14 @@ struct expr_t {
         } array_index_expr;
 
         struct {
-            vector_t path;
+            char* stem;
+            expr_t* expr;
         } path_expr;
 
         struct {
             expr_t* object;
             char* method;
-            vector_t args; // vec<expr_t>
+            vector_t arg_vec; // vec<expr_t>
         } method_call_expr;
 
         char* ident_expr;
@@ -273,7 +286,7 @@ typedef struct {
 } expr_stream_t;
 
 typedef struct {
-    expr_stream_t expr;
+    expr_t* expr;
 } expr_stmt_t;
 
 typedef enum {
@@ -292,27 +305,28 @@ typedef enum {
 
 typedef struct {
     char* name;
-    assign_op_kind_t assign_op;
-    expr_stream_t expr;
+    bool mut;
+    // assign_op_kind_t assign_op;
+    expr_t* expr;
 } assign_stmt_t;
 
-typedef struct {
-    char* name;
-    expr_stream_t expr;
-} let_stmt_t;
+// typedef struct {
+//     char* name;
+//     expr_t* expr;
+// } let_stmt_t;
 
 typedef struct {
-    expr_t expr;
+    expr_t* expr;
 } return_stmt_t;
 
 typedef struct {
     char* iterator;
-    expr_stream_t iterable;
+    expr_t* iterable;
     body_t body;
 } for_stmt_t;
 
 typedef struct {
-    expr_stream_t condition;
+    expr_t* condition;
     body_t body;
 } while_stmt_t;
 
@@ -321,12 +335,12 @@ typedef struct {
 } else_clause_t;
 
 typedef struct {
-    expr_stream_t condition;
+    expr_t* condition;
     body_t body;
 } elif_clause_t;
 
 typedef struct {
-    expr_stream_t condition;
+    expr_t* condition;
     body_t body;
     vector_t elif_clause_vec;
     else_clause_t else_clause;
@@ -350,7 +364,7 @@ typedef struct {
 typedef enum {
     STMT_KIND_UNDEFINED,
     STMT_KIND_ASSIGN,
-    STMT_KIND_LET,
+    // STMT_KIND_LET,
     STMT_KIND_RETURN,
     STMT_KIND_EXPR,
     STMT_KIND_FOR,
@@ -364,7 +378,7 @@ typedef struct {
     stmt_kind_t kind;
     union {
         assign_stmt_t assign_stmt;
-        let_stmt_t let_stmt;
+        // let_stmt_t let_stmt;
         return_stmt_t return_stmt;
         expr_stmt_t expr_stmt;
         for_stmt_t for_stmt;
@@ -379,7 +393,7 @@ typedef struct {
     char* name;
     bool mut;
     type_t type;
-    expr_stream_t expr;
+    expr_t* expr;
 } global_t;
 
 typedef enum {
@@ -448,6 +462,8 @@ void parser_init(parser_t* self, lexer_t lexer);
 
 type_t parse_type(arena_t* arena, parser_t self);
 
+body_t visit_body(arena_t* arena, parser_t* self);
+
 symbol_t visit_struct(arena_t* arena, parser_t* self);
 
 symbol_t visit_module(arena_t* arena, parser_t* self);
@@ -462,4 +478,6 @@ symbol_t visit_func(arena_t* arena, parser_t* self);
 
 stmt_t visit_expr_stmt(arena_t* arena, parser_t* self);
 
-expr_stream_t visit_expr(arena_t* arena, parser_t* self, token_kind_t stop_token);
+expr_t* visit_expr(arena_t* arena, parser_t* self, token_kind_t stop_token);
+
+u64 count_csv(const char* data, char sep);

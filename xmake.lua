@@ -30,5 +30,5 @@ add_cflags(
 )
 
 if is_mode("debug") then
-	add_ldflags("-rdynamic", "-no-pie", "-fsanitize=address", "-std=c23")
+	add_ldflags("-rdynamic", "-no-pie", "-fsanitize=address")
 end

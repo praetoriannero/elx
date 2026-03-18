@@ -5,6 +5,10 @@ struct Foo {
     fn simple(x: i32) -> i32 {
         return x;
     }
+
+    fn complex() -> void {
+        1 * 2 - -0 - (3 + -two()) + +u8(f.simple(i32(f.a))) / ~10;
+    }
 }
 
 fn two() -> i8 {
@@ -14,6 +18,8 @@ fn two() -> i8 {
 fn foo(x: u8) -> bool {
     let f = Foo{0, 4.0};
     let m = 1 * 2 - (3 + -two()) + u8(f.simple(i32(f.a))) / 10;
+    f;
+    m - 2 + 3;
     if x > 4 {
         x = 4;
     } else if x > 2 {
@@ -26,7 +32,7 @@ fn foo(x: u8) -> bool {
         x += 1;
     }
 
-    let j = 4..10;
+    let j = 4 .. 10;
 
     for i in j {
         x += i;
@@ -35,11 +41,11 @@ fn foo(x: u8) -> bool {
     return (x > 1);
 }
 
-fn main(argv: u32) -> () {
+fn main(argv: u32) -> void {
     var x = Foo{0, 10.0};
     x.a = 0;
     x.b = 4.0;
 
-    std::println("Hello, world!");
-    std::println("x = {}", x);
+    std::io::println("Hello, world!");
+    std::io::println("x = {}", x);
 }

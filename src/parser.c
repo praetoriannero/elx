@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 
 #include "arena.h"
@@ -79,8 +80,94 @@ expr_precedence_t infix_precedence(token_kind_t kind) {
     case TOK_RANGEINCL:
         return EXPR_PREC_RANGE;
 
+    case TOK_PATH:
     default:
         return EXPR_PREC_UNAMBIGUOUS;
+    }
+}
+
+char* expr_kind_string(expr_kind_t kind) {
+    switch (kind) {
+        // EmptyExpression
+    case EXPR_KIND_EMPTY:
+        return "EXPR_KIND_EMPTY";
+
+        // LiteralExpression
+    case EXPR_KIND_LITERAL:
+        return "EXPR_KIND_LITERAL";
+
+        // PathExpression
+    case EXPR_KIND_PATH:
+        return "EXPR_KIND_PATH";
+
+        // OperatorExpression
+    case EXPR_KIND_BINARY:
+        return "EXPR_KIND_BINARY";
+    case EXPR_KIND_UNARY:
+        return "EXPR_KIND_UNARY";
+
+        // GroupedExpression
+    case EXPR_KIND_GROUP:
+        return "EXPR_KIND_GROUP";
+
+        // ArrayExpression
+    case EXPR_KIND_ARRAY_EXPLICIT:
+        return "EXPR_KIND_ARRAY_EXPLICIT";
+    case EXPR_KIND_ARRAY_IMPLICIT:
+        return "EXPR_KIND_ARRAY_IMPLICIT";
+
+        // IndexExpression
+    case EXPR_KIND_ARRAY_INDEX:
+        return "EXPR_KIND_ARRAY_INDEX";
+
+        // TupleExpression
+    case EXPR_KIND_TUPLE:
+        return "EXPR_KIND_TUPLE";
+
+        // note: this is really a field expression
+        // TupleIndexingExpression
+        // case EXPR_KIND_TUPLE_INDEX: return "EXPR_KIND_TUPLE_INDEX";
+
+        // StructExpression
+    case EXPR_KIND_STRUCT:
+        return "EXPR_KIND_STRUCT";
+
+        // CallExpression
+    case EXPR_KIND_CALL:
+        return "EXPR_KIND_CALL";
+
+        // MethodCallExpression
+    case EXPR_KIND_METHOD_CALL:
+        return "EXPR_KIND_METHOD_CALL";
+
+        // FieldExpression
+    case EXPR_KIND_FIELD:
+        return "EXPR_KIND_FIELD";
+
+        // ClosureExpression
+    case EXPR_KIND_CLOSURE:
+        return "EXPR_KIND_CLOSURE";
+
+        // RangeExpression
+    case EXPR_KIND_RANGE:
+        return "EXPR_KIND_RANGE";
+
+        // AssignmentExpression
+    case EXPR_KIND_ASSIGN:
+        return "EXPR_KIND_ASSIGN";
+
+        // future
+        // AwaitExpression
+        // AsyncBlockExpression
+        // UnderscoreExpression
+
+        // JumpExpression
+        // case EXPR_KIND_RETURN: return "EXPR_KIND_RETURN";
+        // case EXPR_KIND_BREAK: return "EXPR_KIND_BREAK";
+        // case EXPR_KIND_CONTINUE: return "EXPR_KIND_CONTINUE";
+
+    case EXPR_KIND_IDENT:
+        return "EXPR_KIND_IDENT";
     }
 }
 
@@ -93,224 +180,377 @@ token_t parser_expect(token_kind_t expected, token_t actual) {
     return actual;
 }
 
-char* expr_to_string(arena_t* arena, expr_t expr, u64 str_size) {
-    todo();
-    return NULL;
+void print_expr(expr_t* expr, u64 depth) {
+    usize vec_len;
+    for (u64 i = 0; i < depth; i++) {
+        printf("\t");
+    }
+    switch (expr->expr_kind) {
+    case EXPR_KIND_EMPTY:
+        printf("(<empty>)\n");
+    case EXPR_KIND_LITERAL:
+        switch (expr->literal_expr.kind) {
+        case LITERAL_KIND_STRING:
+            printf("(string literal: '%s')\n", expr->literal_expr.string);
+
+        case LITERAL_KIND_FLOAT:
+            printf("(float literal: '%s')\n", expr->literal_expr.float_);
+
+        case LITERAL_KIND_INTEGER:
+            printf("(integer literal: '%s')\n", expr->literal_expr.integer);
+
+        default:
+            printf("(UNSUPPORTED_LITERAL)\n");
+        }
+
+    case EXPR_KIND_ARRAY_IMPLICIT:
+        printf("(array implicit)\n");
+        print_expr(expr->array_implicit_expr.kind, depth + 1);
+        print_expr(expr->array_implicit_expr.size, depth + 1);
+
+    case EXPR_KIND_ARRAY_EXPLICIT:
+        printf("(array explicit)\n");
+        vec_len = expr->array_explicit_expr.arg_vec.size;
+        for (usize i = 0; i < vec_len; i++) {
+            expr_t* arg_expr = vector_get(&expr->array_explicit_expr.arg_vec, i);
+            print_expr(arg_expr, depth + 1);
+        }
+
+    case EXPR_KIND_BINARY:
+        printf("(binary %s)\n", expr->binary_expr.op.str.data);
+        print_expr(expr->binary_expr.lhs, depth + 1);
+        print_expr(expr->binary_expr.rhs, depth + 1);
+
+    case EXPR_KIND_UNARY:
+        printf("(unary %s)\n", expr->unary_expr.op.str.data);
+        print_expr(expr->unary_expr.inner, depth + 1);
+
+    case EXPR_KIND_ARRAY_INDEX:
+        printf("(array index)\n");
+        print_expr(expr->array_index_expr.index, depth + 1);
+
+    case EXPR_KIND_STRUCT:
+        printf("(struct init)\n");
+        print_expr(expr->struct_init_expr.object, depth + 1);
+        vec_len = expr->struct_init_expr.arg_vec.size;
+        for (usize i = 0; i < vec_len; i++) {
+            expr_t* arg_expr = vector_get(&expr->struct_init_expr.arg_vec, i);
+            print_expr(arg_expr, depth + 1);
+        }
+
+    default:
+        printf("(UNSUPPORTED EXPR)\n");
+    }
 }
 
-u64 count_commas_in_separator_pair(parser_t* self, token_kind_t start) {
-    u64 brack = 0;
-    u64 brace = 0;
-    u64 paren = 0;
-    u64* actual = NULL;
-    u64 comma_count = 0;
-    arena_t local_arena = {};
-    arena_init(&local_arena);
+u64 count_csv(const char* data, char sep) {
+    // count the comma separated values before finding the right-hand version of the separator
+    assert(data != NULL);
 
-    if (start == TOK_LBRACK) {
-        actual = &brack;
-        brack++;
-    } else if (start == TOK_LBRACE) {
-        actual = &brace;
-        brace++;
-    } else if (start == TOK_LPAREN) {
-        actual = &paren;
-        paren++;
-    }
+    u64 count = 0;
+    u64 arr[256] = {
+        ['{'] = 0,
+        ['('] = 0,
+        ['['] = 0,
+    };
+    u64 translate[256] = {
+        ['}'] = '{',
+        [')'] = '(',
+        [']'] = '[',
+    };
 
-    lexer_meta_t meta = self->lexer.meta;
-
-    while (true) {
-        token_t tok = lexer_next(&local_arena, &self->lexer);
-
-        if (tok.kind == TOK_COMMA) {
-            if ((start == TOK_LBRACK) && !brace && !paren) {
-                comma_count++;
-            }
-
-            if ((start == TOK_LBRACE) && !brack && !paren) {
-                comma_count++;
-            }
-
-            if ((start == TOK_LPAREN) && !brack && !brace) {
-                comma_count++;
-            }
+    arr[(u8)sep]++;
+    usize data_len = strlen(data);
+    for (usize i = 0; i < data_len; i++) {
+        if (strchr("{([", data[i])) {
+            arr[(u8)data[i]]++;
         }
 
-        if (tok.kind == TOK_EOF) {
-            return comma_count;
+        if (strchr("})]", data[i])) {
+            arr[(u8)data[translate[i]]]--;
         }
 
-        if (tok.kind == TOK_LBRACK) {
-            brack++;
-        } else if (tok.kind == TOK_LBRACE) {
-            brace++;
-        } else if (tok.kind == TOK_LPAREN) {
-            paren++;
+        u64 arr_sum = 0;
+        for (size_t j = 0; j < 256; j++) {
+            arr_sum += arr[j];
         }
 
-        if (tok.kind == TOK_RBRACK) {
-            brack--;
-        } else if (tok.kind == TOK_RBRACE) {
-            brace--;
-        } else if (tok.kind == TOK_RPAREN) {
-            paren--;
+        if ((arr_sum == 1) && (data[i] == ',')) {
+            count++;
         }
 
-        if (*actual == 0) {
+        if (!arr_sum) {
             break;
         }
     }
 
-    self->lexer.meta = meta;
-    arena_deinit(&local_arena);
-    return comma_count;
+    return count;
 }
 
 expr_t* parse_expr_prec(arena_t* arena, parser_t* self, token_kind_t stop_token, expr_precedence_t min_prec) {
+    printf("\n");
     arena_t local_arena = {};
     arena_init(&local_arena);
 
-    token_t left_tok = lexer_next(&local_arena, &self->lexer);
+    token_t left_tok = lexer_peek(&local_arena, &self->lexer);
     expr_t* lhs = arena_alloc(&local_arena, sizeof(expr_t));
     expr_t* prev_lhs;
 
     if (left_tok.kind == stop_token) {
         // empty expression
+        log("lhs end of expression\n");
         lhs->expr_kind = EXPR_KIND_EMPTY;
         return lhs;
+    }
 
-    } else if (left_tok.kind == TOK_IDENT) {
+    left_tok = lexer_next(&local_arena, &self->lexer);
+
+    if (left_tok.kind == TOK_IDENT) {
         // identifier
+        log("identifier expression\n");
         lhs->expr_kind = EXPR_KIND_IDENT;
         lhs->ident_expr = strdup2(arena, left_tok.str.data);
 
+    // todo: missing byte and char literal support in AST
     } else if (left_tok.kind == TOK_FLOAT) {
         // float literal
+        log("float expression\n");
         lhs->expr_kind = EXPR_KIND_LITERAL;
+        lhs->literal_expr.kind = LITERAL_KIND_FLOAT;
         lhs->literal_expr.float_ = strdup2(arena, left_tok.str.data);
 
     } else if (left_tok.kind == TOK_INTEGER) {
         // integer literal
+        log("integer expression\n");
         lhs->expr_kind = EXPR_KIND_LITERAL;
+        lhs->literal_expr.kind = LITERAL_KIND_INTEGER;
         lhs->literal_expr.integer = strdup2(arena, left_tok.str.data);
 
     } else if (left_tok.kind == TOK_STRING) {
         // string literal
+        log("string expression\n");
         lhs->expr_kind = EXPR_KIND_LITERAL;
+        lhs->literal_expr.kind = LITERAL_KIND_STRING;
         lhs->literal_expr.string = strdup2(arena, left_tok.str.data);
 
+    } else if ((left_tok.kind == TOK_KW_FALSE) || (left_tok.kind == TOK_KW_TRUE)) {
+        log("bool expression\n");
+        lhs->expr_kind = EXPR_KIND_LITERAL;
+        lhs->literal_expr.kind = LITERAL_KIND_BOOL;
+        lhs->literal_expr.bool_ = strdup2(arena, left_tok.str.data);
+
     } else if (left_tok.kind == TOK_LBRACK) {
-        // array literal
-        // todo: support explicit element list designation, ex: [1, 2, 3]
-        expr_t* element_type = parse_expr_prec(arena, self, TOK_SEMICOLON, 0);
-        expr_t* element_count = parse_expr_prec(arena, self, TOK_RBRACK, 0);
-        lhs->expr_kind = EXPR_KIND_ARRAY;
-        lhs->array_expr.kind = element_type;
-        lhs->array_expr.size = element_count;
+        // array implicit literal, ex: [u32; 10]
+        u64 comma_count = count_csv(self->lexer.data + self->lexer.meta.loc, '(');
+        if (!comma_count) {
+            log("array implicit expression\n");
+            lhs->expr_kind = EXPR_KIND_ARRAY_IMPLICIT;
+
+            expr_t* element_type = parse_expr_prec(arena, self, TOK_SEMICOLON, 0);
+            parser_expect(TOK_SEMICOLON, lexer_next(&local_arena, &self->lexer));
+            expr_t* element_count = parse_expr_prec(arena, self, TOK_RBRACK, 0);
+            parser_expect(TOK_RBRACK, lexer_next(&local_arena, &self->lexer));
+
+            lhs->array_implicit_expr.kind = element_type;
+            lhs->array_implicit_expr.size = element_count;
+
+        } else {
+            // array explicit literal, ex: [1, 2, 3]
+            log("array explicit expression\n");
+            lhs->expr_kind = EXPR_KIND_ARRAY_EXPLICIT;
+            for (u64 i = 0; i < comma_count; i++) {
+                expr_t* arg_expr = parse_expr_prec(arena, self, TOK_COMMA, 0);
+                parser_expect(TOK_COMMA, lexer_next(&local_arena, &self->lexer));
+                vector_push(arena, &lhs->array_explicit_expr.arg_vec, arg_expr);
+            }
+
+            if (lexer_peek(arena, &self->lexer).kind != TOK_RBRACK) {
+                expr_t* arg_expr = parse_expr_prec(arena, self, TOK_RBRACK, 0);
+                parser_expect(TOK_RBRACK, lexer_next(&local_arena, &self->lexer));
+                vector_push(arena, &lhs->array_explicit_expr.arg_vec, arg_expr);
+            }
+        }
 
     } else if (left_tok.kind == TOK_LPAREN) {
         // group expression
         // todo: support tuples, ex: (1, 2, 3)
+        log("group expression\n");
         lhs = parse_expr_prec(arena, self, TOK_RPAREN, 0);
+        parser_expect(TOK_RPAREN, lexer_next(&local_arena, &self->lexer));
 
     } else if (is_valid_op(left_tok.kind)) {
         // unary expression
+        log("unary expression\n");
         lhs->expr_kind = EXPR_KIND_UNARY;
         lhs->unary_expr.op = *token_copy(arena, &left_tok);
         lhs->unary_expr.inner = parse_expr_prec(arena, self, stop_token, EXPR_PREC_PREFIX - 1);
+        // parser_expect(stop_token, lexer_next(&local_arena, &self->lexer));
     }
 
     while (true) {
+        log("checking rhs\n");
         token_t operator_tok = lexer_peek(arena, &self->lexer);
+        if (operator_tok.kind == stop_token) {
+            log("rhs end of expression\n");
+            // end of expression
+            break;
+        }
+
+
         if (!is_valid_op(operator_tok.kind)) {
             // invalid operator
             panic("invalid token encountered during expression parse: '%s'", token_string(arena, &operator_tok));
-
-        } else if (operator_tok.kind == stop_token) {
-            // end of expression
-            break;
         }
 
         expr_precedence_t postfix_prec = postfix_precedence(operator_tok.kind);
         if (postfix_prec) {
             if (postfix_prec < min_prec) {
+                log("postfix break\n");
                 break;
             }
 
+            operator_tok = lexer_next(arena, &self->lexer);
+
             if (operator_tok.kind == TOK_LBRACE) {
                 // struct init expression
+                log("struct init expression\n");
                 lhs->expr_kind = EXPR_KIND_STRUCT;
-                vector_init(arena, &lhs->struct_init_expr.field_init_vec, sizeof(expr_t), 1);
-                // need to handle each value in the struct init, divide by commas
+                vector_init(arena, &lhs->struct_init_expr.arg_vec, sizeof(expr_t), 1);
+
+                u64 comma_count = count_csv(self->lexer.data + self->lexer.meta.loc, '(');
+                for (u64 i = 0; i < comma_count; i++) {
+                    expr_t* arg_expr = parse_expr_prec(arena, self, TOK_COMMA, 0);
+                    parser_expect(TOK_COMMA, lexer_next(&local_arena, &self->lexer));
+                    vector_push(arena, &lhs->struct_init_expr.arg_vec, arg_expr);
+                }
+
+                if (lexer_peek(arena, &self->lexer).kind != TOK_RBRACE) {
+                    expr_t* arg_expr = parse_expr_prec(arena, self, TOK_RBRACE, 0);
+                    parser_expect(TOK_RBRACE, lexer_next(&local_arena, &self->lexer));
+                    vector_push(arena, &lhs->struct_init_expr.arg_vec, arg_expr);
+                }
                 continue;
 
             } else if (operator_tok.kind == TOK_LPAREN) {
-                // call expression
-                lhs->expr_kind = EXPR_KIND_CALL;
-                vector_init(arena, &lhs->call_expr.arg_vec, sizeof(expr_t), 1);
-                // need to handle each value in the function argument list, divide by commas
-                continue;
+                // call or group expression
+                log("call expression\n");
+                log("lhs: %s\n", expr_kind_string(lhs->expr_kind));
 
-            } else if (operator_tok.kind == TOK_DECIMAL) {
-                // field access
-                operator_tok = lexer_next(arena, &self->lexer); // decimal
-                operator_tok = lexer_next(arena, &self->lexer); // field
-                if (TOK_IDENT != operator_tok.kind) {
-                    panic("expected field identifier after token '.'");
+                if (lhs->expr_kind == EXPR_KIND_BINARY) {
+                    // group expression
+                    panic("unhandled binary expression preceding group - edge case\n");
+                } else {
+                    // call expression
+                    lhs->expr_kind = EXPR_KIND_CALL;
+                    vector_init(arena, &lhs->call_expr.arg_vec, sizeof(expr_t), 1);
+
+                    u64 comma_count = count_csv(self->lexer.data + self->lexer.meta.loc, '(');
+                    for (u64 i = 0; i < comma_count; i++) {
+                        expr_t* arg_expr = parse_expr_prec(arena, self, TOK_COMMA, 0);
+                        parser_expect(TOK_COMMA, lexer_next(&local_arena, &self->lexer));
+                        vector_push(arena, &lhs->call_expr.arg_vec, arg_expr);
+                    }
+
+                    if (lexer_peek(arena, &self->lexer).kind != TOK_RPAREN) {
+                        expr_t* arg_expr = parse_expr_prec(arena, self, TOK_RPAREN, 0);
+                        parser_expect(TOK_RPAREN, lexer_next(&local_arena, &self->lexer));
+                        vector_push(arena, &lhs->call_expr.arg_vec, arg_expr);
+                    }
+                    continue;
                 }
 
-                token_t temp = lexer_peek(arena, &self->lexer); // possible method call
-                if (temp.kind == TOK_LPAREN) {
+            } else if (operator_tok.kind == TOK_DECIMAL) {
+                // field-type expression
+                log("field-type expression\n");
+                // operator_tok = lexer_next(arena, &self->lexer); // decimal
+                operator_tok = lexer_next(arena, &self->lexer); // field
+                if (TOK_IDENT != operator_tok.kind) {
+                    panic("expected field identifier after token '.' but found '%s'", operator_tok.str.data);
+                }
+
+                token_t lparen = lexer_peek(arena, &self->lexer); // possible method call
+                if (lparen.kind == TOK_LPAREN) {
+                    lparen = lexer_next(arena, &self->lexer); // possible method call
+                    log("identified method call\n");
                     // method call expression
                     prev_lhs = lhs;
 
                     lhs = arena_alloc(arena, sizeof(expr_t));
-                    vector_init(arena, &lhs->method_call_expr.args, sizeof(expr_t), 1);
+                    vector_init(arena, &lhs->method_call_expr.arg_vec, sizeof(expr_t), 1);
 
                     lhs->expr_kind = EXPR_KIND_METHOD_CALL;
                     lhs->method_call_expr.object = prev_lhs;
                     lhs->method_call_expr.method = strdup2(arena, operator_tok.str.data);
-                    // lhs->method_call_expr.args = parse_expr_prec(arena, self, TOK_RPAREN, EXPR_PREC_POSTFIX);
-                    parser_expect(TOK_RPAREN, lexer_next(arena, &self->lexer));
+
+                    u64 comma_count = count_csv(self->lexer.data + self->lexer.meta.loc, '(');
+                    for (u64 i = 0; i < comma_count; i++) {
+                        expr_t* arg_expr = parse_expr_prec(arena, self, TOK_COMMA, 0);
+                        parser_expect(TOK_COMMA, lexer_next(&local_arena, &self->lexer));
+                        vector_push(arena, &lhs->method_call_expr.arg_vec, arg_expr);
+                    }
+
+                    if (lexer_peek(arena, &self->lexer).kind != TOK_RPAREN) {
+                        expr_t* arg_expr = parse_expr_prec(arena, self, TOK_RPAREN, 0);
+                        parser_expect(TOK_RPAREN, lexer_next(&local_arena, &self->lexer));
+                        vector_push(arena, &lhs->method_call_expr.arg_vec, arg_expr);
+                    }
+
                     continue;
                 }
+                log("identified field access\n");
 
                 prev_lhs = lhs;
 
                 lhs = arena_alloc(arena, sizeof(expr_t));
                 lhs->field_expr.object = prev_lhs;
 
-                token_t field = lexer_next(arena, &self->lexer);
-                parser_expect(TOK_IDENT, field);
-                lhs->field_expr.name = strdup2(arena, field.str.data);
+                // token_t field = lexer_next(arena, &self->lexer);
+                // parser_expect(TOK_IDENT, field);
+                lhs->field_expr.name = strdup2(arena, operator_tok.str.data);
                 continue;
 
             } else if (operator_tok.kind == TOK_LBRACK) {
                 // array index expression
+                log("array index expression\n");
                 prev_lhs = lhs;
                 lhs = arena_alloc(arena, sizeof(expr_t));
                 lhs->expr_kind = EXPR_KIND_ARRAY_INDEX;
                 lhs->array_index_expr.object = prev_lhs;
                 lhs->array_index_expr.index = parse_expr_prec(arena, self, TOK_RBRACK, EXPR_PREC_POSTFIX - 1);
+                parser_expect(TOK_RBRACK, lexer_next(&local_arena, &self->lexer));
                 continue;
-
             }
         }
 
         expr_precedence_t infix_prec = infix_precedence(operator_tok.kind);
         if (infix_prec) {
             if (infix_prec < min_prec) {
+                log("infix break\n");
                 break;
             }
 
-            prev_lhs = lhs;
-            lhs = arena_alloc(arena, sizeof(expr_t));
-            lhs->expr_kind = EXPR_KIND_BINARY;
-            lhs->binary_expr.lhs = prev_lhs;
-            lhs->binary_expr.op = *token_copy(arena, &operator_tok);
-            lhs->binary_expr.rhs = parse_expr_prec(arena, self, TOK_SEMICOLON, infix_prec - 1);
-            continue;
+            operator_tok = lexer_next(arena, &self->lexer);
+
+            if (operator_tok.kind == TOK_PATH) {
+                log("path expression\n");
+                prev_lhs = lhs;
+                lhs = arena_alloc(arena, sizeof(expr_t));
+                lhs->expr_kind = EXPR_KIND_PATH;
+                lhs->path_expr.stem = strdup2(arena, operator_tok.str.data);
+                lhs->path_expr.expr = parse_expr_prec(arena, self, stop_token, infix_prec - 1);
+                continue;
+            } else {
+                log("binary expression\n");
+
+                prev_lhs = lhs;
+                lhs = arena_alloc(arena, sizeof(expr_t));
+                lhs->expr_kind = EXPR_KIND_BINARY;
+                lhs->binary_expr.lhs = prev_lhs;
+                lhs->binary_expr.op = *token_copy(arena, &operator_tok);
+                lhs->binary_expr.rhs = parse_expr_prec(arena, self, stop_token, infix_prec - 1);
+                continue;
+            }
+
         }
 
         break;
@@ -320,80 +560,166 @@ expr_t* parse_expr_prec(arena_t* arena, parser_t* self, token_kind_t stop_token,
 }
 
 expr_t* parse_expr(arena_t* arena, parser_t* self, token_kind_t stop_token) {
-    return parse_expr_prec(arena, self, stop_token, 0);
+    log("entering parse expr\n");
+    expr_t* expr = parse_expr_prec(arena, self, stop_token, 0);
+    log("leaving parse expr\n");
+    return expr;
 }
 
-expr_stream_t visit_expr(arena_t* arena, parser_t* self, token_kind_t stop_token) {
+expr_t* visit_expr(arena_t* arena, parser_t* self, token_kind_t stop_token) {
     /*
      * Consume tokens until we reach the stop token, creating an expression tree
      */
-
-    token_t feed = {};
-    arena_t local_arena = {};
-    expr_stream_t expr = {};
-
-    arena_init(&local_arena);
-
-    feed = lexer_next(arena, &self->lexer);
-    while (feed.kind != stop_token) {
-
-        // vector_push(arena, &expr.tokens, &feed);
-        feed = lexer_next(arena, &self->lexer);
-        if (feed.kind == TOK_EOF) {
-            panic("encountered EOF during expression parse\n");
-        }
-    }
-
-    return expr;
+    return parse_expr(arena, self, stop_token);
 }
 
 stmt_t visit_expr_stmt(arena_t* arena, parser_t* self) {
     stmt_t stmt = {};
-    expr_t expr = {};
 
-    visit_expr(arena, self, TOK_SEMICOLON);
+    expr_t* expr = parse_expr(arena, self, TOK_SEMICOLON);
+    parser_expect(TOK_SEMICOLON, lexer_next(arena, &self->lexer));
 
+    stmt.kind = STMT_KIND_EXPR;
+    stmt.expr_stmt.expr = expr;
     return stmt;
 }
 
-stmt_t visit_for_stmt(arena_t* arena, parser_t* self) { todo(); }
-
-stmt_t visit_if_stmt(arena_t* arena, parser_t* self) {
+stmt_t visit_for_stmt(arena_t* arena, parser_t* self) {
     arena_t local_arena = {};
     stmt_t stmt = {};
-    if_stmt_t if_stmt = {};
     token_t feed = {};
 
     arena_init(&local_arena);
 
-    feed = lexer_next(arena, &self->lexer);
+    parser_expect(TOK_KW_FOR, lexer_next(&local_arena, &self->lexer));
 
-    stmt.kind = STMT_KIND_IF;
-    stmt.if_stmt = if_stmt;
+    feed = parser_expect(TOK_IDENT, lexer_next(&local_arena, &self->lexer));
+    stmt.kind = STMT_KIND_FOR;
 
-    todo();
+    stmt.for_stmt.iterator = strdup2(arena, feed.str.data);
+    parser_expect(TOK_KW_IN, lexer_next(&local_arena, &self->lexer));
+    stmt.for_stmt.iterable = parse_expr(arena, self, TOK_LBRACE);
+    parser_expect(TOK_LBRACE, lexer_next(&local_arena, &self->lexer));
+    stmt.for_stmt.body = visit_body(arena, self);
+    parser_expect(TOK_RBRACE, lexer_next(&local_arena, &self->lexer));
+
+    arena_deinit(&local_arena);
     return stmt;
 }
 
-stmt_t visit_while_stmt(arena_t* arena, parser_t* self) { todo(); }
+stmt_t visit_if_stmt(arena_t* arena, parser_t* self) {
+    arena_t local_arena = {};
+    stmt_t stmt = {};
+    token_t feed = {};
+
+    arena_init(&local_arena);
+
+    // 'if' token
+    feed = parser_expect(TOK_KW_IF, lexer_next(&local_arena, &self->lexer));
+
+    stmt.kind = STMT_KIND_IF;
+    stmt.if_stmt.condition = parse_expr(arena, self, TOK_LBRACE);
+
+    parser_expect(TOK_LBRACE, lexer_next(&local_arena, &self->lexer));
+
+    stmt.if_stmt.body = visit_body(arena, self);
+
+    parser_expect(TOK_RBRACE, lexer_next(&local_arena, &self->lexer));
+
+    while (true) {
+        feed = lexer_peek(&local_arena, &self->lexer);
+        if (feed.kind != TOK_KW_ELSE) {
+            break;
+        }
+
+        parser_expect(TOK_KW_ELSE, lexer_next(&local_arena, &self->lexer));
+
+        feed = lexer_peek(&local_arena, &self->lexer); // maybe has 'if'
+        if (feed.kind == TOK_KW_IF) {
+            elif_clause_t elif_clause = {};
+            parser_expect(TOK_KW_IF, lexer_next(&local_arena, &self->lexer));
+            elif_clause.condition = parse_expr(arena, self, TOK_LBRACE);
+            parser_expect(TOK_LBRACE, lexer_next(&local_arena, &self->lexer));
+            elif_clause.body = visit_body(arena, self);
+            parser_expect(TOK_RBRACE, lexer_next(&local_arena, &self->lexer));
+            vector_push(arena, &stmt.if_stmt.elif_clause_vec, &elif_clause);
+
+        } else {
+            else_clause_t else_clause = {};
+            parser_expect(TOK_LBRACE, lexer_next(&local_arena, &self->lexer));
+            else_clause.body = visit_body(arena, self);
+            parser_expect(TOK_RBRACE, lexer_next(&local_arena, &self->lexer));
+            stmt.if_stmt.else_clause = else_clause;
+            break;
+        }
+    }
+
+    arena_deinit(&local_arena);
+    return stmt;
+}
+
+stmt_t visit_while_stmt(arena_t* arena, parser_t* self) {
+    arena_t local_arena = {};
+    stmt_t stmt = {};
+
+    arena_init(&local_arena);
+
+    parser_expect(TOK_KW_WHILE, lexer_next(&local_arena, &self->lexer));
+    stmt.kind = STMT_KIND_WHILE;
+    stmt.while_stmt.condition = parse_expr(arena, self, TOK_LBRACE);
+    parser_expect(TOK_LBRACE, lexer_next(&local_arena, &self->lexer));
+    stmt.while_stmt.body = visit_body(arena, self);
+    parser_expect(TOK_RBRACE, lexer_next(&local_arena, &self->lexer));
+
+    arena_deinit(&local_arena);
+    return stmt;
+}
 
 stmt_t visit_return_stmt(arena_t* arena, parser_t* self) {
+    log("entering return stmt\n");
     stmt_t stmt = {};
-    expr_t expr = {};
 
-    visit_expr(arena, self, TOK_SEMICOLON);
+    parser_expect(TOK_KW_RETURN, lexer_next(arena, &self->lexer));
 
     stmt.kind = STMT_KIND_RETURN;
-    stmt.return_stmt.expr = expr;
+    stmt.return_stmt.expr = visit_expr(arena, self, TOK_SEMICOLON);
 
+    parser_expect(TOK_SEMICOLON, lexer_next(arena, &self->lexer));
+
+    log("exiting return stmt\n");
     return stmt;
 }
 
 stmt_t visit_continue_stmt(arena_t* arena, parser_t* self) { todo(); }
 
-stmt_t visit_assign_stmt(arena_t* arena, parser_t* self, bool is_var) { todo(); }
+stmt_t visit_assign_stmt(arena_t* arena, parser_t* self) {
+    arena_t local_arena = {};
+    arena_init(&local_arena);
+    stmt_t stmt = {};
+
+    stmt.kind = STMT_KIND_ASSIGN;
+
+    bool mut = false;
+    token_t feed = lexer_next(arena, &self->lexer);
+    if (feed.kind == TOK_KW_VAR) {
+        mut = true;
+    } else {
+        parser_expect(TOK_KW_LET, feed);
+    }
+    stmt.assign_stmt.mut = mut;
+
+    feed = parser_expect(TOK_IDENT, lexer_next(arena, &self->lexer));
+    stmt.assign_stmt.name = strdup2(arena, feed.str.data);
+
+    parser_expect(TOK_EQ, lexer_next(arena, &self->lexer));
+    stmt.assign_stmt.expr = parse_expr(arena, self, TOK_SEMICOLON);
+    parser_expect(TOK_SEMICOLON, lexer_next(&local_arena, &self->lexer));
+
+    return stmt;
+}
 
 body_t visit_body(arena_t* arena, parser_t* self) {
+    log("entering visit_body\n");
     body_t body = {};
     vector_init(arena, &body.stmts, sizeof(stmt_t), 4);
 
@@ -405,8 +731,12 @@ body_t visit_body(arena_t* arena, parser_t* self) {
     char* tok_str = NULL;
 
     while (true) {
-        token_t feed = lexer_next(&local_arena, &self->lexer);
+        token_t feed = lexer_peek(&local_arena, &self->lexer);
         switch (feed.kind) {
+        case TOK_KW_TRUE:
+        case TOK_KW_FALSE:
+        case TOK_INTEGER:
+        case TOK_FLOAT:
         case TOK_IDENT:
             stmt = visit_expr_stmt(arena, self);
             vector_push(arena, &body.stmts, &stmt);
@@ -431,26 +761,27 @@ body_t visit_body(arena_t* arena, parser_t* self) {
             stmt = visit_continue_stmt(arena, self);
             vector_push(arena, &body.stmts, &stmt);
             continue;
+            // stmt = visit_assign_stmt(arena, self, true);
+            // vector_push(arena, &body.stmts, &stmt);
+            // continue;
         case TOK_KW_VAR:
-            stmt = visit_assign_stmt(arena, self, true);
-            vector_push(arena, &body.stmts, &stmt);
-            continue;
         case TOK_KW_LET:
-            stmt = visit_assign_stmt(arena, self, false);
+            stmt = visit_assign_stmt(arena, self);
             vector_push(arena, &body.stmts, &stmt);
             continue;
         case TOK_RBRACE:
-            goto visit_body_exit;
+            break;
         default:
             tok_str = token_string(&local_arena, &feed);
             snprintf(PANIC_MSG_BUFF, PANIC_MSG_SIZE, "unexpected token encountered: %s\n", tok_str);
             arena_deinit(&local_arena);
             panic(PANIC_MSG_BUFF);
         }
+        break;
     }
 
-visit_body_exit:
     arena_deinit(&local_arena);
+    log("leaving visit_body\n");
     return body;
 }
 
@@ -690,6 +1021,8 @@ symbol_t visit_func(arena_t* arena, parser_t* self) {
     parser_expect(TOK_LBRACE, lexer_next(&local_arena, &self->lexer));
 
     func.body = visit_body(arena, self);
+
+    parser_expect(TOK_RBRACE, lexer_next(&local_arena, &self->lexer));
 
     symbol.kind = SYMBOL_KIND_FUNC;
     symbol.func_case = func;
