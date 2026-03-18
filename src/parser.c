@@ -245,6 +245,7 @@ void print_expr(expr_t* expr, u64 depth) {
 
 u64 count_csv(const char* data, char sep) {
     // count the comma separated values before finding the right-hand version of the separator
+    // todo: better string handling to allow regex
     assert(data != NULL);
 
     u64 count = 0;
@@ -252,16 +253,30 @@ u64 count_csv(const char* data, char sep) {
         ['{'] = 0,
         ['('] = 0,
         ['['] = 0,
+        ['"'] = 0,
     };
     u64 translate[256] = {
         ['}'] = '{',
         [')'] = '(',
         [']'] = '[',
+        ['"'] = '"',
     };
 
     arr[(u8)sep]++;
     usize data_len = strlen(data);
     for (usize i = 0; i < data_len; i++) {
+        if (data[i] == '"') {
+            for (usize j = i + 1; j < data_len; j++) {
+                if (!data[j]) {
+                    panic("unexpected EOF during expression parse\n");
+                }
+
+                if (data[j] == '"') {
+                    i = j;
+                    break;
+                }
+            }
+        }
         if (strchr("{([", data[i])) {
             arr[(u8)data[i]]++;
         }
@@ -289,11 +304,12 @@ u64 count_csv(const char* data, char sep) {
 
 expr_t* parse_expr_prec(arena_t* arena, parser_t* self, token_kind_t stop_token, expr_precedence_t min_prec) {
     printf("\n");
+    printf("stop token: %s\n", token_kind_str(stop_token));
     arena_t local_arena = {};
     arena_init(&local_arena);
 
-    token_t left_tok = lexer_peek(&local_arena, &self->lexer);
-    expr_t* lhs = arena_alloc(&local_arena, sizeof(expr_t));
+    token_t left_tok = lexer_peek(arena, &self->lexer);
+    expr_t* lhs = arena_alloc(arena, sizeof(expr_t));
     expr_t* prev_lhs;
 
     if (left_tok.kind == stop_token) {
@@ -303,7 +319,7 @@ expr_t* parse_expr_prec(arena_t* arena, parser_t* self, token_kind_t stop_token,
         return lhs;
     }
 
-    left_tok = lexer_next(&local_arena, &self->lexer);
+    left_tok = lexer_next(arena, &self->lexer);
 
     if (left_tok.kind == TOK_IDENT) {
         // identifier
@@ -556,6 +572,7 @@ expr_t* parse_expr_prec(arena_t* arena, parser_t* self, token_kind_t stop_token,
         break;
     }
 
+    arena_deinit(&local_arena);
     return lhs;
 }
 
@@ -715,6 +732,7 @@ stmt_t visit_assign_stmt(arena_t* arena, parser_t* self) {
     stmt.assign_stmt.expr = parse_expr(arena, self, TOK_SEMICOLON);
     parser_expect(TOK_SEMICOLON, lexer_next(&local_arena, &self->lexer));
 
+    arena_deinit(&local_arena);
     return stmt;
 }
 
