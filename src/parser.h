@@ -358,7 +358,7 @@ struct symbol;
 
 typedef struct {
     char* name;
-    vector_t symbol_vec;
+    vector_t symbol_vec; // vec<symbol_t>
 } module_t;
 
 typedef enum {
@@ -447,7 +447,7 @@ typedef struct {
 } symbol_t;
 
 typedef struct {
-    vector_t module_vec;
+    vector_t module_vec; // vec<module_t>
 } ast_t;
 
 typedef struct parser {
@@ -481,3 +481,5 @@ stmt_t visit_expr_stmt(arena_t* arena, parser_t* self);
 expr_t* visit_expr(arena_t* arena, parser_t* self, token_kind_t stop_token);
 
 u64 count_csv(const char* data, char sep);
+
+void print_ast(ast_t* ast);

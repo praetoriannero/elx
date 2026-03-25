@@ -82,7 +82,8 @@ i32 main(int argc, char** argv) {
     lexer_init(lexer, content);
 
     parser_t* parser = parser_new(&arena, *lexer);
-    parser_parse(&arena, parser);
+    ast_t ast = parser_parse(&arena, parser);
+    print_ast(&ast);
 
     // clean up
     fclose(file_handle);

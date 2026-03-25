@@ -215,7 +215,7 @@ fn_next_exit:
         lexer_error(self, "invalid token");
     }
 
-    log("%s\n", token_string(&local_arena, &token));
+    // log("%s\n", token_string(&local_arena, &token));
 
     arena_deinit(&local_arena);
     return token;

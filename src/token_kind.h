@@ -160,15 +160,15 @@ static const u32 valid_ops[] = {
     TOK_LPAREN, // (
     TOK_RPAREN, // )
     // TOK_POUND,     // #
-    TOK_AMPER,     // &
-    TOK_LBRACK,    // [
-    TOK_RBRACK,    // ]
-    TOK_PIPE,      // |
-    TOK_GT,        // >
-    TOK_LT,        // <
+    TOK_AMPER,  // &
+    TOK_LBRACK, // [
+    TOK_RBRACK, // ]
+    TOK_PIPE,   // |
+    TOK_GT,     // >
+    TOK_LT,     // <
     // TOK_SEMICOLON, // ;
     // TOK_COMMA,     // ,
-    TOK_DECIMAL,   // .
+    TOK_DECIMAL, // .
     // TOK_UNIT,      // ()
 
     // multi-char operators
