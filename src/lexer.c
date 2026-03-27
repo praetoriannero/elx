@@ -55,9 +55,7 @@ static void lexer_skip_comment(lexer_t* self) {
     }
 }
 
-token_t lexer_next(arena_t* arena, lexer_t* self) {
-    // lexer_peek(arena, self);
-    // log("entering lexer_next\n");
+token_t _lexer_advance(arena_t* arena, lexer_t* self) {
     arena_t local_arena;
     arena_init(&local_arena);
 
@@ -215,15 +213,19 @@ fn_next_exit:
         lexer_error(self, "invalid token");
     }
 
-    // log("%s\n", token_string(&local_arena, &token));
-
     arena_deinit(&local_arena);
+    return token;
+}
+
+token_t lexer_next(arena_t* arena, lexer_t* self) {
+    token_t token = _lexer_advance(arena, self);
+    log("%s\n", token_string(arena, &token));
     return token;
 }
 
 token_t lexer_peek(arena_t* arena, lexer_t* self) {
     lexer_meta_t meta = self->meta;
-    token_t token = lexer_next(arena, self);
+    token_t token = _lexer_advance(arena, self);
     self->meta = meta;
     return token;
 }

@@ -44,7 +44,7 @@ typedef enum {
 
 typedef struct {
     char* name;
-    vector_t arg_vec; // vec<func_arg_t>
+    vector_t param_vec; // vec<func_arg_t>
     body_t body;
     type_t ret_type;
 } func_t;

@@ -7,6 +7,9 @@ struct Foo {
     }
 
     fn complex() -> void {
+        1 - 2 - 3 - 5 + 0;
+        let j = Foo{};
+        1 + x() + (two()) + 0;
         1 * 2 - -0 - (3 + -two()) + +u8(f.simple(i32(f.a))) / ~10;
     }
 }
