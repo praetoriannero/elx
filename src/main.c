@@ -6,27 +6,15 @@
 
 #include "arena.h"
 #include "lexer.h"
-#include "logger.h"
+// #include "logger.h"
 #include "modprim.h"
 #include "panic.h"
 #include "parser.h"
-#include "str.h"
+// #include "str.h"
 #include "xalloc.h"
 
 u8 OK = 0;
 u8 ERR = 1;
-
-typedef struct {
-    string_t token_str;
-    size_t col_start;
-    size_t col_end;
-    size_t line_start;
-    size_t line_end;
-} Token;
-
-typedef struct {
-    Token* values;
-} TokenArray;
 
 i64 get_file_size(FILE* handle) {
     if (fseek(handle, 0, SEEK_END) != 0) {
