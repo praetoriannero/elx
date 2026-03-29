@@ -9,7 +9,7 @@
 
 #define DEFAULT_VEC_SIZE 8
 
-void vector_init(arena_t* arena, vector_t* self, size_t datum_size, size_t initial_capacity) {
+void vector_init(arena_t* arena, vector_t* self, usize datum_size, usize initial_capacity) {
     xnotnull(self);
 
     self->data = arena_alloc(arena, datum_size * initial_capacity);
@@ -18,7 +18,7 @@ void vector_init(arena_t* arena, vector_t* self, size_t datum_size, size_t initi
     self->size = 0;
 }
 
-vector_t* vector_new(arena_t* arena, size_t datum_size, size_t initial_capacity) {
+vector_t* vector_new(arena_t* arena, usize datum_size, usize initial_capacity) {
     vector_t* vec = arena_alloc(arena, sizeof(vector_t));
     vector_init(arena, vec, datum_size, initial_capacity);
     return vec;
@@ -27,10 +27,10 @@ vector_t* vector_new(arena_t* arena, size_t datum_size, size_t initial_capacity)
 void vector_push(arena_t* arena, vector_t* self, const void* datum) {
     xnotnull(self);
 
-    size_t new_len = self->size + 1;
+    usize new_len = self->size + 1;
     if (new_len == self->capacity) {
-        size_t new_capacity = self->capacity ? self->capacity * 2 : DEFAULT_VEC_SIZE;
-        size_t new_alloc = new_capacity * self->datum_size;
+        usize new_capacity = self->capacity ? self->capacity * 2 : DEFAULT_VEC_SIZE;
+        usize new_alloc = new_capacity * self->datum_size;
 
         void* new_data = arena_realloc(arena, self->data, new_alloc);
         self->capacity = new_capacity;
@@ -60,7 +60,7 @@ void* vector_get(vector_t* self, usize index) {
 }
 
 void vector_clear(vector_t* self, free_inner inner_cb) {
-    size_t idx;
+    usize idx;
     if (inner_cb) {
         for (idx = 0; idx < self->size; idx++) {
             inner_cb((char*)self->data + idx * self->datum_size);
@@ -74,7 +74,7 @@ void vector_clear(vector_t* self, free_inner inner_cb) {
 void vector_deinit(vector_t* self, free_inner inner_cb) { vector_clear(self, inner_cb); }
 
 void vector_free(vector_t* self, free_inner inner_cb) {
-    size_t idx;
+    usize idx;
     if (inner_cb) {
         for (idx = 0; idx < self->size; idx++) {
             inner_cb((char*)self->data + idx * self->datum_size);

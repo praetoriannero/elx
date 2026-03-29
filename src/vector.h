@@ -27,4 +27,6 @@ void vector_free(vector_t* self, free_inner inner_cb);
 
 void vector_deinit(vector_t* self, free_inner inner_cb);
 
+#define vector_iter(vec, iter) (usize (iter) = 0; (iter) < (vec).size; iter++)
+
 #endif

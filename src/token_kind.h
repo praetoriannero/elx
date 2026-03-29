@@ -58,19 +58,20 @@ typedef enum token_kind {
     TOK_PATH,      // ::
 
     // joint operator assignment
-    TOK_EQEQ,    // ==
-    TOK_NOTEQ,   // !=
-    TOK_PLUSEQ,  // +=
-    TOK_MINEQ,   // -=
-    TOK_TIMESEQ, // *=
-    TOK_DIVEQ,   // /=
-    TOK_BINVEQ,  // ~=
-    TOK_OREQ,    // |=
-    TOK_ANDEQ,   // &=
-    TOK_XOREQ,   // ^=
-    TOK_MODEQ,   // %=
-    TOK_SHLEQ,   // <<=
-    TOK_SHREQ,   // >>=
+    TOK_EQEQ,       // ==
+    TOK_NOTEQ,      // !=
+    TOK_PLUSEQ,     // +=
+    TOK_MINEQ,      // -=
+    TOK_TIMESEQ,    // *=
+    TOK_DIVEQ,      // /=
+    TOK_BINVEQ,     // ~=
+    TOK_OREQ,       // |=
+    TOK_ANDEQ,      // &=
+    TOK_XOREQ,      // ^=
+    TOK_MODEQ,      // %=
+    TOK_SHLEQ,      // <<=
+    TOK_SHREQ,      // >>=
+    TOK_DESTRUCTOR, // ~()
 
     // keywords
     TOK_KW_AS,       // as
@@ -172,17 +173,18 @@ static const u32 valid_ops[] = {
     // TOK_UNIT,      // ()
 
     // multi-char operators
-    TOK_LOR,       // ||
-    TOK_LAND,      // &&
-    TOK_SHL,       // <<
-    TOK_SHR,       // >>
-    TOK_GTE,       // >=
-    TOK_LTE,       // <=
-    TOK_ARROW,     // ->
-    TOK_COMMENT,   // //
-    TOK_RANGE,     // ..
-    TOK_RANGEINCL, // ..=
-    TOK_PATH,      // ::
+    TOK_LOR,        // ||
+    TOK_LAND,       // &&
+    TOK_SHL,        // <<
+    TOK_SHR,        // >>
+    TOK_GTE,        // >=
+    TOK_LTE,        // <=
+    TOK_ARROW,      // ->
+    TOK_COMMENT,    // //
+    TOK_RANGE,      // ..
+    TOK_RANGEINCL,  // ..=
+    TOK_PATH,       // ::
+    TOK_DESTRUCTOR, // ~()
 
     // joint operator assignment
     TOK_EQEQ,    // ==

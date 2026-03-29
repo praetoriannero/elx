@@ -14,21 +14,6 @@
 #include "vector.h"
 #include "xalloc.h"
 
-void print_enum(enum_t* enum_, u64 depth);
-void print_import(import_t* import, u64 depth);
-void print_module(module_t* module, u64 depth);
-void print_func(func_t* func, u64 depth);
-void print_global(global_t* global, u64 depth);
-void print_struct(struct_t* struct_, u64 depth);
-
-const char INDENT[] = "  ";
-
-void indent(u64 depth) {
-    for (u64 i = 0; i < depth; i++) {
-        printf("%s", INDENT);
-    }
-}
-
 expr_precedence_t postfix_precedence(token_kind_t kind) {
     switch (kind) {
         case TOK_LBRACE:
@@ -103,91 +88,6 @@ expr_precedence_t infix_precedence(token_kind_t kind) {
     }
 }
 
-char* expr_kind_string(expr_kind_t kind) {
-    switch (kind) {
-            // EmptyExpression
-        case EXPR_KIND_EMPTY:
-            return "EXPR_KIND_EMPTY";
-
-            // LiteralExpression
-        case EXPR_KIND_LITERAL:
-            return "EXPR_KIND_LITERAL";
-
-            // PathExpression
-        case EXPR_KIND_PATH:
-            return "EXPR_KIND_PATH";
-
-            // OperatorExpression
-        case EXPR_KIND_BINARY:
-            return "EXPR_KIND_BINARY";
-        case EXPR_KIND_UNARY:
-            return "EXPR_KIND_UNARY";
-
-            // GroupedExpression
-        case EXPR_KIND_GROUP:
-            return "EXPR_KIND_GROUP";
-
-            // ArrayExpression
-        case EXPR_KIND_ARRAY_EXPLICIT:
-            return "EXPR_KIND_ARRAY_EXPLICIT";
-        case EXPR_KIND_ARRAY_IMPLICIT:
-            return "EXPR_KIND_ARRAY_IMPLICIT";
-
-            // IndexExpression
-        case EXPR_KIND_ARRAY_INDEX:
-            return "EXPR_KIND_ARRAY_INDEX";
-
-            // TupleExpression
-        case EXPR_KIND_TUPLE:
-            return "EXPR_KIND_TUPLE";
-
-            // note: this is really a field expression
-            // TupleIndexingExpression
-            // case EXPR_KIND_TUPLE_INDEX: return "EXPR_KIND_TUPLE_INDEX";
-
-            // StructExpression
-        case EXPR_KIND_STRUCT:
-            return "EXPR_KIND_STRUCT";
-
-            // CallExpression
-        case EXPR_KIND_CALL:
-            return "EXPR_KIND_CALL";
-
-            // MethodCallExpression
-        case EXPR_KIND_METHOD_CALL:
-            return "EXPR_KIND_METHOD_CALL";
-
-            // FieldExpression
-        case EXPR_KIND_FIELD:
-            return "EXPR_KIND_FIELD";
-
-            // ClosureExpression
-        case EXPR_KIND_CLOSURE:
-            return "EXPR_KIND_CLOSURE";
-
-            // RangeExpression
-        case EXPR_KIND_RANGE:
-            return "EXPR_KIND_RANGE";
-
-            // AssignmentExpression
-        case EXPR_KIND_ASSIGN:
-            return "EXPR_KIND_ASSIGN";
-
-            // future
-            // AwaitExpression
-            // AsyncBlockExpression
-            // UnderscoreExpression
-
-            // JumpExpression
-            // case EXPR_KIND_RETURN: return "EXPR_KIND_RETURN";
-            // case EXPR_KIND_BREAK: return "EXPR_KIND_BREAK";
-            // case EXPR_KIND_CONTINUE: return "EXPR_KIND_CONTINUE";
-
-        case EXPR_KIND_IDENT:
-            return "EXPR_KIND_IDENT";
-    }
-}
-
 token_t parser_expect(token_kind_t expected, token_t actual) {
     if (expected != actual.kind) {
         panic("expected token kind %s but found %s, \"%s\"", token_kind_str(expected), token_kind_str(actual.kind),
@@ -195,268 +95,6 @@ token_t parser_expect(token_kind_t expected, token_t actual) {
     }
 
     return actual;
-}
-
-void print_enum(enum_t* enum_, u64 depth) { todo(); }
-
-void print_import(import_t* import, u64 depth) { todo(); }
-
-void print_ast(ast_t* ast) {
-    u64 depth = 0;
-    for (usize i = 0; i < ast->module_vec.size; i++) {
-        module_t* module = vector_get(&ast->module_vec, i);
-        print_module(module, depth);
-    }
-}
-
-void print_body(body_t* body, u64 depth);
-
-void print_expr(expr_t* expr, u64 depth) {
-    xnotnull(expr);
-    usize vec_len;
-
-    indent(depth);
-    switch (expr->expr_kind) {
-        case EXPR_KIND_METHOD_CALL:
-            printf("method call {\n");
-            depth++;
-            indent(depth);
-            printf("object {\n");
-            print_expr(expr->method_call_expr.object, depth + 1);
-            indent(depth);
-            printf("},\n");
-            indent(depth);
-            printf("field: %s,\n", expr->method_call_expr.method);
-            vec_len = expr->method_call_expr.arg_vec.size;
-            indent(depth);
-            printf("args {\n");
-            for (usize i = 0; i < vec_len; i++) {
-                expr_t* arg_expr = vector_get(&expr->method_call_expr.arg_vec, i);
-                print_expr(arg_expr, depth + 1);
-            }
-            indent(depth);
-            printf("},\n");
-            depth--;
-
-            indent(depth);
-            printf("},\n");
-            break;
-
-        case EXPR_KIND_EMPTY:
-            printf("<EMPTY>\n");
-            break;
-
-        case EXPR_KIND_IDENT:
-            printf("ident: %s,\n", expr->ident_expr);
-            break;
-
-        case EXPR_KIND_LITERAL:
-            switch (expr->literal_expr.kind) {
-                case LITERAL_KIND_STRING:
-                    printf("string literal: '%s',\n", expr->literal_expr.string);
-                    break;
-
-                case LITERAL_KIND_FLOAT:
-                    printf("float literal: '%s',\n", expr->literal_expr.float_);
-                    break;
-
-                case LITERAL_KIND_INTEGER:
-                    printf("integer literal: '%s',\n", expr->literal_expr.integer);
-                    break;
-
-                default:
-                    printf("<UNSUPPORTED_LITERAL>\n");
-                    break;
-            }
-            break;
-
-        case EXPR_KIND_ARRAY_IMPLICIT:
-            printf("array implicit {\n");
-            print_expr(expr->array_implicit_expr.kind, depth + 1);
-            print_expr(expr->array_implicit_expr.size, depth + 1);
-            indent(depth);
-            printf("},\n");
-            break;
-
-        case EXPR_KIND_ARRAY_EXPLICIT:
-            printf("array explicit {\n");
-            vec_len = expr->array_explicit_expr.arg_vec.size;
-            for (usize i = 0; i < vec_len; i++) {
-                expr_t* arg_expr = vector_get(&expr->array_explicit_expr.arg_vec, i);
-                print_expr(arg_expr, depth + 1);
-            }
-            indent(depth);
-            printf("},\n");
-            break;
-
-        case EXPR_KIND_BINARY:
-            printf("binary %s {\n", expr->binary_expr.op.str.data);
-            print_expr(expr->binary_expr.lhs, depth + 1);
-            print_expr(expr->binary_expr.rhs, depth + 1);
-            indent(depth);
-            printf("},\n");
-            break;
-
-        case EXPR_KIND_UNARY:
-            printf("unary %s {\n", expr->unary_expr.op.str.data);
-            print_expr(expr->unary_expr.inner, depth + 1);
-            indent(depth);
-            printf("},\n");
-            break;
-
-        case EXPR_KIND_ARRAY_INDEX:
-            printf("array index {\n");
-            print_expr(expr->array_index_expr.index, depth + 1);
-            indent(depth);
-            printf("},\n");
-            break;
-
-        case EXPR_KIND_STRUCT:
-            printf("struct init {\n");
-            depth++;
-            indent(depth);
-            printf("object {\n");
-            print_expr(expr->struct_init_expr.object, depth + 1);
-            indent(depth);
-            printf("},\n");
-            depth--;
-            vec_len = expr->struct_init_expr.arg_vec.size;
-            depth++;
-            indent(depth);
-            printf("args {\n");
-            for (usize i = 0; i < vec_len; i++) {
-                expr_t* arg_expr = vector_get(&expr->struct_init_expr.arg_vec, i);
-                print_expr(arg_expr, depth + 1);
-            }
-            indent(depth);
-            printf("},\n");
-            depth--;
-            indent(depth);
-            printf("},\n");
-            break;
-
-        case EXPR_KIND_FIELD:
-            printf("field access {\n");
-            depth++;
-            indent(depth);
-            printf("object {\n");
-            print_expr(expr->field_expr.object, depth + 1);
-            indent(depth);
-            printf("},\n");
-            indent(depth);
-            printf("field: %s,\n", expr->field_expr.name);
-            depth--;
-            indent(depth);
-            printf("},\n");
-            break;
-
-        case EXPR_KIND_PATH:
-            printf("path {\n");
-            depth++;
-            indent(depth);
-            printf("stem: %s,\n", expr->path_expr.stem);
-            indent(depth);
-            printf("leaf {\n");
-            print_expr(expr->path_expr.expr, depth + 1);
-            indent(depth);
-            printf("},\n");
-            depth--;
-            indent(depth);
-            printf("},\n");
-            break;
-
-        case EXPR_KIND_CALL:
-            vec_len = expr->call_expr.arg_vec.size;
-            printf("call {\n");
-            depth++;
-            indent(depth);
-            printf("object {\n");
-            print_expr(expr->call_expr.object, depth + 1);
-            indent(depth);
-            printf("},\n");
-            indent(depth);
-            printf("args {\n");
-            depth++;
-            for (usize i = 0; i < vec_len; i++) {
-                indent(depth);
-                printf("arg_%zu {\n", i);
-                expr_t arg_expr = *(expr_t*)vector_get(&expr->call_expr.arg_vec, i);
-                print_expr(&arg_expr, depth + 1);
-                indent(depth);
-                printf("},\n");
-            }
-            depth--;
-            indent(depth);
-            printf("},\n");
-            depth--;
-            indent(depth);
-            printf("},\n");
-            break;
-
-        default:
-            printf("<UNSUPPORTED: %i>\n", expr->expr_kind);
-            break;
-    }
-    // indent(depth);
-}
-
-u64 count_csv(const char* data, char sep) {
-    // count the comma separated values before finding the right-hand version of the separator
-    // todo: better string handling to allow regex
-    assert(data != NULL);
-
-    u64 count = 0;
-    u64 arr[256] = {
-        ['{'] = 0,
-        ['('] = 0,
-        ['['] = 0,
-        ['"'] = 0,
-    };
-    u64 translate[256] = {
-        ['}'] = '{',
-        [')'] = '(',
-        [']'] = '[',
-        ['"'] = '"',
-    };
-
-    arr[(u8)sep]++;
-    usize data_len = strlen(data);
-    for (usize i = 0; i < data_len; i++) {
-        if (data[i] == '"') {
-            for (usize j = i + 1; j < data_len; j++) {
-                if (!data[j]) {
-                    panic("unexpected EOF during expression parse\n");
-                }
-
-                if (data[j] == '"') {
-                    i = j;
-                    break;
-                }
-            }
-        }
-        if (strchr("{([", data[i])) {
-            arr[(u8)data[i]]++;
-        }
-
-        if (strchr("})]", data[i])) {
-            arr[(u8)data[translate[i]]]--;
-        }
-
-        u64 arr_sum = 0;
-        for (size_t j = 0; j < 256; j++) {
-            arr_sum += arr[j];
-        }
-
-        if ((arr_sum == 1) && (data[i] == ',')) {
-            count++;
-        }
-
-        if (!arr_sum) {
-            break;
-        }
-    }
-
-    return count;
 }
 
 expr_t* parse_expr_prec(arena_t* arena, parser_t* self, token_kind_t stop_token, expr_precedence_t min_prec) {
@@ -743,26 +381,35 @@ expr_t* parse_expr_prec(arena_t* arena, parser_t* self, token_kind_t stop_token,
     return lhs;
 }
 
-expr_t* parse_expr(arena_t* arena, parser_t* self, token_kind_t stop_token) {
-    // log("entering parse expr\n");
-    expr_t* expr = parse_expr_prec(arena, self, stop_token, 0);
-    // log("leaving parse expr\n");
-    return expr;
-}
-
 expr_t* visit_expr(arena_t* arena, parser_t* self, token_kind_t stop_token) {
     /*
      * Consume tokens until we reach the stop token, creating an expression tree
      */
-    return parse_expr(arena, self, stop_token);
+    return parse_expr_prec(arena, self, stop_token, 0);
+}
+
+stmt_t visit_break_stmt(arena_t* arena, parser_t* self) {
+    // scope_t* scope = arena_new_scope(arena);
+
+    parser_expect(TOK_KW_BREAK, lexer_next(arena, &self->lexer));
+    stmt_t stmt = {};
+    stmt.kind = STMT_KIND_BREAK;
+
+    // todo: support continue by explicitly listing loop identifier
+    stmt.break_stmt.ident = "UNSUPPORTED";
+
+    // arena_free_scope(arena, scope);
+    return stmt;
 }
 
 stmt_t visit_expr_stmt(arena_t* arena, parser_t* self) {
-    printf("\n");
     stmt_t stmt = {};
 
-    expr_t* expr = parse_expr(arena, self, TOK_SEMICOLON);
+    expr_t* expr = visit_expr(arena, self, TOK_SEMICOLON);
+
+    // scope_t* scope = arena_new_scope(arena);
     parser_expect(TOK_SEMICOLON, lexer_next(arena, &self->lexer));
+    // arena_free_scope(arena, scope);
 
     stmt.kind = STMT_KIND_EXPR;
     stmt.expr_stmt.expr = expr;
@@ -783,7 +430,7 @@ stmt_t visit_for_stmt(arena_t* arena, parser_t* self) {
 
     stmt.for_stmt.iterator = strdup2(arena, feed.str.data);
     parser_expect(TOK_KW_IN, lexer_next(&local_arena, &self->lexer));
-    stmt.for_stmt.iterable = parse_expr(arena, self, TOK_LBRACE);
+    stmt.for_stmt.iterable = visit_expr(arena, self, TOK_LBRACE);
     parser_expect(TOK_LBRACE, lexer_next(&local_arena, &self->lexer));
     stmt.for_stmt.body = visit_body(arena, self);
     parser_expect(TOK_RBRACE, lexer_next(&local_arena, &self->lexer));
@@ -803,7 +450,7 @@ stmt_t visit_if_stmt(arena_t* arena, parser_t* self) {
     feed = parser_expect(TOK_KW_IF, lexer_next(&local_arena, &self->lexer));
 
     stmt.kind = STMT_KIND_IF;
-    stmt.if_stmt.condition = parse_expr(arena, self, TOK_LBRACE);
+    stmt.if_stmt.condition = visit_expr(arena, self, TOK_LBRACE);
 
     parser_expect(TOK_LBRACE, lexer_next(&local_arena, &self->lexer));
 
@@ -824,7 +471,7 @@ stmt_t visit_if_stmt(arena_t* arena, parser_t* self) {
         if (feed.kind == TOK_KW_IF) {
             elif_clause_t elif_clause = {};
             parser_expect(TOK_KW_IF, lexer_next(&local_arena, &self->lexer));
-            elif_clause.condition = parse_expr(arena, self, TOK_LBRACE);
+            elif_clause.condition = visit_expr(arena, self, TOK_LBRACE);
             parser_expect(TOK_LBRACE, lexer_next(&local_arena, &self->lexer));
             elif_clause.body = visit_body(arena, self);
             parser_expect(TOK_RBRACE, lexer_next(&local_arena, &self->lexer));
@@ -852,7 +499,7 @@ stmt_t visit_while_stmt(arena_t* arena, parser_t* self) {
 
     parser_expect(TOK_KW_WHILE, lexer_next(&local_arena, &self->lexer));
     stmt.kind = STMT_KIND_WHILE;
-    stmt.while_stmt.condition = parse_expr(arena, self, TOK_LBRACE);
+    stmt.while_stmt.condition = visit_expr(arena, self, TOK_LBRACE);
     parser_expect(TOK_LBRACE, lexer_next(&local_arena, &self->lexer));
     stmt.while_stmt.body = visit_body(arena, self);
     parser_expect(TOK_RBRACE, lexer_next(&local_arena, &self->lexer));
@@ -876,7 +523,15 @@ stmt_t visit_return_stmt(arena_t* arena, parser_t* self) {
     return stmt;
 }
 
-stmt_t visit_continue_stmt(arena_t* arena, parser_t* self) { todo(); }
+stmt_t visit_continue_stmt(arena_t* arena, parser_t* self) {
+    parser_expect(TOK_KW_CONTINUE, lexer_next(arena, &self->lexer));
+    stmt_t stmt = {};
+    stmt.kind = STMT_KIND_CONTINUE;
+    // todo: support continue by explicitly listing loop identifier
+    stmt.cont_stmt.ident = "UNSUPPORTED";
+
+    return stmt;
+}
 
 stmt_t visit_assign_stmt(arena_t* arena, parser_t* self) {
     arena_t local_arena = {};
@@ -898,7 +553,7 @@ stmt_t visit_assign_stmt(arena_t* arena, parser_t* self) {
     stmt.assign_stmt.name = strdup2(arena, feed.str.data);
 
     parser_expect(TOK_EQ, lexer_next(arena, &self->lexer));
-    stmt.assign_stmt.expr = parse_expr(arena, self, TOK_SEMICOLON);
+    stmt.assign_stmt.expr = visit_expr(arena, self, TOK_SEMICOLON);
     parser_expect(TOK_SEMICOLON, lexer_next(&local_arena, &self->lexer));
 
     arena_deinit(&local_arena);
@@ -946,6 +601,10 @@ body_t visit_body(arena_t* arena, parser_t* self) {
                 continue;
             case TOK_KW_CONTINUE:
                 stmt = visit_continue_stmt(arena, self);
+                vector_push(arena, &body.stmts, &stmt);
+                continue;
+            case TOK_KW_BREAK:
+                stmt = visit_break_stmt(arena, self);
                 vector_push(arena, &body.stmts, &stmt);
                 continue;
             case TOK_KW_VAR:
@@ -1051,27 +710,6 @@ ast_t parser_parse(arena_t* arena, parser_t* self) {
     return ast;
 }
 
-void print_struct(struct_t* struct_, u64 depth) {
-    indent(depth);
-    printf("struct {\n");
-    depth++;
-    indent(depth);
-    printf("ident: %s,\n", struct_->name);
-    for (u32 i = 0; i < struct_->field_vec.size; i++) {
-        indent(depth);
-        struct_field_t* field = vector_get(&struct_->field_vec, i);
-        xnotnull(field);
-        printf("field { ident: %s, type: %s },\n", field->name, field->type.name);
-    }
-    for (usize j = 0; j < struct_->method_vec.size; j++) {
-        symbol_t* symbol = vector_get(&struct_->method_vec, j);
-        print_func(&symbol->func_case, depth);
-    }
-    depth--;
-    indent(depth);
-    printf("},\n");
-}
-
 symbol_t visit_struct(arena_t* arena, parser_t* self) {
     // log("visiting struct\n");
 
@@ -1132,221 +770,6 @@ symbol_t visit_struct(arena_t* arena, parser_t* self) {
     return symbol;
 }
 
-void print_assign_stmt(assign_stmt_t* assign_stmt, u64 depth) {
-    indent(depth);
-    printf("assign_stmt {\n");
-    depth++;
-    indent(depth);
-    printf("ident: %s,\n", assign_stmt->name);
-    indent(depth);
-    printf("mut: %i\n", assign_stmt->mut);
-    indent(depth);
-    printf("expr {\n");
-    print_expr(assign_stmt->expr, depth + 1);
-    indent(depth);
-    printf("},\n");
-    depth--;
-    indent(depth);
-    printf("},\n");
-}
-
-void print_return_stmt(return_stmt_t* return_stmt, u64 depth) {
-    indent(depth);
-    printf("return_stmt {\n");
-    depth++;
-    indent(depth);
-    printf("expr {\n");
-    print_expr(return_stmt->expr, depth + 1);
-    indent(depth);
-    printf("},\n");
-    depth--;
-    indent(depth);
-    printf("},\n");
-}
-
-void print_expr_stmt(expr_stmt_t* expr_stmt, u64 depth) {
-    indent(depth);
-    printf("expr_stmt {\n");
-    depth++;
-    indent(depth);
-    printf("expr {\n");
-    print_expr(expr_stmt->expr, depth + 1);
-    indent(depth);
-    printf("},\n");
-    depth--;
-    indent(depth);
-    printf("},\n");
-}
-
-void print_for_stmt(for_stmt_t* for_stmt, u64 depth) {
-    indent(depth);
-    printf("for_stmt {\n");
-    depth++;
-    indent(depth);
-    printf("iterator: %s,\n", for_stmt->iterator);
-    indent(depth);
-    printf("iterable {\n");
-    print_expr(for_stmt->iterable, depth + 1);
-    indent(depth);
-    printf("},\n");
-    indent(depth);
-    printf("body {\n");
-    print_body(&for_stmt->body, depth);
-    indent(depth);
-    printf("},\n");
-    depth--;
-    indent(depth);
-    printf("},\n");
-}
-
-void print_while_stmt(while_stmt_t* while_stmt, u64 depth) {
-    indent(depth);
-    printf("while_stmt {\n");
-    depth++;
-    indent(depth);
-    printf("condition {\n");
-    print_expr(while_stmt->condition, depth + 1);
-    indent(depth);
-    printf("},\n");
-    indent(depth);
-    printf("body {\n");
-    print_body(&while_stmt->body, depth);
-    indent(depth);
-    printf("},\n");
-    depth--;
-    indent(depth);
-    printf("},\n");
-}
-
-void print_elif_clause(elif_clause_t* elif_clause, u64 depth) {
-    indent(depth);
-    printf("elif_clause {\n");
-    depth++;
-    indent(depth);
-    printf("condition {\n");
-    print_expr(elif_clause->condition, depth);
-    indent(depth);
-    printf("},\n");
-    indent(depth);
-    printf("body {\n");
-    print_body(&elif_clause->body, depth);
-    indent(depth);
-    printf("},\n");
-    depth--;
-    indent(depth);
-    printf("},\n");
-}
-
-void print_else_clause(else_clause_t* else_clause, u64 depth) {
-    indent(depth);
-    printf("else_clause {\n");
-    printf("body {\n");
-    print_body(&else_clause->body, depth);
-    printf("},\n");
-    indent(depth);
-    printf("},\n");
-}
-
-void print_if_stmt(if_stmt_t* if_stmt, u64 depth) {
-    indent(depth);
-    printf("if_stmt {\n");
-    depth++;
-    indent(depth);
-    printf("condition {\n");
-    print_expr(if_stmt->condition, depth);
-    indent(depth);
-    printf("},\n");
-    indent(depth);
-    printf("body {\n");
-    print_body(&if_stmt->body, depth);
-    indent(depth);
-    printf("},\n");
-    for (usize i = 0; i < if_stmt->elif_clause_vec.size; i++) {
-        elif_clause_t elif_clause = *(elif_clause_t*)vector_get(&if_stmt->elif_clause_vec, i);
-        print_elif_clause(&elif_clause, depth);
-    }
-    depth--;
-    indent(depth);
-    printf("},\n");
-}
-
-void print_break_stmt(break_stmt_t* break_stmt, u64 depth) {
-    indent(depth);
-    printf("break,");
-}
-
-void print_continue_stmt(continue_stmt_t* continue_stmt, u64 depth) {
-    indent(depth);
-    printf("continue,");
-}
-
-void print_body(body_t* body, u64 depth) {
-    for (usize i = 0; i < body->stmts.size; i++) {
-        stmt_t* stmt = vector_get(&body->stmts, i);
-        switch (stmt->kind) {
-            case STMT_KIND_ASSIGN:
-                print_assign_stmt(&stmt->assign_stmt, depth + 1);
-                break;
-            case STMT_KIND_RETURN:
-                print_return_stmt(&stmt->return_stmt, depth + 1);
-                break;
-            case STMT_KIND_EXPR:
-                print_expr_stmt(&stmt->expr_stmt, depth + 1);
-                break;
-            case STMT_KIND_FOR:
-                print_for_stmt(&stmt->for_stmt, depth + 1);
-                break;
-            case STMT_KIND_WHILE:
-                print_while_stmt(&stmt->while_stmt, depth + 1);
-                break;
-            case STMT_KIND_IF:
-                print_if_stmt(&stmt->if_stmt, depth + 1);
-                break;
-            case STMT_KIND_BREAK:
-                print_break_stmt(&stmt->break_stmt, depth + 1);
-                break;
-            case STMT_KIND_CONTINUE:
-                print_continue_stmt(&stmt->cont_stmt, depth + 1);
-                break;
-            case STMT_KIND_UNDEFINED:
-                panic("undefined statement kind\n");
-        }
-    }
-}
-
-void print_module(module_t* module, u64 depth) {
-    indent(depth);
-    printf("module {\n");
-    // depth++;
-    for (usize i = 0; i < module->symbol_vec.size; i++) {
-        symbol_t* symbol = vector_get(&module->symbol_vec, i);
-        switch (symbol->kind) {
-            case SYMBOL_KIND_MODULE:
-                print_module(&symbol->module_case, depth + 1);
-                continue;
-            case SYMBOL_KIND_ENUM:
-                print_enum(&symbol->enum_case, depth + 1);
-                continue;
-            case SYMBOL_KIND_FUNC:
-                print_func(&symbol->func_case, depth + 1);
-                continue;
-            case SYMBOL_KIND_GLOBAL:
-                print_global(&symbol->global_case, depth + 1);
-                continue;
-            case SYMBOL_KIND_STRUCT:
-                print_struct(&symbol->struct_case, depth + 1);
-                continue;
-            case SYMBOL_KIND_IMPORT:
-                print_import(&symbol->import_case, depth + 1);
-                continue;
-            case SYMBOL_KIND_UNDEFINED:
-                break;
-        }
-    }
-    // depth--;
-    printf("}\n");
-}
-
 symbol_t visit_module(arena_t* arena, parser_t* self) {
     // log("visiting module\n");
 
@@ -1373,37 +796,6 @@ symbol_t visit_module(arena_t* arena, parser_t* self) {
     arena_deinit(&local_arena);
     // log("leaving module\n");
     return symbol;
-}
-
-void print_func(func_t* func, u64 depth) {
-    indent(depth);
-    printf("func {\n");
-    depth++;
-    indent(depth);
-    printf("ident: %s,\n", func->name);
-    indent(depth);
-    printf("params {\n");
-    depth++;
-    if (func->param_vec.size) {
-        for (usize idx = 0; idx < func->param_vec.size; idx++) {
-            func_arg_t* func_arg = vector_get(&func->param_vec, idx);
-            indent(depth);
-            printf("param_%zu {%s: %s},\n", idx, func_arg->name, func_arg->type.name);
-        }
-    }
-    depth--;
-    indent(depth);
-    printf("},\n");
-    indent(depth);
-    printf("return_type: %s,\n", func->ret_type.name);
-    indent(depth);
-    printf("body {\n");
-    print_body(&func->body, depth);
-    indent(depth);
-    printf("},\n");
-    depth--;
-    indent(depth);
-    printf("}\n");
 }
 
 symbol_t visit_func(arena_t* arena, parser_t* self) {
@@ -1461,17 +853,6 @@ symbol_t visit_func(arena_t* arena, parser_t* self) {
     arena_deinit(&local_arena);
     // log("leaving func\n");
     return symbol;
-}
-
-void print_global(global_t* global, u64 depth) {
-    indent(depth);
-    printf("global {\n");
-    depth++;
-    printf("ident: %s,\n", global->name);
-    printf("mut: %i,\n", global->mut);
-    print_expr(global->expr, depth + 1);
-    depth--;
-    printf("},\n");
 }
 
 symbol_t visit_global(arena_t* arena, parser_t* self, bool is_var) {

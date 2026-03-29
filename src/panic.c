@@ -10,6 +10,7 @@
 
 #include "panic.h"
 
+char PANIC_MSG_BUFF[PANIC_MSG_SIZE];
 // /* Error callback */
 // static void error_callback(void *data, const char *msg, int errnum) {
 //     (void)data;

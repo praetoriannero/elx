@@ -306,14 +306,8 @@ typedef enum {
 typedef struct {
     char* name;
     bool mut;
-    // assign_op_kind_t assign_op;
     expr_t* expr;
 } assign_stmt_t;
-
-// typedef struct {
-//     char* name;
-//     expr_t* expr;
-// } let_stmt_t;
 
 typedef struct {
     expr_t* expr;
@@ -364,7 +358,6 @@ typedef struct {
 typedef enum {
     STMT_KIND_UNDEFINED,
     STMT_KIND_ASSIGN,
-    // STMT_KIND_LET,
     STMT_KIND_RETURN,
     STMT_KIND_EXPR,
     STMT_KIND_FOR,
@@ -378,7 +371,6 @@ typedef struct {
     stmt_kind_t kind;
     union {
         assign_stmt_t assign_stmt;
-        // let_stmt_t let_stmt;
         return_stmt_t return_stmt;
         expr_stmt_t expr_stmt;
         for_stmt_t for_stmt;

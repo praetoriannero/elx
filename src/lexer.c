@@ -94,27 +94,31 @@ token_t _lexer_advance(arena_t* arena, lexer_t* self) {
         string_push_char(arena, &token.str, c);
 
         const op_node_t* op_iter = op_table;
+        size_t sub_table_size = 0;
         size_t table_size = array_len(op_table);
         op_node_t op_node;
 
         char c_next = lexer_peek_char(self);
         token_kind_t kind_next = single_char_token[(u8)c_next];
 
+        // get first operator node
         for (size_t i = 0; i < table_size; i++) {
             op_node = op_iter[i];
             if (op_node.text == c) {
                 op_iter = op_node.children;
+                sub_table_size = op_node.child_count;
                 break;
             }
         }
 
         bool found = false;
         while (op_iter && (kind_next != TOK_INVALID) && (!strchr(whitespace, c_next))) {
-            for (size_t i = 0; i < table_size; i++) {
+            for (size_t i = 0; i < sub_table_size; i++) {
                 op_node = op_iter[i];
                 if (op_node.text == c_next) {
                     string_push_char(arena, &token.str, lexer_consume(self));
                     op_iter = op_node.children;
+                    sub_table_size = op_node.child_count;
                     token.kind = op_node.kind;
                     found = true;
                     break;

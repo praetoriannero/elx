@@ -20,7 +20,7 @@ arena_t* arena_new(void);
 
 void arena_free(arena_t* arena, void* ptr);
 
-node_t* arena_new_scope(arena_t* self);
+scope_t* arena_new_scope(arena_t* self);
 
 void arena_free_scope(arena_t* self, node_t* scope);
 

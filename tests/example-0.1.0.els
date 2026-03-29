@@ -6,6 +6,8 @@ struct Foo {
         return x;
     }
 
+//    f~();
+
     fn complex() -> void {
         1 - 2 - 3 - 5 + 0;
         let j = Foo{};
