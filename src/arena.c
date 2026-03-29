@@ -5,13 +5,13 @@
 #include "panic.h"
 #include "xalloc.h"
 
-arena_t* arena_new(void) {
-    arena_t* arena = xmalloc(sizeof(arena_t));
+Arena* arena_new(void) {
+    Arena* arena = xmalloc(sizeof(Arena));
     arena_init(arena);
     return arena;
 }
 
-void arena_free(arena_t* self, void* ptr) {
+void arena_free(Arena* self, void* ptr) {
     node_t* node = ((node_t*)ptr) - 1;
 
     if (node->parent) {
@@ -29,9 +29,9 @@ void arena_free(arena_t* self, void* ptr) {
     xfree(node);
 }
 
-scope_t* arena_new_scope(arena_t* self) { return self->node_end; }
+scope_t* arena_new_scope(Arena* self) { return self->node_end; }
 
-void arena_free_scope(arena_t* self, scope_t* scope) {
+void arena_free_scope(Arena* self, scope_t* scope) {
     while (self->node_end != scope) {
         node_t* node = self->node_end;
         self->node_end = node->parent;
@@ -39,19 +39,19 @@ void arena_free_scope(arena_t* self, scope_t* scope) {
     }
 }
 
-void arena_init(arena_t* self) {
-    *self = (arena_t){
+void arena_init(Arena* self) {
+    *self = (Arena){
         .node_end = NULL,
     };
 }
 
-void arena_deinit(arena_t* self) {
+void arena_deinit(Arena* self) {
     if (self) {
         arena_free_scope(self, NULL);
     }
 }
 
-void* arena_alloc(arena_t* self, size_t size) {
+void* arena_alloc(Arena* self, size_t size) {
     xnotnull(self);
 
     node_t* node = xmalloc(sizeof(*node) + size);
@@ -72,7 +72,7 @@ void* arena_alloc(arena_t* self, size_t size) {
     return ptr;
 }
 
-void* arena_realloc(arena_t* self, void* old_ptr, size_t new_size) {
+void* arena_realloc(Arena* self, void* old_ptr, size_t new_size) {
     xnotnull(old_ptr);
     xnotnull(self);
 

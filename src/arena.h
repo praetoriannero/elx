@@ -14,20 +14,20 @@ typedef node_t scope_t;
 
 typedef struct arena {
     node_t* node_end;
-} arena_t;
+} Arena;
 
-arena_t* arena_new(void);
+Arena* arena_new(void);
 
-void arena_free(arena_t* arena, void* ptr);
+void arena_free(Arena* arena, void* ptr);
 
-scope_t* arena_new_scope(arena_t* self);
+scope_t* arena_new_scope(Arena* self);
 
-void arena_free_scope(arena_t* self, node_t* scope);
+void arena_free_scope(Arena* self, node_t* scope);
 
-void* arena_alloc(arena_t* self, size_t size);
+void* arena_alloc(Arena* self, size_t size);
 
-void* arena_realloc(arena_t* self, void* old_ptr, size_t new_size);
+void* arena_realloc(Arena* self, void* old_ptr, size_t new_size);
 
-void arena_deinit(arena_t* self);
+void arena_deinit(Arena* self);
 
-void arena_init(arena_t* self);
+void arena_init(Arena* self);

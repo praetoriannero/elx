@@ -7,7 +7,7 @@
 
 struct op_node {
     char text;
-    token_kind_t kind;
+    TokenKind kind;
     const struct op_node* children;
     size_t child_count;
 };
@@ -134,12 +134,12 @@ static const op_node_t op_table[] = {
     {'`', TOK_TICK, NULL, 0},
 };
 
-typedef struct string_token {
+typedef struct Stringoken {
     char* text;
-    token_kind_t kind;
-} string_token_t;
+    TokenKind kind;
+} string_Token;
 
-static const string_token_t keyword_kind_table[] = {
+static const string_Token keyword_kind_table[] = {
     {"as", TOK_KW_AS},         {"async", TOK_KW_ASYNC},   {"await", TOK_KW_AWAIT},
     {"break", TOK_KW_BREAK},   {"const", TOK_KW_CONST},   {"continue", TOK_KW_CONTINUE},
     {"else", TOK_KW_ELSE},     {"enum", TOK_KW_ENUM},     {"false", TOK_KW_FALSE},
@@ -156,7 +156,7 @@ static const string_token_t keyword_kind_table[] = {
 
 typedef struct lookup_result {
     char* remaining_chars;
-    token_kind_t kind;
+    TokenKind kind;
 } lookup_result_t;
 
 lookup_result_t lookup_operator(char* chars);

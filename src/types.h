@@ -18,27 +18,27 @@ typedef struct elx_ident {
 typedef struct elx_struct_field {
     char* name;
     elx_ident_t type;
-} elx_struct_field_t;
+} elx_StructField;
 
 typedef struct elx_struct {
     elx_ident_t ident;
-    elx_struct_field_t* fields;
+    elx_StructField* fields;
     uint32_t field_count;
-} elx_struct_t;
+} elx_Struct;
 
 typedef struct elx_func_arg {
     char* name;
     elx_ident_t type;
-} elx_func_arg_t;
+} elx_FuncArg;
 
 typedef struct elx_expr {
-    token_t* tokens;
+    Token* tokens;
     uint32_t token_count;
-} elx_expr_t;
+} elx_Expr;
 
 typedef struct elx_expr_stmt {
-    elx_expr_t expr;
-} elx_expr_stmt_t;
+    elx_Expr expr;
+} elx_ExprStmt;
 
 typedef enum elx_assign_op_kind {
     ELX_PLUS_EQUAL,
@@ -52,13 +52,13 @@ typedef enum elx_assign_op_kind {
     ELX_OR_EQUAL,
     ELX_XOR_EQUAL,
     ELX_EQUAL,
-} elx_assign_op_kind_t;
+} elx_AssignOpKind;
 
 typedef struct elx_assign_stmt {
     char* name;
-    elx_assign_op_kind_t assign_op;
-    elx_expr_t expr;
-} elx_assign_stmt_t;
+    elx_AssignOpKind assign_op;
+    elx_Expr expr;
+} elx_AssignStmt;
 
 // typedef struct elx_variable {
 //     elx_ident_t ident;
@@ -71,57 +71,57 @@ struct elx_stmt;
 typedef struct {
     struct elx_stmt* stmts;
     uint32_t stmt_count;
-} elx_body_t;
+} elx_Body;
 
 typedef struct {
     char* name;
-    elx_expr_t expr;
-} elx_let_stmt_t;
+    elx_Expr expr;
+} elx_let_Stmt;
 
 typedef struct {
     char* name;
-    elx_expr_t expr;
-} elx_var_stmt_t;
+    elx_Expr expr;
+} elx_var_Stmt;
 
 typedef struct {
-    elx_expr_t expr;
-} elx_return_stmt_t;
+    elx_Expr expr;
+} elx_ReturnStmt;
 
 typedef struct {
     char* iterator;
-    elx_expr_t iterable;
-    elx_body_t body;
-} elx_for_stmt_t;
+    elx_Expr iterable;
+    elx_Body body;
+} elx_ForStmt;
 
 typedef struct {
-    elx_expr_t condition;
-    elx_body_t body;
-} elx_while_stmt_t;
+    elx_Expr condition;
+    elx_Body body;
+} elx_WhileStmt;
 
 typedef struct {
-    elx_body_t body;
-} elx_else_clause_t;
+    elx_Body body;
+} elx_ElseClause;
 
 typedef struct {
-    elx_expr_t condition;
-    elx_body_t body;
-} elx_elif_clause_t;
+    elx_Expr condition;
+    elx_Body body;
+} elx_ElifClause;
 
 typedef struct {
-    elx_expr_t condition;
-    elx_body_t body;
-    elx_elif_clause_t* elif_clauses;
+    elx_Expr condition;
+    elx_Body body;
+    elx_ElifClause* elif_clauses;
     uint32_t elif_clause_count;
-    elx_else_clause_t else_clause;
-} elx_if_stmt_t;
+    elx_ElseClause else_clause;
+} elx_IfStmt;
 
 typedef struct {
     elx_ident_t* ident;
-} elx_break_stmt_t;
+} elx_BreakStmt;
 
 typedef struct {
     elx_ident_t* ident;
-} elx_continue_stmt_t;
+} elx_ContinueStmt;
 
 struct elx_symbol;
 
@@ -143,24 +143,24 @@ typedef enum {
     ELX_BREAK_STMT,
     ELX_CONTINUE_STMT,
     ELX_MODULE_STMT,
-} elx_stmt_kind_t;
+} elx_StmtKind;
 
 typedef union {
-    elx_expr_stmt_t expr_stmt;
-    elx_assign_stmt_t assign_stmt;
+    elx_ExprStmt expr_stmt;
+    elx_AssignStmt assign_stmt;
 } elx_stmt_variant_t;
 
 typedef struct {
-    elx_stmt_kind_t kind;
+    elx_StmtKind kind;
     elx_stmt_variant_t variant;
-} elx_stmt_t;
+} elx_Stmt;
 
 typedef struct {
     elx_ident_t ident;
-    elx_func_arg_t* args;
+    elx_FuncArg* args;
     uint32_t arg_count;
-    elx_body_t body;
-} elx_func_t;
+    elx_Body body;
+} elx_Func;
 
 typedef enum {
     ELX_STRUCT_KIND,
@@ -169,17 +169,17 @@ typedef enum {
     ELX_MODULE_KIND,
     ELX_FUNC_KIND,
     ELX_IMPORT_KIND,
-} elx_symbol_kind_t;
+} elx_SymbolKind;
 
 typedef union {
-    elx_struct_t struct_kind;
+    elx_Struct struct_kind;
 } elx_symbol_variant_t;
 
 typedef struct {
-    elx_symbol_kind_t kind;
+    elx_SymbolKind kind;
     elx_symbol_variant_t variant;
-} elx_symbol_t;
+} elx_Symbol;
 
 typedef struct {
     elx_ident_t ident;
-} elx_module_t;
+} elx_Module;

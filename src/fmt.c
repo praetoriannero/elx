@@ -5,7 +5,7 @@
 #include "arena.h"
 #include "xalloc.h"
 
-char* fmt(arena_t* arena, const char* fmt, ...) {
+char* fmt(Arena* arena, const char* fmt, ...) {
     xnotnull((void*)fmt);
 
     va_list ap;

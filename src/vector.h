@@ -9,23 +9,25 @@ typedef struct vector {
     usize datum_size;
     usize capacity;
     usize size;
-} vector_t;
+} Vector;
 
-void vector_init(arena_t* arena, vector_t* self, usize datum_size, usize initial_capacity);
+void vector_init(Arena* arena, Vector* self, usize datum_size, usize initial_capacity);
 
-vector_t* vector_new(arena_t* arena, usize datum_size, usize initial_capacity);
+Vector* vector_new(Arena* arena, usize datum_size, usize initial_capacity);
 
-void vector_push(arena_t* arena, vector_t* self, const void* datum);
+void vector_push(Arena* arena, Vector* self, const void* datum);
 
-void* vector_pop(vector_t* self);
+void* vector_pop(Vector* self);
 
-void* vector_get(vector_t* self, usize index);
+void* vector_get(Vector* self, usize index);
 
-typedef void (*free_inner)(void* inner);
+typedef void (*VectorFreeInner)(void* inner);
 
-void vector_free(vector_t* self, free_inner inner_cb);
+void vector_free(Vector* self, VectorFreeInner inner_cb);
 
-void vector_deinit(vector_t* self, free_inner inner_cb);
+void vector_deinit(Vector* self, VectorFreeInner inner_cb);
+
+void vector_clear(Vector* self, VectorFreeInner inner_cb);
 
 #define vector_iter(vec, iter) (usize (iter) = 0; (iter) < (vec).size; iter++)
 

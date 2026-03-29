@@ -2,7 +2,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "arena.h"
 #include "lexer.h"
@@ -38,7 +37,7 @@ i32 main(int argc, char** argv) {
     char* content;
     i64 file_size;
 
-    arena_t arena;
+    Arena arena;
     arena_init(&arena);
 
     if (argc >= 2) {
@@ -61,16 +60,16 @@ i32 main(int argc, char** argv) {
     printf("%d\n", (i32)file_size);
 
     content = xmalloc((u64)file_size + 1);
-    size_t bytes_read = fread(content, 1, (u64)file_size, file_handle);
+    usize bytes_read = fread(content, 1, (u64)file_size, file_handle);
     content[bytes_read] = '\0';
 
     printf("CONTENT START\n%s\nCONTENT END\n", content);
 
-    lexer_t* lexer = arena_alloc(&arena, sizeof(lexer_t));
+    Lexer* lexer = arena_alloc(&arena, sizeof(Lexer));
     lexer_init(lexer, content);
 
-    parser_t* parser = parser_new(&arena, *lexer);
-    ast_t ast = parser_parse(&arena, parser);
+    Parser* parser = parser_new(&arena, *lexer);
+    Ast ast = parser_parse(&arena, parser);
     print_ast(&ast);
 
     // clean up

@@ -3,7 +3,7 @@
 #include "arena.h"
 #include "str_utils.h"
 
-char* strdup2(arena_t* arena, const char* str) {
+char* strdup2(Arena* arena, const char* str) {
     if (!str)
         return NULL;
 

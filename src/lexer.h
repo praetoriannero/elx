@@ -14,25 +14,25 @@ typedef struct {
     size_t line;
     size_t col;
     size_t last_col;
-} lexer_meta_t;
+} LexerContext;
 
 typedef struct lexer {
     char* data;
-    lexer_meta_t meta;
-} lexer_t;
+    LexerContext context;
+} Lexer;
 
-// int64_t lexer_meta_str(lexer_t* stream, char* meta_str);
+// int64_t lexer_meta_str(Lexer* stream, char* meta_str);
 
-void lexer_init(lexer_t* self, char* data);
+void lexer_init(Lexer* self, char* data);
 
-token_t lexer_next(arena_t* arena, lexer_t* self);
+Token lexer_next(Arena* arena, Lexer* self);
 
-token_t lexer_peek(arena_t* arena, lexer_t* self);
+Token lexer_peek(Arena* arena, Lexer* self);
 
-i64 lexer_scan(lexer_t* self, token_kind_t key);
+i64 lexer_scan(Lexer* self, TokenKind key);
 
-char lexer_peek_char(lexer_t* stream);
+char lexer_peek_char(Lexer* stream);
 
-char lexer_consume(lexer_t* stream);
+char lexer_consume(Lexer* stream);
 
-void lexer_deinit(lexer_t* stream);
+void lexer_deinit(Lexer* stream);

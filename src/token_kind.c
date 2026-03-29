@@ -4,7 +4,7 @@
     case kind:                                                                                                         \
         return #kind;
 
-char* token_kind_str(token_kind_t kind) {
+char* token_kind_str(TokenKind kind) {
     switch (kind) {
         TOKEN_CASE(TOK_DESTRUCTOR);
         TOKEN_CASE(TOK_EMTPY);

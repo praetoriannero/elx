@@ -1,7 +1,7 @@
 #include "analyzer.h"
 #include "parser.h"
 
-void check_main(func_t* main_func);
+void check_main(Func* main_func);
 
 // idea: table of trait impls for built-ins just like we did with the operator lookup tables
 //
@@ -9,7 +9,7 @@ void check_main(func_t* main_func);
 // is supported
 
 
-void check_ast(ast_t* ast, context_t* context) {
+void check_ast(Ast* ast, AstContext* context) {
     /*
      * Check that main exists as a function
      *
@@ -23,7 +23,7 @@ void check_ast(ast_t* ast, context_t* context) {
     bool found_main = false;
 
     for vector_iter(ast->module_vec, idx) {
-        module_t* module = vector_get(&ast->module_vec, idx);
+        Module* module = vector_get(&ast->module_vec, idx);
         check_module(module, context);
     }
 
@@ -32,14 +32,14 @@ void check_ast(ast_t* ast, context_t* context) {
     }
 }
 
-void check_module(module_t* module, context_t* context) {
+void check_module(Module* module, AstContext* context) {
     /*
      * Check for redefinitions of symbols
      */
 
     for vector_iter(module->symbol_vec, idx) {
-        symbol_t* symbol = vector_get(&module->symbol_vec, idx);
+        Symbol* symbol = vector_get(&module->symbol_vec, idx);
     }
 }
 
-type_t deduce_type(expr_t* expr);
+Type deduce_type(Expr* expr);

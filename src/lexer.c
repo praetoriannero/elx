@@ -16,24 +16,24 @@
 #include "token_utils.h"
 #include "xalloc.h"
 
-void lexer_error(lexer_t* self, char* msg) {
-    panic("lexing error: %s at location %d:%d in file FILE\n", msg, self->meta.line, self->meta.col);
+void lexer_error(Lexer* self, char* msg) {
+    panic("lexing error: %s at location %d:%d in file FILE\n", msg, self->context.line, self->context.col);
 }
 
-void lexer_init(lexer_t* self, char* data) {
+void lexer_init(Lexer* self, char* data) {
     xnotnull(self);
 
     self->data = data;
-    self->meta.loc = 0;
-    self->meta.col = 0;
-    self->meta.last_col = 0;
-    self->meta.length = strlen(data);
-    self->meta.line = 0;
+    self->context.loc = 0;
+    self->context.col = 0;
+    self->context.last_col = 0;
+    self->context.length = strlen(data);
+    self->context.line = 0;
 }
 
 static const char* whitespace = " \t\n\r";
 
-static void lexer_skip_whitespace(lexer_t* self) {
+static void lexer_skip_whitespace(Lexer* self) {
     char c = lexer_peek_char(self);
     while (strchr(whitespace, c)) {
         c = lexer_consume(self);
@@ -44,7 +44,7 @@ static void lexer_skip_whitespace(lexer_t* self) {
     }
 }
 
-static void lexer_skip_comment(lexer_t* self) {
+static void lexer_skip_comment(Lexer* self) {
     char c = lexer_peek_char(self);
     while (c != '\n') {
         c = lexer_consume(self);
@@ -55,13 +55,13 @@ static void lexer_skip_comment(lexer_t* self) {
     }
 }
 
-token_t _lexer_advance(arena_t* arena, lexer_t* self) {
-    arena_t local_arena;
+Token _lexer_advance(Arena* arena, Lexer* self) {
+    Arena local_arena;
     arena_init(&local_arena);
 
     char c;
 
-    token_t token;
+    Token token;
     token_init(arena, &token);
 
     lexer_skip_whitespace(self);
@@ -99,7 +99,7 @@ token_t _lexer_advance(arena_t* arena, lexer_t* self) {
         op_node_t op_node;
 
         char c_next = lexer_peek_char(self);
-        token_kind_t kind_next = single_char_token[(u8)c_next];
+        TokenKind kind_next = single_char_token[(u8)c_next];
 
         // get first operator node
         for (size_t i = 0; i < table_size; i++) {
@@ -148,7 +148,7 @@ token_t _lexer_advance(arena_t* arena, lexer_t* self) {
 
         size_t length = array_len(keyword_kind_table);
         for (u8 i = 0; i < length; i++) {
-            string_token_t st = keyword_kind_table[i];
+            string_Token st = keyword_kind_table[i];
             if (strcmp(st.text, token.str.data) == 0) {
                 token.kind = st.kind;
                 goto fn_next_exit;
@@ -160,7 +160,7 @@ token_t _lexer_advance(arena_t* arena, lexer_t* self) {
 
     // integer/float
     if (isdigit(c)) {
-        // lexer_meta_t meta = self->meta; // used if we need to roll-back during range operator lexing
+        // LexerContext context = self->context; // used if we need to roll-back during range operator lexing
         u8 decimal_count = 0;
         while (isdigit(c) || c == '.') {
             if (c == '.') {
@@ -221,29 +221,29 @@ fn_next_exit:
     return token;
 }
 
-token_t lexer_next(arena_t* arena, lexer_t* self) {
-    token_t token = _lexer_advance(arena, self);
+Token lexer_next(Arena* arena, Lexer* self) {
+    Token token = _lexer_advance(arena, self);
     log("%s\n", token_string(arena, &token));
     return token;
 }
 
-token_t lexer_peek(arena_t* arena, lexer_t* self) {
-    lexer_meta_t meta = self->meta;
-    token_t token = _lexer_advance(arena, self);
-    self->meta = meta;
+Token lexer_peek(Arena* arena, Lexer* self) {
+    LexerContext context = self->context;
+    Token token = _lexer_advance(arena, self);
+    self->context = context;
     return token;
 }
 
-i64 lexer_scan(lexer_t* self, token_kind_t key) {
-    lexer_meta_t start_meta = self->meta;
-    arena_t local_arena = {};
+i64 lexer_scan(Lexer* self, TokenKind key) {
+    LexerContext start_context = self->context;
+    Arena local_arena = {};
     i64 pos = -1;
 
     arena_init(&local_arena);
 
     while (true) {
-        lexer_meta_t cursor = self->meta;
-        token_t token = lexer_next(&local_arena, self);
+        LexerContext cursor = self->context;
+        Token token = lexer_next(&local_arena, self);
         if (token.kind == key) {
             pos = (i64)cursor.loc;
             break;
@@ -253,27 +253,27 @@ i64 lexer_scan(lexer_t* self, token_kind_t key) {
     }
 
     arena_deinit(&local_arena);
-    self->meta = start_meta;
+    self->context = start_context;
 
     return pos;
 }
 
-char lexer_peek_char(lexer_t* self) { return self->data[self->meta.loc]; }
+char lexer_peek_char(Lexer* self) { return self->data[self->context.loc]; }
 
-char lexer_consume(lexer_t* self) {
-    if (self->meta.loc == self->meta.length - 1) {
+char lexer_consume(Lexer* self) {
+    if (self->context.loc == self->context.length - 1) {
         return -1;
     }
 
-    char c = self->data[self->meta.loc++];
+    char c = self->data[self->context.loc++];
 
-    self->meta.last_col = self->meta.col;
+    self->context.last_col = self->context.col;
 
     if (c == '\n') {
-        self->meta.line++;
-        self->meta.col = 0;
+        self->context.line++;
+        self->context.col = 0;
     } else {
-        self->meta.col++;
+        self->context.col++;
     }
 
     return c;

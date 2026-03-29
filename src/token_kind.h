@@ -125,9 +125,9 @@ typedef enum token_kind {
 
     // empty string
     TOK_EMTPY
-} token_kind_t;
+} TokenKind;
 
-static const token_kind_t single_char_token[256] = {
+static const TokenKind single_char_token[256] = {
     ['.'] = TOK_DECIMAL,   [','] = TOK_COMMA,   ['?'] = TOK_QMARK,  ['"'] = TOK_DQUOTE,  ['\''] = TOK_SQUOTE,
     ['!'] = TOK_EXCLAM,    [':'] = TOK_COLON,   ['^'] = TOK_XOR,    ['%'] = TOK_PERCENT, ['~'] = TOK_BINV,
     ['-'] = TOK_MINUS,     ['+'] = TOK_PLUS,    ['$'] = TOK_DOLLAR, ['`'] = TOK_TICK,    ['*'] = TOK_STAR,
@@ -202,7 +202,7 @@ static const u32 valid_ops[] = {
     TOK_SHREQ,   // >>=
 };
 
-static inline bool is_valid_op(token_kind_t kind) {
+static inline bool is_valid_op(TokenKind kind) {
     usize table_len = array_len(valid_ops);
     for (usize idx = 0; idx < table_len; idx++) {
         if (kind == valid_ops[idx]) {
@@ -213,6 +213,6 @@ static inline bool is_valid_op(token_kind_t kind) {
     return false;
 }
 
-char* token_kind_str(token_kind_t kind);
+char* token_kind_str(TokenKind kind);
 
 #endif

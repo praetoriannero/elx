@@ -9,7 +9,7 @@
 
 #define DEFAULT_VEC_SIZE 8
 
-void vector_init(arena_t* arena, vector_t* self, usize datum_size, usize initial_capacity) {
+void vector_init(Arena* arena, Vector* self, usize datum_size, usize initial_capacity) {
     xnotnull(self);
 
     self->data = arena_alloc(arena, datum_size * initial_capacity);
@@ -18,13 +18,13 @@ void vector_init(arena_t* arena, vector_t* self, usize datum_size, usize initial
     self->size = 0;
 }
 
-vector_t* vector_new(arena_t* arena, usize datum_size, usize initial_capacity) {
-    vector_t* vec = arena_alloc(arena, sizeof(vector_t));
+Vector* vector_new(Arena* arena, usize datum_size, usize initial_capacity) {
+    Vector* vec = arena_alloc(arena, sizeof(Vector));
     vector_init(arena, vec, datum_size, initial_capacity);
     return vec;
 }
 
-void vector_push(arena_t* arena, vector_t* self, const void* datum) {
+void vector_push(Arena* arena, Vector* self, const void* datum) {
     xnotnull(self);
 
     usize new_len = self->size + 1;
@@ -42,7 +42,7 @@ void vector_push(arena_t* arena, vector_t* self, const void* datum) {
     self->size++;
 }
 
-void* vector_pop(vector_t* self) {
+void* vector_pop(Vector* self) {
     if (self->size == 0)
         return NULL;
 
@@ -51,7 +51,7 @@ void* vector_pop(vector_t* self) {
     return (u8*)self->data + self->size * self->datum_size;
 }
 
-void* vector_get(vector_t* self, usize index) {
+void* vector_get(Vector* self, usize index) {
     if (index > self->size) {
         panic("vector_get on out of bounds index");
     }
@@ -59,7 +59,7 @@ void* vector_get(vector_t* self, usize index) {
     return (u8*)self->data + (index * self->datum_size);
 }
 
-void vector_clear(vector_t* self, free_inner inner_cb) {
+void vector_clear(Vector* self, VectorFreeInner inner_cb) {
     usize idx;
     if (inner_cb) {
         for (idx = 0; idx < self->size; idx++) {
@@ -71,9 +71,9 @@ void vector_clear(vector_t* self, free_inner inner_cb) {
     self->capacity = 0;
 }
 
-void vector_deinit(vector_t* self, free_inner inner_cb) { vector_clear(self, inner_cb); }
+void vector_deinit(Vector* self, VectorFreeInner inner_cb) { vector_clear(self, inner_cb); }
 
-void vector_free(vector_t* self, free_inner inner_cb) {
+void vector_free(Vector* self, VectorFreeInner inner_cb) {
     usize idx;
     if (inner_cb) {
         for (idx = 0; idx < self->size; idx++) {

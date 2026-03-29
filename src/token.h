@@ -9,33 +9,33 @@
 #include "token_kind.h"
 
 typedef struct token {
-    token_kind_t kind;
-    string_t str;
+    TokenKind kind;
+    String str;
     size_t length;
     size_t line;
     size_t column;
 
-    void (*init)(arena_t*, struct token*);
+    void (*init)(Arena*, struct token*);
     // void (*deinit)(struct token*);
-    struct token* (*copy)(arena_t*, struct token*);
-    char* (*string)(arena_t*, struct token*);
-} token_t;
+    struct token* (*copy)(Arena*, struct token*);
+    char* (*string)(Arena*, struct token*);
+} Token;
 
 typedef struct {
-    token_t* tokens;
+    Token* tokens;
     uint32_t token_count;
 } token_array_t;
 
-token_t* token_new(arena_t* arena);
+Token* token_new(Arena* arena);
 
 // void token_free(token_t* self);
 
-void token_init(arena_t* arena, token_t* self);
+void token_init(Arena* arena, Token* self);
 
 // void token_deinit(token_t* self);
 
-token_t* token_copy(arena_t* arena, token_t* self);
+Token* token_copy(Arena* arena, Token* self);
 
-char* token_string(arena_t* arena, token_t* self);
+char* token_string(Arena* arena, Token* self);
 
 #endif

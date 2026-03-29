@@ -12,7 +12,7 @@ void indent(u64 depth) {
     }
 }
 
-void print_global(global_t* global, u64 depth) {
+void print_global(Global* global, u64 depth) {
     indent(depth);
     printf("global {\n");
     depth++;
@@ -23,7 +23,7 @@ void print_global(global_t* global, u64 depth) {
     printf("},\n");
 }
 
-void print_func(func_t* func, u64 depth) {
+void print_func(Func* func, u64 depth) {
     indent(depth);
     printf("func {\n");
     depth++;
@@ -34,7 +34,7 @@ void print_func(func_t* func, u64 depth) {
     depth++;
     if (func->param_vec.size) {
         for (usize idx = 0; idx < func->param_vec.size; idx++) {
-            func_arg_t* func_arg = vector_get(&func->param_vec, idx);
+            FuncArg* func_arg = vector_get(&func->param_vec, idx);
             indent(depth);
             printf("param_%zu {%s: %s},\n", idx, func_arg->name, func_arg->type.name);
         }
@@ -54,7 +54,7 @@ void print_func(func_t* func, u64 depth) {
     printf("}\n");
 }
 
-void print_assign_stmt(assign_stmt_t* assign_stmt, u64 depth) {
+void print_assign_stmt(AssignStmt* assign_stmt, u64 depth) {
     indent(depth);
     printf("assign_stmt {\n");
     depth++;
@@ -72,7 +72,7 @@ void print_assign_stmt(assign_stmt_t* assign_stmt, u64 depth) {
     printf("},\n");
 }
 
-void print_return_stmt(return_stmt_t* return_stmt, u64 depth) {
+void print_return_stmt(ReturnStmt* return_stmt, u64 depth) {
     indent(depth);
     printf("return_stmt {\n");
     depth++;
@@ -86,7 +86,7 @@ void print_return_stmt(return_stmt_t* return_stmt, u64 depth) {
     printf("},\n");
 }
 
-void print_expr_stmt(expr_stmt_t* expr_stmt, u64 depth) {
+void print_expr_stmt(ExprStmt* expr_stmt, u64 depth) {
     indent(depth);
     printf("expr_stmt {\n");
     depth++;
@@ -100,7 +100,7 @@ void print_expr_stmt(expr_stmt_t* expr_stmt, u64 depth) {
     printf("},\n");
 }
 
-void print_for_stmt(for_stmt_t* for_stmt, u64 depth) {
+void print_for_stmt(ForStmt* for_stmt, u64 depth) {
     indent(depth);
     printf("for_stmt {\n");
     depth++;
@@ -121,7 +121,7 @@ void print_for_stmt(for_stmt_t* for_stmt, u64 depth) {
     printf("},\n");
 }
 
-void print_while_stmt(while_stmt_t* while_stmt, u64 depth) {
+void print_while_stmt(WhileStmt* while_stmt, u64 depth) {
     indent(depth);
     printf("while_stmt {\n");
     depth++;
@@ -140,7 +140,7 @@ void print_while_stmt(while_stmt_t* while_stmt, u64 depth) {
     printf("},\n");
 }
 
-void print_elif_clause(elif_clause_t* elif_clause, u64 depth) {
+void print_elif_clause(ElifClause* elif_clause, u64 depth) {
     indent(depth);
     printf("elif_clause {\n");
     depth++;
@@ -159,7 +159,7 @@ void print_elif_clause(elif_clause_t* elif_clause, u64 depth) {
     printf("},\n");
 }
 
-void print_else_clause(else_clause_t* else_clause, u64 depth) {
+void print_else_clause(ElseClause* else_clause, u64 depth) {
     indent(depth);
     printf("else_clause {\n");
     printf("body {\n");
@@ -169,7 +169,7 @@ void print_else_clause(else_clause_t* else_clause, u64 depth) {
     printf("},\n");
 }
 
-void print_if_stmt(if_stmt_t* if_stmt, u64 depth) {
+void print_if_stmt(IfStmt* if_stmt, u64 depth) {
     indent(depth);
     printf("if_stmt {\n");
     depth++;
@@ -184,7 +184,7 @@ void print_if_stmt(if_stmt_t* if_stmt, u64 depth) {
     indent(depth);
     printf("},\n");
     for (usize i = 0; i < if_stmt->elif_clause_vec.size; i++) {
-        elif_clause_t elif_clause = *(elif_clause_t*)vector_get(&if_stmt->elif_clause_vec, i);
+        ElifClause elif_clause = *(ElifClause*)vector_get(&if_stmt->elif_clause_vec, i);
         print_elif_clause(&elif_clause, depth);
     }
     depth--;
@@ -192,19 +192,19 @@ void print_if_stmt(if_stmt_t* if_stmt, u64 depth) {
     printf("},\n");
 }
 
-void print_break_stmt(break_stmt_t* break_stmt, u64 depth) {
+void print_break_stmt(BreakStmt* break_stmt, u64 depth) {
     indent(depth);
     printf("break,");
 }
 
-void print_continue_stmt(continue_stmt_t* continue_stmt, u64 depth) {
+void print_continue_stmt(ContinueStmt* continue_stmt, u64 depth) {
     indent(depth);
     printf("continue,");
 }
 
-void print_body(body_t* body, u64 depth) {
+void print_body(Body* body, u64 depth) {
     for (usize i = 0; i < body->stmts.size; i++) {
-        stmt_t* stmt = vector_get(&body->stmts, i);
+        Stmt* stmt = vector_get(&body->stmts, i);
         switch (stmt->kind) {
             case STMT_KIND_ASSIGN:
                 print_assign_stmt(&stmt->assign_stmt, depth + 1);
@@ -236,12 +236,12 @@ void print_body(body_t* body, u64 depth) {
     }
 }
 
-void print_module(module_t* module, u64 depth) {
+void print_module(Module* module, u64 depth) {
     indent(depth);
     printf("module {\n");
     // depth++;
     for (usize i = 0; i < module->symbol_vec.size; i++) {
-        symbol_t* symbol = vector_get(&module->symbol_vec, i);
+        Symbol* symbol = vector_get(&module->symbol_vec, i);
         switch (symbol->kind) {
             case SYMBOL_KIND_MODULE:
                 print_module(&symbol->module_case, depth + 1);
@@ -270,7 +270,7 @@ void print_module(module_t* module, u64 depth) {
 }
 
 
-void print_struct(struct_t* struct_, u64 depth) {
+void print_struct(Struct* struct_, u64 depth) {
     indent(depth);
     printf("struct {\n");
     depth++;
@@ -278,12 +278,12 @@ void print_struct(struct_t* struct_, u64 depth) {
     printf("ident: %s,\n", struct_->name);
     for (u32 i = 0; i < struct_->field_vec.size; i++) {
         indent(depth);
-        struct_field_t* field = vector_get(&struct_->field_vec, i);
+        StructField* field = vector_get(&struct_->field_vec, i);
         xnotnull(field);
         printf("field { ident: %s, type: %s },\n", field->name, field->type.name);
     }
     for (usize j = 0; j < struct_->method_vec.size; j++) {
-        symbol_t* symbol = vector_get(&struct_->method_vec, j);
+        Symbol* symbol = vector_get(&struct_->method_vec, j);
         print_func(&symbol->func_case, depth);
     }
     depth--;
@@ -350,19 +350,19 @@ u64 count_csv(const char* data, char sep) {
     return count;
 }
 
-void print_enum(enum_t* enum_, u64 depth) { todo(); }
+void print_enum(Enum* enum_, u64 depth) { todo(); }
 
-void print_import(import_t* import, u64 depth) { todo(); }
+void print_import(Import* import, u64 depth) { todo(); }
 
-void print_ast(ast_t* ast) {
+void print_ast(Ast* ast) {
     u64 depth = 0;
     for (usize i = 0; i < ast->module_vec.size; i++) {
-        module_t* module = vector_get(&ast->module_vec, i);
+        Module* module = vector_get(&ast->module_vec, i);
         print_module(module, depth);
     }
 }
 
-void print_expr(expr_t* expr, u64 depth) {
+void print_expr(Expr* expr, u64 depth) {
     xnotnull(expr);
     usize vec_len;
 
@@ -382,7 +382,7 @@ void print_expr(expr_t* expr, u64 depth) {
             indent(depth);
             printf("args {\n");
             for (usize i = 0; i < vec_len; i++) {
-                expr_t* arg_expr = vector_get(&expr->method_call_expr.arg_vec, i);
+                Expr* arg_expr = vector_get(&expr->method_call_expr.arg_vec, i);
                 print_expr(arg_expr, depth + 1);
             }
             indent(depth);
@@ -433,7 +433,7 @@ void print_expr(expr_t* expr, u64 depth) {
             printf("array explicit {\n");
             vec_len = expr->array_explicit_expr.arg_vec.size;
             for (usize i = 0; i < vec_len; i++) {
-                expr_t* arg_expr = vector_get(&expr->array_explicit_expr.arg_vec, i);
+                Expr* arg_expr = vector_get(&expr->array_explicit_expr.arg_vec, i);
                 print_expr(arg_expr, depth + 1);
             }
             indent(depth);
@@ -476,7 +476,7 @@ void print_expr(expr_t* expr, u64 depth) {
             indent(depth);
             printf("args {\n");
             for (usize i = 0; i < vec_len; i++) {
-                expr_t* arg_expr = vector_get(&expr->struct_init_expr.arg_vec, i);
+                Expr* arg_expr = vector_get(&expr->struct_init_expr.arg_vec, i);
                 print_expr(arg_expr, depth + 1);
             }
             indent(depth);
@@ -531,7 +531,7 @@ void print_expr(expr_t* expr, u64 depth) {
             for (usize i = 0; i < vec_len; i++) {
                 indent(depth);
                 printf("arg_%zu {\n", i);
-                expr_t arg_expr = *(expr_t*)vector_get(&expr->call_expr.arg_vec, i);
+                Expr arg_expr = *(Expr*)vector_get(&expr->call_expr.arg_vec, i);
                 print_expr(&arg_expr, depth + 1);
                 indent(depth);
                 printf("},\n");
@@ -550,7 +550,7 @@ void print_expr(expr_t* expr, u64 depth) {
     }
 }
 
-char* expr_kind_string(expr_kind_t kind) {
+char* expr_kind_string(ExprKind kind) {
     switch (kind) {
             // EmptyExpression
         case EXPR_KIND_EMPTY:

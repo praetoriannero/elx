@@ -4,7 +4,7 @@
 
 #include "arena.h"
 
-char* strdup2(arena_t* arena, const char* str);
+char* strdup2(Arena* arena, const char* str);
 
 char* strmov(char** str);
 

@@ -12,7 +12,7 @@ lookup_result_t lookup_operator(char* chars) {
     const op_node_t* op_iter = op_table;
     op_node_t op_node;
     size_t table_size = array_len(op_table);
-    token_kind_t kind = TOK_INVALID;
+    TokenKind kind = TOK_INVALID;
 
     while (*c_iter) {
         if (!table_size && !op_iter) {

@@ -8,7 +8,7 @@
 static const u64 MAX_STR_ALLOC = 4096;
 static const usize INITIAL_STR_ALLOC = 4;
 
-void string_push_char(arena_t* arena, string_t* self, char c) {
+void string_push_char(Arena* arena, String* self, char c) {
     xnotnull(self);
 
     usize new_size = self->size + 1;
@@ -31,10 +31,10 @@ void string_push_char(arena_t* arena, string_t* self, char c) {
     self->size++;
 }
 
-void string_init(arena_t* arena, string_t* self) {
+void string_init(Arena* arena, String* self) {
     xnotnull(self);
 
-    *self = (string_t){
+    *self = (String){
         .data = arena_alloc(arena, INITIAL_STR_ALLOC),
         .capacity = INITIAL_STR_ALLOC,
         .size = 0,
@@ -43,10 +43,10 @@ void string_init(arena_t* arena, string_t* self) {
     self->data[0] = '\0';
 }
 
-string_t string_copy(arena_t* arena, string_t* self) {
+String string_copy(Arena* arena, String* self) {
     xnotnull(self);
 
-    string_t string = (string_t){
+    String string = (String){
         .size = self->size,
         .capacity = self->capacity,
         .data = strdup2(arena, self->data),
@@ -55,7 +55,7 @@ string_t string_copy(arena_t* arena, string_t* self) {
     return string;
 }
 
-void string_move(string_t* src, string_t* dst) {
+void string_move(String* src, String* dst) {
     xnotnull(src);
     xnotnull(dst);
 
@@ -73,7 +73,7 @@ void string_move(string_t* src, string_t* dst) {
 //     string_init(self);
 // }
 
-void string_deinit(string_t* self) {
+void string_deinit(String* self) {
     if (!self) {
         return;
     }
@@ -81,7 +81,7 @@ void string_deinit(string_t* self) {
     xfree(self->data);
 }
 
-void string_free(string_t* self) {
+void string_free(String* self) {
     xfree(self->data);
     xfree(self);
 }

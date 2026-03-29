@@ -2,4 +2,4 @@
 
 #include "arena.h"
 
-char* fmt(arena_t* arena, const char* fmt, ...);
+char* fmt(Arena* arena, const char* fmt, ...);
