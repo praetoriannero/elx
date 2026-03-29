@@ -98,7 +98,6 @@ Token parser_expect(TokenKind expected, Token actual) {
 }
 
 Expr* parse_expr_prec(Arena* arena, Parser* self, TokenKind stop_token, ExprPrecedence min_prec) {
-    // printf("\n");
     log("stop token %s\n", token_kind_str(stop_token));
     Arena local_arena = {};
     arena_init(&local_arena);
@@ -393,6 +392,7 @@ Stmt visit_break_stmt(Arena* arena, Parser* self) {
 
     parser_expect(TOK_KW_BREAK, lexer_next(arena, &self->lexer));
     Stmt stmt = {};
+
     stmt.kind = STMT_KIND_BREAK;
 
     // todo: support continue by explicitly listing loop identifier

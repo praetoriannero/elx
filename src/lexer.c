@@ -55,7 +55,7 @@ static void lexer_skip_comment(Lexer* self) {
     }
 }
 
-Token _lexer_advance(Arena* arena, Lexer* self) {
+Token lexer_advance(Arena* arena, Lexer* self) {
     Arena local_arena;
     arena_init(&local_arena);
 
@@ -93,10 +93,10 @@ Token _lexer_advance(Arena* arena, Lexer* self) {
     if (token.kind != TOK_INVALID) {
         string_push_char(arena, &token.str, c);
 
-        const op_node_t* op_iter = op_table;
+        const OperatorNode* op_iter = op_table;
         size_t sub_table_size = 0;
         size_t table_size = array_len(op_table);
-        op_node_t op_node;
+        OperatorNode op_node;
 
         char c_next = lexer_peek_char(self);
         TokenKind kind_next = single_char_token[(u8)c_next];
@@ -148,7 +148,7 @@ Token _lexer_advance(Arena* arena, Lexer* self) {
 
         size_t length = array_len(keyword_kind_table);
         for (u8 i = 0; i < length; i++) {
-            string_Token st = keyword_kind_table[i];
+            StringToken st = keyword_kind_table[i];
             if (strcmp(st.text, token.str.data) == 0) {
                 token.kind = st.kind;
                 goto fn_next_exit;
@@ -222,14 +222,14 @@ fn_next_exit:
 }
 
 Token lexer_next(Arena* arena, Lexer* self) {
-    Token token = _lexer_advance(arena, self);
+    Token token = lexer_advance(arena, self);
     log("%s\n", token_string(arena, &token));
     return token;
 }
 
 Token lexer_peek(Arena* arena, Lexer* self) {
     LexerContext context = self->context;
-    Token token = _lexer_advance(arena, self);
+    Token token = lexer_advance(arena, self);
     self->context = context;
     return token;
 }

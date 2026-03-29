@@ -12,7 +12,7 @@ Arena* arena_new(void) {
 }
 
 void arena_free(Arena* self, void* ptr) {
-    node_t* node = ((node_t*)ptr) - 1;
+    ArenaNode* node = ((ArenaNode*)ptr) - 1;
 
     if (node->parent) {
         node->parent->child = node->child;
@@ -29,11 +29,11 @@ void arena_free(Arena* self, void* ptr) {
     xfree(node);
 }
 
-scope_t* arena_new_scope(Arena* self) { return self->node_end; }
+ArenaScope* arena_new_scope(Arena* self) { return self->node_end; }
 
-void arena_free_scope(Arena* self, scope_t* scope) {
+void arena_free_scope(Arena* self, ArenaScope* scope) {
     while (self->node_end != scope) {
-        node_t* node = self->node_end;
+        ArenaNode* node = self->node_end;
         self->node_end = node->parent;
         xfree(node);
     }
@@ -54,10 +54,10 @@ void arena_deinit(Arena* self) {
 void* arena_alloc(Arena* self, size_t size) {
     xnotnull(self);
 
-    node_t* node = xmalloc(sizeof(*node) + size);
+    ArenaNode* node = xmalloc(sizeof(*node) + size);
     void* ptr = (void*)(node + 1);
 
-    *node = (node_t){
+    *node = (ArenaNode){
         .parent = self->node_end,
         .child = NULL,
         .size = size,
@@ -76,16 +76,16 @@ void* arena_realloc(Arena* self, void* old_ptr, size_t new_size) {
     xnotnull(old_ptr);
     xnotnull(self);
 
-    node_t* old_node = ((node_t*)old_ptr) - 1;
+    ArenaNode* old_node = ((ArenaNode*)old_ptr) - 1;
 
     if (old_node->size > new_size) {
         panic("illegal arena reallocation attempted with smaller new size\n");
     }
 
-    node_t* new_node = xmalloc(sizeof(*new_node) + new_size);
+    ArenaNode* new_node = xmalloc(sizeof(*new_node) + new_size);
     void* new_ptr = (void*)(new_node + 1);
 
-    *new_node = (node_t){
+    *new_node = (ArenaNode){
         .parent = old_node->parent,
         .child = old_node->child,
         .size = new_size,

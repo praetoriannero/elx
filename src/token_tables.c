@@ -4,13 +4,13 @@
 #include "token_kind.h"
 #include "xalloc.h"
 
-lookup_result_t lookup_operator(char* chars) {
+LookupResult lookup_operator(char* chars) {
     xnotnull(chars);
 
-    lookup_result_t result = {chars, TOK_INVALID};
+    LookupResult result = {chars, TOK_INVALID};
     char* c_iter = chars;
-    const op_node_t* op_iter = op_table;
-    op_node_t op_node;
+    const OperatorNode* op_iter = op_table;
+    OperatorNode op_node;
     size_t table_size = array_len(op_table);
     TokenKind kind = TOK_INVALID;
 
