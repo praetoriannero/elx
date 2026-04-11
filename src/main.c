@@ -12,12 +12,12 @@
 #include "xalloc.h"
 
 void my_func(void) {
-  i64 *my_int = malloc(sizeof(i64));
+  i64* my_int = malloc(sizeof(i64));
 
   free(my_int);
 }
 
-i64 get_file_size(FILE *handle) {
+i64 get_file_size(FILE* handle) {
   if (fseek(handle, 0, SEEK_END) != 0) {
     return 0;
   };
@@ -31,12 +31,12 @@ i64 get_file_size(FILE *handle) {
   return file_size;
 }
 
-char *read_file_content(const char *file_path);
+char* read_file_content(const char* file_path);
 
-i32 main(i32 argc, char *argv[]) {
-  FILE *file_handle = NULL;
-  char *file_name;
-  char *content;
+i32 main(i32 argc, char* argv[]) {
+  FILE* file_handle = NULL;
+  char* file_name;
+  char* content;
   i64 file_size;
 
   Arena arena;
@@ -67,10 +67,10 @@ i32 main(i32 argc, char *argv[]) {
 
   printf("CONTENT START\n%s\nCONTENT END\n", content);
 
-  Lexer *lexer = arena_alloc(&arena, sizeof(Lexer));
+  Lexer* lexer = arena_alloc(&arena, sizeof(Lexer));
   lexer_init(lexer, content);
 
-  Parser *parser = parser_new(&arena, *lexer);
+  Parser* parser = parser_new(&arena, *lexer);
   Ast ast = parser_parse(&arena, parser);
   print_ast(&ast);
 
@@ -79,7 +79,6 @@ i32 main(i32 argc, char *argv[]) {
 
   // clean up
   fclose(file_handle);
-  // lexer_deinit(lexer);
   xfree(content);
 
   arena_deinit(&arena);

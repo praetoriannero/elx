@@ -46,6 +46,8 @@ fn foo(x: u8) -> bool {
     return (x > 1);
 }
 
+// fn foo() -> void {}
+
 fn main(argv: u32) -> void {
     var x = Foo{0, 10.0};
     x.a = 0;
