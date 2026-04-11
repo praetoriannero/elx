@@ -1,14 +1,14 @@
 #include <string.h>
 
-#include "arena.h"
+#include "allocator.h"
 #include "str_utils.h"
 
-char* strdup2(Arena* arena, const char* str) {
+char* strdup2(Allocator* allocator, const char* str) {
   if (!str)
     return NULL;
 
   size_t len = strlen(str) + 1;
-  char* copy = arena_alloc(arena, len);
+  char* copy = allocator_alloc(allocator, len);
   if (copy) {
     memcpy(copy, str, len);
   }

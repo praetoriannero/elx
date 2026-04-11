@@ -1,4 +1,5 @@
 #pragma once
+// IWYU pragma: keep
 
 #include <stdarg.h>
 

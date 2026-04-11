@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "arena.h"
+#include "allocator.h"
 #include "array.h"
 #include "lexer.h"
 #include "logger.h"
@@ -54,14 +54,14 @@ static void lexer_skip_comment(Lexer* self) {
   }
 }
 
-Token lexer_advance(Arena* arena, Lexer* self) {
-  Arena local_arena;
-  arena_init(&local_arena);
+Token lexer_advance(Allocator* allocator, Lexer* self) {
+  Allocator local_allocator;
+  allocator_init(&local_allocator);
 
   char c;
 
   Token token;
-  token_init(arena, &token);
+  token_init(allocator, &token);
 
   token.start = self->context.loc;
 
@@ -77,22 +77,22 @@ Token lexer_advance(Arena* arena, Lexer* self) {
 
   // string literal
   if (token.kind == TOK_DQUOTE) {
-    string_push_char(arena, &token.str, c);
+    string_push_char(allocator, &token.str, c);
     while (lexer_peek_char(self) != '"') {
       if (lexer_peek_char(self) == -1) {
         token.kind = TOK_EOF;
         return token;
       }
-      string_push_char(arena, &token.str, lexer_consume(self));
+      string_push_char(allocator, &token.str, lexer_consume(self));
     }
-    string_push_char(arena, &token.str, lexer_consume(self));
+    string_push_char(allocator, &token.str, lexer_consume(self));
     token.kind = TOK_STRING;
     goto fn_next_exit;
   }
 
   // operator
   if (token.kind != TOK_INVALID) {
-    string_push_char(arena, &token.str, c);
+    string_push_char(allocator, &token.str, c);
 
     const OperatorNode* op_iter = op_table;
     size_t sub_table_size = 0;
@@ -117,7 +117,7 @@ Token lexer_advance(Arena* arena, Lexer* self) {
       for (size_t i = 0; i < sub_table_size; i++) {
         op_node = op_iter[i];
         if (op_node.text == c_next) {
-          string_push_char(arena, &token.str, lexer_consume(self));
+          string_push_char(allocator, &token.str, lexer_consume(self));
           op_iter = op_node.children;
           sub_table_size = op_node.child_count;
           token.kind = op_node.kind;
@@ -140,7 +140,7 @@ Token lexer_advance(Arena* arena, Lexer* self) {
   // identifier
   if (is_valid_ident_start(c)) {
     while (is_ident_char(c)) {
-      string_push_char(arena, &token.str, c);
+      string_push_char(allocator, &token.str, c);
       if (!is_ident_char(lexer_peek_char(self))) {
         break;
       }
@@ -173,7 +173,7 @@ Token lexer_advance(Arena* arena, Lexer* self) {
         lexer_error(self, "invalid integer format");
       }
 
-      string_push_char(arena, &token.str, c);
+      string_push_char(allocator, &token.str, c);
       char c_next = lexer_peek_char(self);
       if ((c_next != '.') && (!isdigit(c_next))) {
         break;
@@ -209,7 +209,7 @@ Token lexer_advance(Arena* arena, Lexer* self) {
 fn_next_exit:
   if (token.kind == TOK_COMMENT) {
     lexer_skip_comment(self);
-    return lexer_next(arena, self);
+    return lexer_next(allocator, self);
   }
 
   token.end = self->context.loc;
@@ -218,33 +218,33 @@ fn_next_exit:
     lexer_error(self, "invalid token");
   }
 
-  arena_deinit(&local_arena);
+  allocator_deinit(&local_allocator);
   return token;
 }
 
-Token lexer_next(Arena* arena, Lexer* self) {
-  Token token = lexer_advance(arena, self);
-  log("%s\n", token_string(arena, &token));
+Token lexer_next(Allocator* allocator, Lexer* self) {
+  Token token = lexer_advance(allocator, self);
+  log("%s\n", token_string(allocator, &token));
   return token;
 }
 
-Token lexer_peek(Arena* arena, Lexer* self) {
+Token lexer_peek(Allocator* allocator, Lexer* self) {
   LexerContext context = self->context;
-  Token token = lexer_advance(arena, self);
+  Token token = lexer_advance(allocator, self);
   self->context = context;
   return token;
 }
 
 i64 lexer_scan(Lexer* self, TokenKind key) {
   LexerContext start_context = self->context;
-  Arena local_arena = {};
+  Allocator local_allocator = {};
   i64 pos = -1;
 
-  arena_init(&local_arena);
+  allocator_init(&local_allocator);
 
   while (true) {
     LexerContext cursor = self->context;
-    Token token = lexer_next(&local_arena, self);
+    Token token = lexer_next(&local_allocator, self);
     if (token.kind == key) {
       pos = (i64)cursor.loc;
       break;
@@ -253,7 +253,7 @@ i64 lexer_scan(Lexer* self, TokenKind key) {
     }
   }
 
-  arena_deinit(&local_arena);
+  allocator_deinit(&local_allocator);
   self->context = start_context;
 
   return pos;

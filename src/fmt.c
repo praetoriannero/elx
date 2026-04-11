@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "arena.h"
+#include "allocator.h"
 #include "xalloc.h"
 
-char* fmt(Arena* arena, const char* fmt, ...) {
+char* fmt(Allocator* allocator, const char* fmt, ...) {
   xnotnull((void*)fmt);
 
   va_list ap;
@@ -18,7 +18,7 @@ char* fmt(Arena* arena, const char* fmt, ...) {
     return NULL;
   }
 
-  char* buf = arena_alloc(arena, (size_t)n + 1);
+  char* buf = allocator_alloc(allocator, (size_t)n + 1);
 
   va_start(ap, fmt);
   vsnprintf(buf, (size_t)n + 1, fmt, ap);

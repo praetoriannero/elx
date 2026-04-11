@@ -1,5 +1,5 @@
 #pragma once
 
-#include "arena.h"
+#include "allocator.h"
 
-char* fmt(Arena* arena, const char* fmt, ...);
+char* fmt(Allocator* allocator, const char* fmt, ...);

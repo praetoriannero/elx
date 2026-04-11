@@ -21,11 +21,6 @@
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/arena.c.o", "src/arena.c"],
-  "file": "src/arena.c"
-},
-{
-  "directory": "/home/heaven/source/elx",
   "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/token_tables.c.o", "src/token_tables.c"],
   "file": "src/token_tables.c"
 },
@@ -73,6 +68,11 @@
   "directory": "/home/heaven/source/elx",
   "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/str_utils.c.o", "src/str_utils.c"],
   "file": "src/str_utils.c"
+},
+{
+  "directory": "/home/heaven/source/elx",
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/allocator.c.o", "src/allocator.c"],
+  "file": "src/allocator.c"
 },
 {
   "directory": "/home/heaven/source/elx",

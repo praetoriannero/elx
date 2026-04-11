@@ -1,5 +1,5 @@
 #include "str.h"
-#include "arena.h"
+#include "allocator.h"
 #include "modprim.h"
 #include "panic.h"
 #include "str_utils.h"
@@ -8,13 +8,13 @@
 static const u64 MAX_STR_ALLOC = 4096;
 static const usize INITIAL_STR_ALLOC = 4;
 
-void string_push_char(Arena* arena, String* self, char c) {
+void string_push_char(Allocator* allocator, String* self, char c) {
   xnotnull(self);
 
   usize new_size = self->size + 1;
   if (new_size == self->capacity) {
     usize new_alloc = self->capacity * 2;
-    char* new_data_ptr = (char*)arena_realloc(arena, self->data, new_alloc);
+    char* new_data_ptr = (char*)allocator_realloc(allocator, self->data, new_alloc);
     if (new_data_ptr == NULL) {
       panic("failed to reallocate string buffer\n");
     }
@@ -31,11 +31,11 @@ void string_push_char(Arena* arena, String* self, char c) {
   self->size++;
 }
 
-void string_init(Arena* arena, String* self) {
+void string_init(Allocator* allocator, String* self) {
   xnotnull(self);
 
   *self = (String){
-      .data = arena_alloc(arena, INITIAL_STR_ALLOC),
+      .data = allocator_alloc(allocator, INITIAL_STR_ALLOC),
       .capacity = INITIAL_STR_ALLOC,
       .size = 0,
   };
@@ -43,13 +43,13 @@ void string_init(Arena* arena, String* self) {
   self->data[0] = '\0';
 }
 
-String string_copy(Arena* arena, String* self) {
+String string_copy(Allocator* allocator, String* self) {
   xnotnull(self);
 
   String string = (String){
       .size = self->size,
       .capacity = self->capacity,
-      .data = strdup2(arena, self->data),
+      .data = strdup2(allocator, self->data),
   };
 
   return string;

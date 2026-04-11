@@ -3,12 +3,12 @@
 #include "str.h"
 #include "xalloc.h"
 
-Token* token_new(Arena* arena) {
-  Token* token = arena_alloc(arena, sizeof(Token));
+Token* token_new(Allocator* allocator) {
+  Token* token = allocator_alloc(allocator, sizeof(Token));
   return token;
 }
 
-void token_init(Arena* arena, Token* self) {
+void token_init(Allocator* allocator, Token* self) {
   xnotnull(self);
 
   *self = (Token){
@@ -17,17 +17,17 @@ void token_init(Arena* arena, Token* self) {
       .end = 0,
   };
 
-  string_init(arena, &self->str);
+  string_init(allocator, &self->str);
 }
 
-Token* token_copy(Arena* arena, Token* self) {
+Token* token_copy(Allocator* allocator, Token* self) {
   xnotnull(self);
 
-  Token* token = arena_alloc(arena, sizeof(Token));
+  Token* token = allocator_alloc(allocator, sizeof(Token));
 
   *token = (Token){
       .kind = self->kind,
-      .str = string_copy(arena, &self->str),
+      .str = string_copy(allocator, &self->str),
       .start = self->start,
       .end = self->end,
   };
@@ -35,10 +35,10 @@ Token* token_copy(Arena* arena, Token* self) {
   return token;
 }
 
-char* token_string(Arena* arena, Token* self) {
+char* token_string(Allocator* allocator, Token* self) {
   xnotnull(self);
 
-  char* str = fmt(arena, "Token(str=\"%s\", kind=\"%s\")", self->str.data, token_kind_str(self->kind));
+  char* str = fmt(allocator, "Token(str=\"%s\", kind=\"%s\")", self->str.data, token_kind_str(self->kind));
 
   return str;
 }

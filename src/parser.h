@@ -432,31 +432,31 @@ typedef struct parser {
   Lexer lexer;
 } Parser;
 
-Ast parser_parse(Arena* arena, Parser* self);
+Ast parser_parse(Allocator* allocator, Parser* self);
 
-Parser* parser_new(Arena* arena, Lexer lexer);
+Parser* parser_new(Allocator* allocator, Lexer lexer);
 
 void parser_init(Parser* self, Lexer lexer);
 
-Type parse_type(Arena* arena, Parser* self);
+Type parse_type(Allocator* allocator, Parser* self);
 
-Body visit_body(Arena* arena, Parser* self);
+Body visit_body(Allocator* allocator, Parser* self);
 
-Symbol visit_struct(Arena* arena, Parser* self);
+Symbol visit_struct(Allocator* allocator, Parser* self);
 
-Symbol visit_module(Arena* arena, Parser* self);
+Symbol visit_module(Allocator* allocator, Parser* self);
 
-Symbol visit_global(Arena* arena, Parser* self, bool is_var);
+Symbol visit_global(Allocator* allocator, Parser* self, bool is_var);
 
-Symbol visit_enum(Arena* arena, Parser* self);
+Symbol visit_enum(Allocator* allocator, Parser* self);
 
-Symbol visit_import(Arena* arena, Parser* self);
+Symbol visit_import(Allocator* allocator, Parser* self);
 
-Symbol visit_func(Arena* arena, Parser* self);
+Symbol visit_func(Allocator* allocator, Parser* self);
 
-Stmt visit_expr_stmt(Arena* arena, Parser* self);
+Stmt visit_expr_stmt(Allocator* allocator, Parser* self);
 
-Expr* visit_expr(Arena* arena, Parser* self, TokenKind stop_token);
+Expr* visit_expr(Allocator* allocator, Parser* self, TokenKind stop_token);
 
 u64 count_csv(const char* data, char sep);
 

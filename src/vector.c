@@ -7,22 +7,22 @@
 
 #define DEFAULT_VEC_SIZE 8
 
-void vector_init(Arena* arena, Vector* self, usize datum_size, usize initial_capacity) {
+void vector_init(Allocator* allocator, Vector* self, usize datum_size, usize initial_capacity) {
   xnotnull(self);
 
-  self->data = arena_alloc(arena, datum_size * initial_capacity);
+  self->data = allocator_alloc(allocator, datum_size * initial_capacity);
   self->capacity = initial_capacity;
   self->datum_size = datum_size;
   self->size = 0;
 }
 
-Vector* vector_new(Arena* arena, usize datum_size, usize initial_capacity) {
-  Vector* vec = arena_alloc(arena, sizeof(Vector));
-  vector_init(arena, vec, datum_size, initial_capacity);
+Vector* vector_new(Allocator* allocator, usize datum_size, usize initial_capacity) {
+  Vector* vec = allocator_alloc(allocator, sizeof(Vector));
+  vector_init(allocator, vec, datum_size, initial_capacity);
   return vec;
 }
 
-void vector_push(Arena* arena, Vector* self, const void* datum) {
+void vector_push(Allocator* allocator, Vector* self, const void* datum) {
   xnotnull(self);
 
   usize new_len = self->size + 1;
@@ -30,7 +30,7 @@ void vector_push(Arena* arena, Vector* self, const void* datum) {
     usize new_capacity = self->capacity ? self->capacity * 2 : DEFAULT_VEC_SIZE;
     usize new_alloc = new_capacity * self->datum_size;
 
-    void* new_data = arena_realloc(arena, self->data, new_alloc);
+    void* new_data = allocator_realloc(allocator, self->data, new_alloc);
     self->capacity = new_capacity;
     self->data = new_data;
   }

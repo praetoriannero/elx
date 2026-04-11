@@ -1,7 +1,7 @@
 #ifndef ELX_VECTOR_H
 #define ELX_VECTOR_H
 
-#include "arena.h"
+#include "allocator.h"
 #include "modprim.h"
 
 typedef struct vector {
@@ -11,11 +11,11 @@ typedef struct vector {
   usize size;
 } Vector;
 
-void vector_init(Arena* arena, Vector* self, usize datum_size, usize initial_capacity);
+void vector_init(Allocator* allocator, Vector* self, usize datum_size, usize initial_capacity);
 
-Vector* vector_new(Arena* arena, usize datum_size, usize initial_capacity);
+Vector* vector_new(Allocator* allocator, usize datum_size, usize initial_capacity);
 
-void vector_push(Arena* arena, Vector* self, const void* datum);
+void vector_push(Allocator* allocator, Vector* self, const void* datum);
 
 void* vector_pop(Vector* self);
 

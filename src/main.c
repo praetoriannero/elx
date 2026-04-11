@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #include "analyzer.h"
-#include "arena.h"
+#include "allocator.h"
 #include "lexer.h"
 #include "modprim.h"
 #include "panic.h"
@@ -39,8 +39,8 @@ i32 main(i32 argc, char* argv[]) {
   char* content;
   i64 file_size;
 
-  Arena arena;
-  arena_init(&arena);
+  Allocator allocator;
+  allocator_init(&allocator);
 
   if (argc >= 2) {
     file_name = argv[1];
@@ -67,11 +67,11 @@ i32 main(i32 argc, char* argv[]) {
 
   printf("CONTENT START\n%s\nCONTENT END\n", content);
 
-  Lexer* lexer = arena_alloc(&arena, sizeof(Lexer));
+  Lexer* lexer = allocator_alloc(&allocator, sizeof(Lexer));
   lexer_init(lexer, content);
 
-  Parser* parser = parser_new(&arena, *lexer);
-  Ast ast = parser_parse(&arena, parser);
+  Parser* parser = parser_new(&allocator, *lexer);
+  Ast ast = parser_parse(&allocator, parser);
   print_ast(&ast);
 
   AstContext ast_ctx = {};
@@ -81,6 +81,6 @@ i32 main(i32 argc, char* argv[]) {
   fclose(file_handle);
   xfree(content);
 
-  arena_deinit(&arena);
+  allocator_deinit(&allocator);
   return 0;
 }

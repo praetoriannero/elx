@@ -1,18 +1,18 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "arena.h"
+#include "allocator.h"
 #include "panic.h"
 #include "xalloc.h"
 
-Arena* arena_new(void) {
-  Arena* arena = xmalloc(sizeof(Arena));
-  arena_init(arena);
-  return arena;
+Allocator* allocator_new(void) {
+  Allocator* allocator = xmalloc(sizeof(Allocator));
+  allocator_init(allocator);
+  return allocator;
 }
 
-void arena_free(Arena* self, void* ptr) {
-  ArenaNode* node = ((ArenaNode*)ptr) - 1;
+void allocator_free(Allocator* self, void* ptr) {
+  AllocatorNode* node = ((AllocatorNode*)ptr) - 1;
 
   if (node->parent) {
     node->parent->child = node->child;
@@ -29,35 +29,35 @@ void arena_free(Arena* self, void* ptr) {
   xfree(node);
 }
 
-ArenaScope* arena_new_scope(Arena* self) { return self->node_end; }
+AllocatorScope* allocator_new_scope(Allocator* self) { return self->node_end; }
 
-void arena_free_scope(Arena* self, ArenaScope* scope) {
+void allocator_free_scope(Allocator* self, AllocatorScope* scope) {
   while (self->node_end != scope) {
-    ArenaNode* node = self->node_end;
+    AllocatorNode* node = self->node_end;
     self->node_end = node->parent;
     xfree(node);
   }
 }
 
-void arena_init(Arena* self) {
-  *self = (Arena){
+void allocator_init(Allocator* self) {
+  *self = (Allocator){
       .node_end = NULL,
   };
 }
 
-void arena_deinit(Arena* self) {
+void allocator_deinit(Allocator* self) {
   if (self) {
-    arena_free_scope(self, NULL);
+    allocator_free_scope(self, NULL);
   }
 }
 
-void* arena_alloc(Arena* self, size_t size) {
+void* allocator_alloc(Allocator* self, size_t size) {
   xnotnull(self);
 
-  ArenaNode* node = xmalloc(sizeof(*node) + size);
+  AllocatorNode* node = xmalloc(sizeof(*node) + size);
   void* ptr = (void*)(node + 1);
 
-  *node = (ArenaNode){
+  *node = (AllocatorNode){
       .parent = self->node_end,
       .child = NULL,
       .size = size,
@@ -72,20 +72,20 @@ void* arena_alloc(Arena* self, size_t size) {
   return ptr;
 }
 
-void* arena_realloc(Arena* self, void* old_ptr, size_t new_size) {
+void* allocator_realloc(Allocator* self, void* old_ptr, size_t new_size) {
   xnotnull(old_ptr);
   xnotnull(self);
 
-  ArenaNode* old_node = ((ArenaNode*)old_ptr) - 1;
+  AllocatorNode* old_node = ((AllocatorNode*)old_ptr) - 1;
 
   if (old_node->size > new_size) {
     panic("illegal arena reallocation attempted with smaller new size\n");
   }
 
-  ArenaNode* new_node = xmalloc(sizeof(*new_node) + new_size);
+  AllocatorNode* new_node = xmalloc(sizeof(*new_node) + new_size);
   void* new_ptr = (void*)(new_node + 1);
 
-  *new_node = (ArenaNode){
+  *new_node = (AllocatorNode){
       .parent = old_node->parent,
       .child = old_node->child,
       .size = new_size,

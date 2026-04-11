@@ -97,4 +97,6 @@ void check_ast(Ast* ast, AstContext* ctx) {
   }
 }
 
-Type deduce_type(Expr* expr);
+bool verify_type(Type* type_);
+
+Type resolve_expr_type(Expr* expr);

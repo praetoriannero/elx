@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "arena.h"
+#include "allocator.h"
 #include "str.h"
 #include "token_kind.h"
 
@@ -20,16 +20,16 @@ typedef struct {
   uint32_t token_count;
 } token_array_t;
 
-Token* token_new(Arena* arena);
+Token* token_new(Allocator* allocator);
 
 // void token_free(token_t* self);
 
-void token_init(Arena* arena, Token* self);
+void token_init(Allocator* allocator, Token* self);
 
 // void token_deinit(token_t* self);
 
-Token* token_copy(Arena* arena, Token* self);
+Token* token_copy(Allocator* allocator, Token* self);
 
-char* token_string(Arena* arena, Token* self);
+char* token_string(Allocator* allocator, Token* self);
 
 #endif

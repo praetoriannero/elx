@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include "arena.h"
+#include "allocator.h"
 #include "token.h"
 #include "token_kind.h"
 
@@ -20,9 +20,9 @@ typedef struct lexer {
 
 void lexer_init(Lexer* self, char* data);
 
-Token lexer_next(Arena* arena, Lexer* self);
+Token lexer_next(Allocator* allocator, Lexer* self);
 
-Token lexer_peek(Arena* arena, Lexer* self);
+Token lexer_peek(Allocator* allocator, Lexer* self);
 
 i64 lexer_scan(Lexer* self, TokenKind key);
 

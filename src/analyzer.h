@@ -4,8 +4,8 @@
 
 typedef struct {
   bool is_lib;
-  Vector loaded_modules_vec;
-  Vector scope_vec;
+  Vector global_scope_vec;
+  Vector local_scope_vec;
 } AstContext;
 
 void check_expr(Expr* expr, AstContext* context);
