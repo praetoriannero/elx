@@ -2,13 +2,13 @@
 
 #include <stdint.h>
 
-#include "modprim.h"
 #include "arena.h"
+#include "modprim.h"
 
 typedef struct string {
-    char* data;
-    usize capacity;
-    usize size;
+  char* data;
+  usize capacity;
+  usize size;
 } String;
 
 String* string_new(char* str);

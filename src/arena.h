@@ -6,15 +6,15 @@
 #include "modprim.h"
 
 typedef struct node {
-    struct node* parent;
-    struct node* child;
-    usize size;
+  struct node* parent;
+  struct node* child;
+  usize size;
 } ArenaNode;
 
 typedef ArenaNode ArenaScope;
 
 typedef struct arena {
-    ArenaNode* node_end;
+  ArenaNode* node_end;
 } Arena;
 
 Arena* arena_new(void);

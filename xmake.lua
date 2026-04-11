@@ -1,6 +1,8 @@
 set_project("elx")
 set_version("0.1.0")
+add_rules("plugin.compile_commands.autoupdate")
 
+add_requires("glib")
 -- add_requires("libunwind")
 -- add_requires("libbacktrace")
 add_rules("mode.debug", "mode.release")
@@ -11,6 +13,7 @@ target("elx")
 set_kind("binary")
 add_files("src/*.c")
 set_languages("c23")
+add_packages("glib")
 
 set_warnings("all", "extra", "pedantic")
 

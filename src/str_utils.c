@@ -4,16 +4,16 @@
 #include "str_utils.h"
 
 char* strdup2(Arena* arena, const char* str) {
-    if (!str)
-        return NULL;
+  if (!str)
+    return NULL;
 
-    size_t len = strlen(str) + 1;
-    char* copy = arena_alloc(arena, len);
-    if (copy) {
-        memcpy(copy, str, len);
-    }
+  size_t len = strlen(str) + 1;
+  char* copy = arena_alloc(arena, len);
+  if (copy) {
+    memcpy(copy, str, len);
+  }
 
-    return copy;
+  return copy;
 }
 
 bool streq(const char* lhs, const char* rhs) { return (strcmp(lhs, rhs) == 0); }

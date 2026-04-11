@@ -5,29 +5,29 @@
 #include "token_utils.h"
 
 bool is_valid_ident(char* ident) {
-    size_t size = strlen(ident);
-    for (size_t i = 0; i < size; i++) {
-        if ((i == 0) && (isdigit(ident[i]))) {
-            return false;
-        }
-        if (!is_ident_char(ident[i])) {
-            return false;
-        }
+  size_t size = strlen(ident);
+  for (size_t i = 0; i < size; i++) {
+    if ((i == 0) && (isdigit(ident[i]))) {
+      return false;
     }
-    return true;
+    if (!is_ident_char(ident[i])) {
+      return false;
+    }
+  }
+  return true;
 }
 
 bool is_valid_ident_start(char c) {
-    if (isalpha(c) || c == '_') {
-        return true;
-    }
+  if (isalpha(c) || c == '_') {
+    return true;
+  }
 
-    return false;
+  return false;
 }
 
 bool is_ident_char(char c) {
-    if (isalnum(c) || c == '_') {
-        return true;
-    }
-    return false;
+  if (isalnum(c) || c == '_') {
+    return true;
+  }
+  return false;
 }

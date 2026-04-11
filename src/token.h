@@ -9,21 +9,15 @@
 #include "token_kind.h"
 
 typedef struct token {
-    TokenKind kind;
-    String str;
-    size_t length;
-    size_t line;
-    size_t column;
-
-    void (*init)(Arena*, struct token*);
-    // void (*deinit)(struct token*);
-    struct token* (*copy)(Arena*, struct token*);
-    char* (*string)(Arena*, struct token*);
+  TokenKind kind;
+  String str;
+  usize start;
+  usize end;
 } Token;
 
 typedef struct {
-    Token* tokens;
-    uint32_t token_count;
+  Token* tokens;
+  uint32_t token_count;
 } token_array_t;
 
 Token* token_new(Arena* arena);

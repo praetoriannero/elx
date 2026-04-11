@@ -9,63 +9,63 @@ static const u64 MAX_STR_ALLOC = 4096;
 static const usize INITIAL_STR_ALLOC = 4;
 
 void string_push_char(Arena* arena, String* self, char c) {
-    xnotnull(self);
+  xnotnull(self);
 
-    usize new_size = self->size + 1;
-    if (new_size == self->capacity) {
-        usize new_alloc = self->capacity * 2;
-        char* new_data_ptr = (char*)arena_realloc(arena, self->data, new_alloc);
-        if (new_data_ptr == NULL) {
-            panic("failed to reallocate string buffer\n");
-        }
-        if (new_alloc > MAX_STR_ALLOC) {
-            panic("max string allocation exceeded\n");
-        }
-
-        self->data = new_data_ptr;
-        self->capacity = new_alloc;
+  usize new_size = self->size + 1;
+  if (new_size == self->capacity) {
+    usize new_alloc = self->capacity * 2;
+    char* new_data_ptr = (char*)arena_realloc(arena, self->data, new_alloc);
+    if (new_data_ptr == NULL) {
+      panic("failed to reallocate string buffer\n");
+    }
+    if (new_alloc > MAX_STR_ALLOC) {
+      panic("max string allocation exceeded\n");
     }
 
-    self->data[self->size] = c;
-    self->data[self->size + 1] = '\0';
-    self->size++;
+    self->data = new_data_ptr;
+    self->capacity = new_alloc;
+  }
+
+  self->data[self->size] = c;
+  self->data[self->size + 1] = '\0';
+  self->size++;
 }
 
 void string_init(Arena* arena, String* self) {
-    xnotnull(self);
+  xnotnull(self);
 
-    *self = (String){
-        .data = arena_alloc(arena, INITIAL_STR_ALLOC),
-        .capacity = INITIAL_STR_ALLOC,
-        .size = 0,
-    };
+  *self = (String){
+      .data = arena_alloc(arena, INITIAL_STR_ALLOC),
+      .capacity = INITIAL_STR_ALLOC,
+      .size = 0,
+  };
 
-    self->data[0] = '\0';
+  self->data[0] = '\0';
 }
 
 String string_copy(Arena* arena, String* self) {
-    xnotnull(self);
+  xnotnull(self);
 
-    String string = (String){
-        .size = self->size,
-        .capacity = self->capacity,
-        .data = strdup2(arena, self->data),
-    };
+  String string = (String){
+      .size = self->size,
+      .capacity = self->capacity,
+      .data = strdup2(arena, self->data),
+  };
 
-    return string;
+  return string;
 }
 
 void string_move(String* src, String* dst) {
-    xnotnull(src);
-    xnotnull(dst);
+  xnotnull(src);
+  xnotnull(dst);
 
-    dst->data = src->data;
-    dst->capacity = src->capacity;
-    dst->size = src->size;
+  dst->data = src->data;
+  dst->capacity = src->capacity;
+  dst->size = src->size;
 
-    src->data = NULL;
-    src->capacity = 0;
-    src->size = 0;
+  src->data = NULL;
+  src->capacity = 0;
+  src->size = 0;
 }
 
 // void string_clear(string_t* self) {
@@ -74,14 +74,14 @@ void string_move(String* src, String* dst) {
 // }
 
 void string_deinit(String* self) {
-    if (!self) {
-        return;
-    }
+  if (!self) {
+    return;
+  }
 
-    xfree(self->data);
+  xfree(self->data);
 }
 
 void string_free(String* self) {
-    xfree(self->data);
-    xfree(self);
+  xfree(self->data);
+  xfree(self);
 }

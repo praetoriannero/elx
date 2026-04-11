@@ -6,10 +6,10 @@
 #include "token_kind.h"
 
 struct op_node {
-    char text;
-    TokenKind kind;
-    const struct op_node* children;
-    usize child_count;
+  char text;
+  TokenKind kind;
+  const struct op_node* children;
+  usize child_count;
 };
 
 typedef struct op_node OperatorNode;
@@ -135,8 +135,8 @@ static const OperatorNode op_table[] = {
 };
 
 typedef struct {
-    char* text;
-    TokenKind kind;
+  char* text;
+  TokenKind kind;
 } StringToken;
 
 static const StringToken keyword_kind_table[] = {
@@ -155,8 +155,8 @@ static const StringToken keyword_kind_table[] = {
 };
 
 typedef struct lookup_result {
-    char* remaining_chars;
-    TokenKind kind;
+  char* remaining_chars;
+  TokenKind kind;
 } LookupResult;
 
 LookupResult lookup_operator(char* chars);

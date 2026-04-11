@@ -5,40 +5,40 @@
 #include "xalloc.h"
 
 LookupResult lookup_operator(char* chars) {
-    xnotnull(chars);
+  xnotnull(chars);
 
-    LookupResult result = {chars, TOK_INVALID};
-    char* c_iter = chars;
-    const OperatorNode* op_iter = op_table;
-    OperatorNode op_node;
-    size_t table_size = array_len(op_table);
-    TokenKind kind = TOK_INVALID;
+  LookupResult result = {chars, TOK_INVALID};
+  char* c_iter = chars;
+  const OperatorNode* op_iter = op_table;
+  OperatorNode op_node;
+  size_t table_size = array_len(op_table);
+  TokenKind kind = TOK_INVALID;
 
-    while (*c_iter) {
-        if (!table_size && !op_iter) {
-            panic("error detected in table structure, table_size=%zu, "
-                  "table_ptr=%p",
-                  table_size, op_iter);
-        }
-
-        for (uint32_t idx = 0; idx < table_size; idx++) {
-            op_node = op_iter[idx];
-            if (op_node.text == *c_iter) {
-                kind = op_node.kind;
-                op_iter = op_node.children;
-                table_size = op_node.child_count;
-                break;
-            }
-        }
-
-        if ((op_iter == NULL) || (kind == TOK_INVALID)) {
-            break;
-        }
-
-        c_iter++;
+  while (*c_iter) {
+    if (!table_size && !op_iter) {
+      panic("error detected in table structure, table_size=%zu, "
+            "table_ptr=%p",
+            table_size, op_iter);
     }
 
-    return result;
+    for (uint32_t idx = 0; idx < table_size; idx++) {
+      op_node = op_iter[idx];
+      if (op_node.text == *c_iter) {
+        kind = op_node.kind;
+        op_iter = op_node.children;
+        table_size = op_node.child_count;
+        break;
+      }
+    }
+
+    if ((op_iter == NULL) || (kind == TOK_INVALID)) {
+      break;
+    }
+
+    c_iter++;
+  }
+
+  return result;
 }
 
 // lookup_result_t lookup_keyword(char* chars);

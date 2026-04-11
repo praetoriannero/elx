@@ -3,9 +3,9 @@
 #include "parser.h"
 
 typedef struct {
-    bool is_lib;
-    Vector loaded_modules_vec;
-    Vector scope_vec;
+  bool is_lib;
+  Vector loaded_modules_vec;
+  Vector scope_vec;
 } AstContext;
 
 void check_expr(Expr* expr, AstContext* context);

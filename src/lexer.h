@@ -1,27 +1,22 @@
 #pragma once
 
 #include <stdint.h>
-#include <stdlib.h>
 
 #include "arena.h"
-// #include "str.h"
 #include "token.h"
 #include "token_kind.h"
 
 typedef struct {
-    size_t loc;
-    size_t length;
-    size_t line;
-    size_t col;
-    size_t last_col;
+  usize loc;
+  usize length;
+  usize line;
+  usize col;
 } LexerContext;
 
 typedef struct lexer {
-    char* data;
-    LexerContext context;
+  char* data;
+  LexerContext context;
 } Lexer;
-
-// int64_t lexer_meta_str(Lexer* stream, char* meta_str);
 
 void lexer_init(Lexer* self, char* data);
 
