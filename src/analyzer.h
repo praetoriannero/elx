@@ -1,11 +1,13 @@
 #pragma once
 
+#include <glib.h>
+
 #include "parser.h"
 
 typedef struct Scope {
-  Vector ast_node_vec;          // Vector<&Symbol>
-  Vector child_scopes;          // Vector<Scope>
-  struct Scope* parent_scope;   // null if top scope
+  GHashTable* symbol_table;   // &GHashTable<char*, &Symbol>
+  Vector child_scopes;        // Vector<Scope>
+  struct Scope* parent_scope; // null if top scope
 } Scope;
 
 typedef struct {
@@ -23,12 +25,12 @@ void analyzer_visit_if_stmt(IfStmt* node, AnalyzerContext* ctx);
 void analyzer_visit_return_stmt(ReturnStmt* node, AnalyzerContext* ctx);
 void analyzer_visit_while_stmt(WhileStmt* node, AnalyzerContext* ctx);
 
-void analyzer_visit_body(Body* node, AnalyzerContext* ctx);
+void analyzer_visit_body(Body* node, AnalyzerContext* ctx, Scope* parent_scope);
 void analyzer_visit_enum(Enum* node, AnalyzerContext* ctx);
 void analyzer_visit_expr(Expr* node, AnalyzerContext* ctx);
 void analyzer_visit_func(Func* node, AnalyzerContext* ctx);
 void analyzer_visit_global(Global* node, AnalyzerContext* ctx);
 void analyzer_visit_import(Import* node, AnalyzerContext* ctx);
-void analyzer_visit_module(Module* node, AnalyzerContext* ctx);
+void analyzer_visit_module(Module* module, AnalyzerContext* ctx, Scope* parent_scope);
 void analyzer_visit_struct(Struct* node, AnalyzerContext* ctx);
 void analyzer_visit_ast(Ast* node, AnalyzerContext* ctx);

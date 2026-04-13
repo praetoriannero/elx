@@ -24,7 +24,7 @@ void analyzer_visit_return_stmt(ReturnStmt* node, AnalyzerContext* ctx) {}
 
 void analyzer_visit_while_stmt(WhileStmt* node, AnalyzerContext* ctx) {}
 
-void analyzer_visit_body(Body* body, AnalyzerContext* ctx) {}
+void analyzer_visit_body(Body* node, AnalyzerContext* ctx, Scope* parent_scope) {}
 
 void analyzer_visit_main(Func* main_func) {}
 
@@ -36,11 +36,12 @@ void analyzer_visit_enum(Enum* enum_, AnalyzerContext* ctx) {}
 
 void analyzer_visit_func(Func* func, AnalyzerContext* ctx) {}
 
-void analyzer_visit_module(Module* module, AnalyzerContext* ctx) {
+void analyzer_visit_module(Module* module, AnalyzerContext* ctx, Scope* parent_scope) {
   /*
    * Check for redefinitions of symbols
    */
   GHashTable* ast_node_set = g_hash_table_new(g_str_hash, g_str_equal);
+  Scope module_scope = {};
 
   for (usize idx = 0; idx < module->ast_node_vec.size; idx++) {
     AstNode* ast_node = vector_get(&module->ast_node_vec, idx);
@@ -62,7 +63,7 @@ void analyzer_visit_module(Module* module, AnalyzerContext* ctx) {
         analyzer_visit_enum(&ast_node->enum_case, ctx);
         break;
       case AST_NODE_KIND_MODULE:
-        analyzer_visit_module(&ast_node->module_case, ctx);
+        analyzer_visit_module(&ast_node->module_case, ctx, &module_scope);
         break;
       case AST_NODE_KIND_FUNC:
         analyzer_visit_func(&ast_node->func_case, ctx);
@@ -85,11 +86,14 @@ void analyzer_visit_ast(Ast* ast, AnalyzerContext* ctx) {
    * Check symbols
    *
    */
-  bool found_main = false;
+  // bool found_main = false;
+
+  Scope global_scope = {};
+  ctx->global_scope = global_scope;
 
   for (usize idx = 0; idx < ast->module_vec.size; idx++) {
     Module* module = vector_get(&ast->module_vec, idx);
-    analyzer_visit_module(module, ctx);
+    analyzer_visit_module(module, ctx, &ctx->global_scope);
   }
 
   // if (!found_main) {

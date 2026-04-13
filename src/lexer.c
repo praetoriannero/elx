@@ -17,7 +17,8 @@
 
 void lexer_error(Lexer* self, char* msg) {
   // handle unrecoverable errors
-  panic("lexing error: %s at location %d:%d in file '%s'\n", msg, self->context.line + 1, self->context.col, self->file_name);
+  panic("lexing error: %s at location %d:%d in file '%s'\n", msg, self->context.line + 1, self->context.col,
+        self->file_name);
 }
 
 void lexer_init(Lexer* self, const char* data, const char* file_name) {
@@ -89,7 +90,6 @@ static void lexer_skip_comment(Lexer* self) {
     c = lexer_peek_first(self);
   }
 }
-
 
 Token lexer_advance(Allocator* allocator, Lexer* self) {
   Allocator local_allocator;
@@ -244,7 +244,6 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
 
       lexer_consume_digits(allocator, self, &token.str, base_digits);
       token.kind = TOK_FLOAT;
-
     }
 
     c_first = lexer_peek_first(self);
@@ -335,9 +334,7 @@ char lexer_peek_last(Lexer* self) {
   return self->data[self->context.loc - 1];
 }
 
-char lexer_peek_first(Lexer* self) {
-  return self->data[self->context.loc];
-}
+char lexer_peek_first(Lexer* self) { return self->data[self->context.loc]; }
 
 char lexer_peek_second(Lexer* self) {
   if (self->context.loc == self->context.length - 1) {

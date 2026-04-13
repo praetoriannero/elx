@@ -62,7 +62,7 @@ fn foo(x: u8) -> bool {
 
 // fn foo() -> void {}
 
-fn main(argv: u32) -> void {
+fn main() -> void {
     var x = Foo{0, 10.0};
     x.a = 0;
     x.b = 4.0;

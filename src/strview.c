@@ -2,9 +2,9 @@
 
 StringView stringview_from_string(String* string) {
   StringView stringview = {
-    .data = string->data,
-    .capacity = string->capacity,
-    .size = string->size,
+      .data = string->data,
+      .capacity = string->capacity,
+      .size = string->size,
   };
 
   return stringview;

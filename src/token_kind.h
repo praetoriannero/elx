@@ -12,49 +12,49 @@ typedef enum {
 } BaseKind;
 
 typedef enum {
-  OP_QMARK,     // ?
-  OP_DQUOTE,    // "
-  OP_SQUOTE,    // '
-  OP_EXCLAM,    // !
-  OP_COLON,     // :
-  OP_XOR,       // ^
-  OP_PERCENT,   // %
-  OP_BINV,      // ~
-  OP_MINUS,     // -
-  OP_PLUS,      // +
-  OP_DOLLAR,    // $
-  OP_TICK,      // `
-  OP_STAR,      // *
-  OP_FSLASH,    // /
-  OP_BSLASH,    // \ .
-  OP_LBRACE,    // {
-  OP_RBRACE,    // }
-  OP_AT,        // @
-  OP_EQ,        // =
-  OP_LPAREN,    // (
-  OP_RPAREN,    // )
-  OP_POUND,     // #
-  OP_AMPER,     // &
-  OP_LBRACK,    // [
-  OP_RBRACK,    // ]
-  OP_PIPE,      // |
-  OP_GT,        // >
-  OP_LT,        // <
-  OP_SEMICOLON, // ;
-  OP_COMMA,     // ,
-  OP_DECIMAL,   // .
-  OP_UNIT,      // ()
-  OP_LOR,       // ||
-  OP_LAND,      // &&
-  OP_SHL,       // <<
-  OP_SHR,       // >>
-  OP_GTE,       // >=
-  OP_LTE,       // <=
-  OP_ARROW,     // ->
-  OP_COMMENT,   // //
-  OP_RANGE,     // ..
-  OP_RANGEINCL, // ..=
-  OP_PATH,      // ::
+  OP_QMARK,      // ?
+  OP_DQUOTE,     // "
+  OP_SQUOTE,     // '
+  OP_EXCLAM,     // !
+  OP_COLON,      // :
+  OP_XOR,        // ^
+  OP_PERCENT,    // %
+  OP_BINV,       // ~
+  OP_MINUS,      // -
+  OP_PLUS,       // +
+  OP_DOLLAR,     // $
+  OP_TICK,       // `
+  OP_STAR,       // *
+  OP_FSLASH,     // /
+  OP_BSLASH,     // \ .
+  OP_LBRACE,     // {
+  OP_RBRACE,     // }
+  OP_AT,         // @
+  OP_EQ,         // =
+  OP_LPAREN,     // (
+  OP_RPAREN,     // )
+  OP_POUND,      // #
+  OP_AMPER,      // &
+  OP_LBRACK,     // [
+  OP_RBRACK,     // ]
+  OP_PIPE,       // |
+  OP_GT,         // >
+  OP_LT,         // <
+  OP_SEMICOLON,  // ;
+  OP_COMMA,      // ,
+  OP_DECIMAL,    // .
+  OP_UNIT,       // ()
+  OP_LOR,        // ||
+  OP_LAND,       // &&
+  OP_SHL,        // <<
+  OP_SHR,        // >>
+  OP_GTE,        // >=
+  OP_LTE,        // <=
+  OP_ARROW,      // ->
+  OP_COMMENT,    // //
+  OP_RANGE,      // ..
+  OP_RANGEINCL,  // ..=
+  OP_PATH,       // ::
   OP_EQEQ,       // ==
   OP_NOTEQ,      // !=
   OP_PLUSEQ,     // +=

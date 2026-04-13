@@ -2,7 +2,6 @@
 
 #include "str.h"
 
-
 typedef struct {
   const char* data;
   usize capacity;

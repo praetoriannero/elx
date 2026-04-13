@@ -1,6 +1,10 @@
 #pragma once
 
-#include "str.h"
+#include <stdbool.h>
+
+#include "parser.h"
+#include "strview.h"
+#include "vector.h"
 
 typedef enum {
   SYMBOL_KIND_VAR,
@@ -11,8 +15,26 @@ typedef enum {
   SYMBOL_KIND_MODULE,
 } SymbolKind;
 
-
 typedef struct {
+  StringView name;
+  bool public;
   SymbolKind kind;
-  String name;
+  union {
+    struct {
+      Type type;
+      bool mutable;
+    } var;
+
+    struct {
+      Type return_type;
+    } func;
+
+    struct {
+      Vector cases;
+    } enum_;
+
+    struct {
+      Type type;
+    } struct_;
+  };
 } Symbol;

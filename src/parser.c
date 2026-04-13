@@ -3,7 +3,7 @@
 
 #include "allocator.h"
 #include "lexer.h"
-#include "logger.h"  // IWYU pragma: keep
+#include "logger.h" // IWYU pragma: keep
 #include "modprim.h"
 #include "panic.h"
 #include "parser.h"

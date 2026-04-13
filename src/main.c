@@ -1,11 +1,11 @@
 #include <assert.h>
 #include <stddef.h>
-#include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-#include "analyzer.h"
 #include "allocator.h"
+#include "analyzer.h"
 #include "lexer.h"
 #include "modprim.h"
 #include "panic.h"
