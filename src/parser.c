@@ -643,11 +643,11 @@ Vector parser_visit_module_inner(Allocator* allocator, Parser* self, u8 is_sourc
   Token token = {};
   char* tok_str = NULL;
   Allocator local_allocator = {};
-  Symbol symbol = {};
-  Vector symbol_vec = {};
+  AstNode ast_node = {};
+  Vector ast_node_vec = {};
 
   allocator_init(&local_allocator);
-  vector_init(allocator, &symbol_vec, sizeof(Symbol), 8);
+  vector_init(allocator, &ast_node_vec, sizeof(AstNode), 8);
 
   while (true) {
     // log("module inner loop start\n");
@@ -659,38 +659,38 @@ Vector parser_visit_module_inner(Allocator* allocator, Parser* self, u8 is_sourc
         continue;
 
       case TOK_KW_STRUCT:
-        symbol = parser_visit_struct(allocator, self);
-        vector_push(allocator, &symbol_vec, &symbol);
+        ast_node = parser_visit_struct(allocator, self);
+        vector_push(allocator, &ast_node_vec, &ast_node);
         continue;
 
       case TOK_KW_MODULE:
-        symbol = parser_visit_module(allocator, self);
-        vector_push(allocator, &symbol_vec, &symbol);
+        ast_node = parser_visit_module(allocator, self);
+        vector_push(allocator, &ast_node_vec, &ast_node);
         continue;
 
       case TOK_KW_VAR:
-        symbol = parser_visit_global(allocator, self, true);
-        vector_push(allocator, &symbol_vec, &symbol);
+        ast_node = parser_visit_global(allocator, self, true);
+        vector_push(allocator, &ast_node_vec, &ast_node);
         continue;
 
       case TOK_KW_LET:
-        symbol = parser_visit_global(allocator, self, false);
-        vector_push(allocator, &symbol_vec, &symbol);
+        ast_node = parser_visit_global(allocator, self, false);
+        vector_push(allocator, &ast_node_vec, &ast_node);
         continue;
 
       case TOK_KW_ENUM:
-        symbol = parser_visit_enum(allocator, self);
-        vector_push(allocator, &symbol_vec, &symbol);
+        ast_node = parser_visit_enum(allocator, self);
+        vector_push(allocator, &ast_node_vec, &ast_node);
         continue;
 
       case TOK_KW_USE:
-        symbol = parser_visit_import(allocator, self);
-        vector_push(allocator, &symbol_vec, &symbol);
+        ast_node = parser_visit_import(allocator, self);
+        vector_push(allocator, &ast_node_vec, &ast_node);
         continue;
 
       case TOK_KW_FN:
-        symbol = parser_visit_func(allocator, self);
-        vector_push(allocator, &symbol_vec, &symbol);
+        ast_node = parser_visit_func(allocator, self);
+        vector_push(allocator, &ast_node_vec, &ast_node);
         continue;
 
       case TOK_EOF:
@@ -713,7 +713,7 @@ Vector parser_visit_module_inner(Allocator* allocator, Parser* self, u8 is_sourc
 
   allocator_deinit(&local_allocator);
   // log("leaving parser_visit_module_inner\n");
-  return symbol_vec;
+  return ast_node_vec;
 }
 
 Ast parser_parse(Allocator* allocator, Parser* self) {
@@ -726,23 +726,23 @@ Ast parser_parse(Allocator* allocator, Parser* self) {
   return ast;
 }
 
-Symbol parser_visit_struct(Allocator* allocator, Parser* self) {
+AstNode parser_visit_struct(Allocator* allocator, Parser* self) {
   // log("visiting struct\n");
 
   Allocator local_allocator = {};
-  Symbol symbol = {};
+  AstNode ast_node = {};
   Struct struct_ = {};
 
   allocator_init(&local_allocator);
   vector_init(allocator, &struct_.field_vec, sizeof(StructField), 1);
-  vector_init(allocator, &struct_.method_vec, sizeof(Symbol), 1);
+  vector_init(allocator, &struct_.method_vec, sizeof(AstNode), 1);
 
   parser_expect(TOK_KW_STRUCT, lexer_next(&local_allocator, &self->lexer));
 
   // struct name
   Token feed = parser_expect(TOK_IDENT, lexer_next(allocator, &self->lexer));
   struct_.name = elx_strdup(allocator, feed.str.data);
-  symbol.name = struct_.name;
+  ast_node.name = struct_.name;
 
   parser_expect(TOK_LBRACE, lexer_next(&local_allocator, &self->lexer));
 
@@ -765,7 +765,7 @@ Symbol parser_visit_struct(Allocator* allocator, Parser* self) {
       parser_expect(TOK_SEMICOLON, lexer_next(&local_allocator, &self->lexer));
 
     } else if (feed.kind == TOK_KW_FN) { // struct method
-      Symbol method = parser_visit_func(allocator, self);
+      AstNode method = parser_visit_func(allocator, self);
       vector_push(allocator, &struct_.method_vec, &method);
 
     } else { // unexpected input
@@ -778,45 +778,45 @@ Symbol parser_visit_struct(Allocator* allocator, Parser* self) {
 
   parser_expect(TOK_RBRACE, lexer_next(&local_allocator, &self->lexer));
 
-  symbol.kind = SYMBOL_KIND_STRUCT;
-  symbol.struct_case = struct_;
+  ast_node.kind = AST_NODE_KIND_STRUCT;
+  ast_node.struct_case = struct_;
 
   allocator_deinit(&local_allocator);
 
   // log("leaving struct\n");
-  return symbol;
+  return ast_node;
 }
 
-Symbol parser_visit_module(Allocator* allocator, Parser* self) {
+AstNode parser_visit_module(Allocator* allocator, Parser* self) {
   // log("visiting module\n");
 
   Allocator local_allocator = {};
-  Symbol symbol = {};
+  AstNode ast_node = {};
   Module module = {};
 
-  vector_init(allocator, &module.symbol_vec, sizeof(Symbol), 8);
+  vector_init(allocator, &module.ast_node_vec, sizeof(AstNode), 8);
 
   parser_expect(TOK_KW_MODULE, lexer_next(allocator, &self->lexer));
 
   // module name
   Token feed = parser_expect(TOK_IDENT, lexer_next(allocator, &self->lexer));
   module.name = elx_strdup(allocator, feed.str.data);
-  symbol.name = module.name;
+  ast_node.name = module.name;
 
   // module content
   parser_expect(TOK_LBRACE, lexer_next(&local_allocator, &self->lexer));
-  module.symbol_vec = parser_visit_module_inner(allocator, self, 0);
+  module.ast_node_vec = parser_visit_module_inner(allocator, self, 0);
   parser_expect(TOK_RBRACE, lexer_next(&local_allocator, &self->lexer));
 
-  symbol.kind = SYMBOL_KIND_MODULE;
-  symbol.module_case = module;
+  ast_node.kind = AST_NODE_KIND_MODULE;
+  ast_node.module_case = module;
 
   allocator_deinit(&local_allocator);
   // log("leaving module\n");
-  return symbol;
+  return ast_node;
 }
 
-Symbol parser_visit_func(Allocator* allocator, Parser* self) {
+AstNode parser_visit_func(Allocator* allocator, Parser* self) {
   // log("visiting func\n");
   xnotnull(allocator);
   xnotnull(self);
@@ -824,7 +824,7 @@ Symbol parser_visit_func(Allocator* allocator, Parser* self) {
   Allocator local_allocator = {};
   allocator_init(&local_allocator);
 
-  Symbol symbol = {};
+  AstNode ast_node = {};
   Func func = {};
 
   parser_expect(TOK_KW_FN, lexer_next(&local_allocator, &self->lexer));
@@ -833,7 +833,7 @@ Symbol parser_visit_func(Allocator* allocator, Parser* self) {
   // function name
   Token feed = parser_expect(TOK_IDENT, lexer_next(allocator, &self->lexer));
   func.name = elx_strdup(allocator, feed.str.data);
-  symbol.name = func.name;
+  ast_node.name = func.name;
 
   parser_expect(TOK_LPAREN, lexer_next(&local_allocator, &self->lexer));
 
@@ -867,15 +867,15 @@ Symbol parser_visit_func(Allocator* allocator, Parser* self) {
 
   parser_expect(TOK_RBRACE, lexer_next(&local_allocator, &self->lexer));
 
-  symbol.kind = SYMBOL_KIND_FUNC;
-  symbol.func_case = func;
+  ast_node.kind = AST_NODE_KIND_FUNC;
+  ast_node.func_case = func;
 
   allocator_deinit(&local_allocator);
   // log("leaving func\n");
-  return symbol;
+  return ast_node;
 }
 
-Symbol parser_visit_global(Allocator* allocator, Parser* self, bool is_var) {
+AstNode parser_visit_global(Allocator* allocator, Parser* self, bool is_var) {
   /*
    *  Parse a global identifier declaration
    *  examples:
@@ -892,7 +892,7 @@ Symbol parser_visit_global(Allocator* allocator, Parser* self, bool is_var) {
 
   Token feed = {};
   Allocator local_allocator = {};
-  Symbol symbol = {};
+  AstNode ast_node = {};
   Global global = {};
 
   allocator_init(&local_allocator);
@@ -903,7 +903,7 @@ Symbol parser_visit_global(Allocator* allocator, Parser* self, bool is_var) {
   // variable name
   feed = parser_expect(TOK_IDENT, feed);
   global.name = elx_strdup(allocator, feed.str.data);
-  symbol.name = global.name;
+  ast_node.name = global.name;
 
   feed = parser_expect(TOK_COLON, lexer_next(allocator, &self->lexer));
 
@@ -917,21 +917,21 @@ Symbol parser_visit_global(Allocator* allocator, Parser* self, bool is_var) {
   // remaining tokens become expression
   global.expr = parser_visit_expr(allocator, self, TOK_SEMICOLON);
 
-  symbol.kind = SYMBOL_KIND_GLOBAL;
-  symbol.global_case = global;
+  ast_node.kind = AST_NODE_KIND_GLOBAL;
+  ast_node.global_case = global;
 
   allocator_deinit(&local_allocator);
   // log("leaving global\n");
-  return symbol;
+  return ast_node;
 }
 
-Symbol parser_visit_enum(Allocator* allocator, Parser* self) {
+AstNode parser_visit_enum(Allocator* allocator, Parser* self) {
   // log("visiting enum\n");
   xnotnull(allocator);
   xnotnull(self);
 
   Allocator local_allocator = {};
-  Symbol symbol = {};
+  AstNode ast_node = {};
   Enum enum_ = {};
   Token feed = {};
 
@@ -939,7 +939,7 @@ Symbol parser_visit_enum(Allocator* allocator, Parser* self) {
 
   feed = parser_expect(TOK_IDENT, lexer_next(allocator, &self->lexer));
   enum_.name = elx_strdup(allocator, feed.str.data);
-  symbol.name = enum_.name;
+  ast_node.name = enum_.name;
 
   parser_expect(TOK_LBRACE, lexer_next(&local_allocator, &self->lexer));
 
@@ -972,21 +972,21 @@ Symbol parser_visit_enum(Allocator* allocator, Parser* self) {
 
   parser_expect(TOK_RBRACE, feed);
 
-  symbol.kind = SYMBOL_KIND_ENUM;
-  symbol.enum_case = enum_;
+  ast_node.kind = AST_NODE_KIND_ENUM;
+  ast_node.enum_case = enum_;
 
   allocator_deinit(&local_allocator);
   // log("leaving enum\n");
-  return symbol;
+  return ast_node;
 }
 
-Symbol parser_visit_import(Allocator* allocator, Parser* self) {
+AstNode parser_visit_import(Allocator* allocator, Parser* self) {
   todo();
   xnotnull(allocator);
   xnotnull(self);
-  Symbol symbol = {};
+  AstNode ast_node = {};
 
-  return symbol;
+  return ast_node;
 }
 
 Parser* parser_new(Allocator* allocator, Lexer lexer) {

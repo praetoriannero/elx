@@ -10,71 +10,71 @@
 // check if type exists in the built-in table, then do a look-up to see if the
 // operation is supported
 
-void analyzer_check_assign_stmt(AssignStmt* node, AnalyzerContext* ctx) {}
+void analyzer_visit_assign_stmt(AssignStmt* node, AnalyzerContext* ctx) {}
 
-void analyzer_check_continue_stmt(ContinueStmt* node, AnalyzerContext* ctx) {}
+void analyzer_visit_continue_stmt(ContinueStmt* node, AnalyzerContext* ctx) {}
 
-void analyzer_check_expr_stmt(ExprStmt* node, AnalyzerContext* ctx) {}
+void analyzer_visit_expr_stmt(ExprStmt* node, AnalyzerContext* ctx) {}
 
-void analyzer_check_for_stmt(ForStmt* node, AnalyzerContext* ctx) {}
+void analyzer_visit_for_stmt(ForStmt* node, AnalyzerContext* ctx) {}
 
-void analyzer_check_if_stmt(IfStmt* node, AnalyzerContext* ctx) {}
+void analyzer_visit_if_stmt(IfStmt* node, AnalyzerContext* ctx) {}
 
-void analyzer_check_return_stmt(ReturnStmt* node, AnalyzerContext* ctx) {}
+void analyzer_visit_return_stmt(ReturnStmt* node, AnalyzerContext* ctx) {}
 
-void analyzer_check_while_stmt(WhileStmt* node, AnalyzerContext* ctx) {}
+void analyzer_visit_while_stmt(WhileStmt* node, AnalyzerContext* ctx) {}
 
-void analyzer_check_body(Body* body, AnalyzerContext* ctx) {}
+void analyzer_visit_body(Body* body, AnalyzerContext* ctx) {}
 
-void analyzer_check_main(Func* main_func) {}
+void analyzer_visit_main(Func* main_func) {}
 
-void analyzer_check_global(Global* global, AnalyzerContext* ctx) {}
+void analyzer_visit_global(Global* global, AnalyzerContext* ctx) {}
 
-void analyzer_check_struct(Struct* struct_, AnalyzerContext* ctx) {}
+void analyzer_visit_struct(Struct* struct_, AnalyzerContext* ctx) {}
 
-void analyzer_check_enum(Enum* enum_, AnalyzerContext* ctx) {}
+void analyzer_visit_enum(Enum* enum_, AnalyzerContext* ctx) {}
 
-void analyzer_check_func(Func* func, AnalyzerContext* ctx) {}
+void analyzer_visit_func(Func* func, AnalyzerContext* ctx) {}
 
-void analyzer_check_module(Module* module, AnalyzerContext* ctx) {
+void analyzer_visit_module(Module* module, AnalyzerContext* ctx) {
   /*
    * Check for redefinitions of symbols
    */
-  GHashTable* symbol_set = g_hash_table_new(g_str_hash, g_str_equal);
+  GHashTable* ast_node_set = g_hash_table_new(g_str_hash, g_str_equal);
 
-  for (usize idx = 0; idx < module->symbol_vec.size; idx++) {
-    Symbol* symbol = vector_get(&module->symbol_vec, idx);
-    printf("validating symbol '%s'\n", symbol->name);
-    if (g_hash_table_contains(symbol_set, symbol->name)) {
-      panic("redefinition of symbol '%s'\n", symbol->name);
+  for (usize idx = 0; idx < module->ast_node_vec.size; idx++) {
+    AstNode* ast_node = vector_get(&module->ast_node_vec, idx);
+    printf("validating symbol '%s'\n", ast_node->name);
+    if (g_hash_table_contains(ast_node_set, ast_node->name)) {
+      panic("redefinition of symbol '%s'\n", ast_node->name);
     }
 
-    g_hash_table_add(symbol_set, symbol->name);
+    g_hash_table_add(ast_node_set, ast_node->name);
 
-    switch (symbol->kind) {
-      case SYMBOL_KIND_GLOBAL:
-        analyzer_check_global(&symbol->global_case, ctx);
+    switch (ast_node->kind) {
+      case AST_NODE_KIND_GLOBAL:
+        analyzer_visit_global(&ast_node->global_case, ctx);
         break;
-      case SYMBOL_KIND_STRUCT:
-        analyzer_check_struct(&symbol->struct_case, ctx);
+      case AST_NODE_KIND_STRUCT:
+        analyzer_visit_struct(&ast_node->struct_case, ctx);
         break;
-      case SYMBOL_KIND_ENUM:
-        analyzer_check_enum(&symbol->enum_case, ctx);
+      case AST_NODE_KIND_ENUM:
+        analyzer_visit_enum(&ast_node->enum_case, ctx);
         break;
-      case SYMBOL_KIND_MODULE:
-        analyzer_check_module(&symbol->module_case, ctx);
+      case AST_NODE_KIND_MODULE:
+        analyzer_visit_module(&ast_node->module_case, ctx);
         break;
-      case SYMBOL_KIND_FUNC:
-        analyzer_check_func(&symbol->func_case, ctx);
+      case AST_NODE_KIND_FUNC:
+        analyzer_visit_func(&ast_node->func_case, ctx);
         break;
-      case SYMBOL_KIND_UNDEFINED:
+      case AST_NODE_KIND_UNDEFINED:
       default:
         panic("invalid symbol: '%s'\n");
     }
   }
 }
 
-void analyzer_check_ast(Ast* ast, AnalyzerContext* ctx) {
+void analyzer_visit_ast(Ast* ast, AnalyzerContext* ctx) {
   /*
    * Check that main exists as a function
    *
@@ -89,12 +89,12 @@ void analyzer_check_ast(Ast* ast, AnalyzerContext* ctx) {
 
   for (usize idx = 0; idx < ast->module_vec.size; idx++) {
     Module* module = vector_get(&ast->module_vec, idx);
-    analyzer_check_module(module, ctx);
+    analyzer_visit_module(module, ctx);
   }
 
-  if (!ctx->is_lib && !found_main) {
-    panic("Missing program entry point 'main'\n");
-  }
+  // if (!found_main) {
+  //   panic("Missing program entry point 'main'\n");
+  // }
 }
 
 bool verify_type(Type* type_);

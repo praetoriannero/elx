@@ -344,7 +344,7 @@ typedef struct {
 
 typedef struct {
   char* name;
-  Vector symbol_vec; // Vector<Symbol>
+  Vector ast_node_vec; // Vector<Symbol>
 } Module;
 
 typedef enum {
@@ -401,19 +401,19 @@ typedef struct {
 } Import;
 
 typedef enum {
-  SYMBOL_KIND_UNDEFINED,
-  SYMBOL_KIND_STRUCT,
-  SYMBOL_KIND_MODULE,
-  SYMBOL_KIND_FUNC,
-  SYMBOL_KIND_GLOBAL,
-  SYMBOL_KIND_ENUM,
-} SymbolKind;
+  AST_NODE_KIND_UNDEFINED,
+  AST_NODE_KIND_STRUCT,
+  AST_NODE_KIND_MODULE,
+  AST_NODE_KIND_FUNC,
+  AST_NODE_KIND_GLOBAL,
+  AST_NODE_KIND_ENUM,
+} AstNodeKind;
 
 typedef struct {
   Vector path;
   char* name;
 
-  SymbolKind kind;
+  AstNodeKind kind;
   union {
     Struct struct_case;
     Module module_case;
@@ -421,7 +421,7 @@ typedef struct {
     Global global_case;
     Enum enum_case;
   };
-} Symbol;
+} AstNode;
 
 typedef struct {
   Vector module_vec; // Vector<Module>
@@ -441,17 +441,17 @@ Type parse_type(Allocator* allocator, Parser* self);
 
 Body parser_visit_body(Allocator* allocator, Parser* self);
 
-Symbol parser_visit_struct(Allocator* allocator, Parser* self);
+AstNode parser_visit_struct(Allocator* allocator, Parser* self);
 
-Symbol parser_visit_module(Allocator* allocator, Parser* self);
+AstNode parser_visit_module(Allocator* allocator, Parser* self);
 
-Symbol parser_visit_global(Allocator* allocator, Parser* self, bool is_var);
+AstNode parser_visit_global(Allocator* allocator, Parser* self, bool is_var);
 
-Symbol parser_visit_enum(Allocator* allocator, Parser* self);
+AstNode parser_visit_enum(Allocator* allocator, Parser* self);
 
-Symbol parser_visit_import(Allocator* allocator, Parser* self);
+AstNode parser_visit_import(Allocator* allocator, Parser* self);
 
-Symbol parser_visit_func(Allocator* allocator, Parser* self);
+AstNode parser_visit_func(Allocator* allocator, Parser* self);
 
 Stmt parser_visit_expr_stmt(Allocator* allocator, Parser* self);
 

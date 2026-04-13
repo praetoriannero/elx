@@ -8,7 +8,7 @@
 static const u64 MAX_STR_ALLOC = 4096;
 static const usize INITIAL_STR_ALLOC = 4;
 
-void string_push_char(Allocator* allocator, String* self, char c) {
+void string_push(Allocator* allocator, String* self, char c) {
   xnotnull(self);
 
   usize new_size = self->size + 1;
@@ -67,11 +67,6 @@ void string_move(String* src, String* dst) {
   src->capacity = 0;
   src->size = 0;
 }
-
-// void string_clear(string_t* self) {
-//     xfree(self->data);
-//     string_init(self);
-// }
 
 void string_deinit(String* self) {
   if (!self) {

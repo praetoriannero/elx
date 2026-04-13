@@ -72,10 +72,8 @@ i32 main(i32 argc, char* argv[]) {
   Ast ast = parser_parse(&allocator, parser);
   print_ast(&ast);
 
-  AnalyzerContext ast_ctx = {
-    .is_lib = false
-  };
-  analyzer_check_ast(&ast, &ast_ctx);
+  AnalyzerContext ast_ctx = {};
+  analyzer_visit_ast(&ast, &ast_ctx);
 
   // clean up
   fclose(file_handle);

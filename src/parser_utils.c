@@ -241,28 +241,28 @@ void print_module(Module* module, u64 depth) {
   indent(depth);
   printf("module {\n");
   // depth++;
-  for (usize i = 0; i < module->symbol_vec.size; i++) {
-    Symbol* symbol = vector_get(&module->symbol_vec, i);
-    switch (symbol->kind) {
-      case SYMBOL_KIND_MODULE:
-        print_module(&symbol->module_case, depth + 1);
+  for (usize i = 0; i < module->ast_node_vec.size; i++) {
+    AstNode* ast_node = vector_get(&module->ast_node_vec, i);
+    switch (ast_node->kind) {
+      case AST_NODE_KIND_MODULE:
+        print_module(&ast_node->module_case, depth + 1);
         continue;
-      case SYMBOL_KIND_ENUM:
-        print_enum(&symbol->enum_case, depth + 1);
+      case AST_NODE_KIND_ENUM:
+        print_enum(&ast_node->enum_case, depth + 1);
         continue;
-      case SYMBOL_KIND_FUNC:
-        print_func(&symbol->func_case, depth + 1);
+      case AST_NODE_KIND_FUNC:
+        print_func(&ast_node->func_case, depth + 1);
         continue;
-      case SYMBOL_KIND_GLOBAL:
-        print_global(&symbol->global_case, depth + 1);
+      case AST_NODE_KIND_GLOBAL:
+        print_global(&ast_node->global_case, depth + 1);
         continue;
-      case SYMBOL_KIND_STRUCT:
-        print_struct(&symbol->struct_case, depth + 1);
+      case AST_NODE_KIND_STRUCT:
+        print_struct(&ast_node->struct_case, depth + 1);
         continue;
       // case SYMBOL_KIND_IMPORT:
       //     print_import(&symbol->import_case, depth + 1);
       //     continue;
-      case SYMBOL_KIND_UNDEFINED:
+      case AST_NODE_KIND_UNDEFINED:
         break;
     }
   }
@@ -283,8 +283,8 @@ void print_struct(Struct* struct_, u64 depth) {
     printf("field { ident: %s, type: %s },\n", field->name, field->type.name);
   }
   for (usize j = 0; j < struct_->method_vec.size; j++) {
-    Symbol* symbol = vector_get(&struct_->method_vec, j);
-    print_func(&symbol->func_case, depth);
+    AstNode* ast_node = vector_get(&struct_->method_vec, j);
+    print_func(&ast_node->func_case, depth);
   }
   depth--;
   indent(depth);

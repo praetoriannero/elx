@@ -25,6 +25,8 @@ String string_copy(Allocator* allocator, String* self);
 
 void string_move(String* src, String* dst);
 
-void string_push_char(Allocator* allocator, String* str, char c);
+void string_push(Allocator* allocator, String* str, char c);
 
-// void string_clear(string_t* self);
+void string_extend(Allocator* allocator, String* lhs, String rhs);
+
+bool string_equals(const String* lhs, const String* rhs);
