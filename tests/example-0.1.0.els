@@ -37,7 +37,21 @@ fn foo(x: u8) -> bool {
         x += 1;
     }
 
+    // numbers test
+    02_0;
+    // 0__0; // error case
+    0b0_1;
+    1.23;
+    1_0.333_000;
+    4.2e23;
+    100_200E4;
+
+    // range test
     let j = 4 .. 10;
+    x..=z;
+    let q = 4.0..5.0;
+    1..n;
+    0..<q;
 
     for i in j {
         x += i;

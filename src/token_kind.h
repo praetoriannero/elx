@@ -1,10 +1,121 @@
-#ifndef ELX_TOKEN_KIND_H
-#define ELX_TOKEN_KIND_H
-
-#include <stdlib.h>
+#pragma once
 
 #include "array.h"
 #include "modprim.h"
+
+typedef enum {
+  BASE_INVALID,
+  BASE_DECIMAL,
+  BASE_OCTAL,
+  BASE_BINARY,
+  BASE_HEXADECIMAL,
+} BaseKind;
+
+typedef enum {
+  OP_QMARK,     // ?
+  OP_DQUOTE,    // "
+  OP_SQUOTE,    // '
+  OP_EXCLAM,    // !
+  OP_COLON,     // :
+  OP_XOR,       // ^
+  OP_PERCENT,   // %
+  OP_BINV,      // ~
+  OP_MINUS,     // -
+  OP_PLUS,      // +
+  OP_DOLLAR,    // $
+  OP_TICK,      // `
+  OP_STAR,      // *
+  OP_FSLASH,    // /
+  OP_BSLASH,    // \ .
+  OP_LBRACE,    // {
+  OP_RBRACE,    // }
+  OP_AT,        // @
+  OP_EQ,        // =
+  OP_LPAREN,    // (
+  OP_RPAREN,    // )
+  OP_POUND,     // #
+  OP_AMPER,     // &
+  OP_LBRACK,    // [
+  OP_RBRACK,    // ]
+  OP_PIPE,      // |
+  OP_GT,        // >
+  OP_LT,        // <
+  OP_SEMICOLON, // ;
+  OP_COMMA,     // ,
+  OP_DECIMAL,   // .
+  OP_UNIT,      // ()
+  OP_LOR,       // ||
+  OP_LAND,      // &&
+  OP_SHL,       // <<
+  OP_SHR,       // >>
+  OP_GTE,       // >=
+  OP_LTE,       // <=
+  OP_ARROW,     // ->
+  OP_COMMENT,   // //
+  OP_RANGE,     // ..
+  OP_RANGEINCL, // ..=
+  OP_PATH,      // ::
+  OP_EQEQ,       // ==
+  OP_NOTEQ,      // !=
+  OP_PLUSEQ,     // +=
+  OP_MINEQ,      // -=
+  OP_TIMESEQ,    // *=
+  OP_DIVEQ,      // /=
+  OP_BINVEQ,     // ~=
+  OP_OREQ,       // |=
+  OP_ANDEQ,      // &=
+  OP_XOREQ,      // ^=
+  OP_MODEQ,      // %=
+  OP_SHLEQ,      // <<=
+  OP_SHREQ,      // >>=
+  OP_DESTRUCTOR, // ~()
+} OperatorKind;
+
+typedef enum {
+  SEP_LPAREN,
+  SEP_RPAREN,
+  SEP_LBRACK,
+  SEP_RBRACK,
+  SEP_LBRACE,
+  SEP_RBRACE,
+  SEP_COLON,
+  SEP_SEMICOLON,
+} SeparatorKind;
+
+typedef enum {
+  KW_AS,       // as
+  KW_ASYNC,    // async
+  KW_AWAIT,    // await
+  KW_BREAK,    // break
+  KW_CONST,    // const
+  KW_CONTINUE, // continue
+  KW_ELSE,     // else
+  KW_ENUM,     // enum
+  KW_FALSE,    // false
+  KW_FN,       // fn
+  KW_FOR,      // for
+  KW_IF,       // if
+  KW_IMPL,     // impl
+  KW_IN,       // in
+  KW_LET,      // let
+  KW_VAR,      // var
+  KW_MATCH,    // match
+  KW_MODULE,   // module
+  KW_PUB,      // pub
+  KW_REF,      // ref
+  KW_RETURN,   // return
+  KW_SELF,     // self
+  KW_SELFTYPE, // selftype
+  KW_STATIC,   // static
+  KW_STRUCT,   // struct
+  KW_SUPER,    // super
+  KW_TRAIT,    // trait
+  KW_TRUE,     // true
+  KW_TYPE,     // type
+  KW_USE,      // use
+  KW_WHILE,    // while
+  KW_YIELD,    // yield
+} KeywordKind;
 
 typedef enum token_kind {
   // invalid/unsupported
@@ -124,8 +235,21 @@ typedef enum token_kind {
   TOK_EOF,
 
   // empty string
-  TOK_EMTPY
+  TOK_EMPTY
 } TokenKind;
+
+/*
+ * - identifier
+ * - keyword
+ * - separator
+ * - operator
+ * - literal
+ *   - integer
+ *   - float
+ *   - string
+ * - comment
+ * - whitespace
+ */
 
 static const TokenKind single_char_token[256] = {
     ['.'] = TOK_DECIMAL,   [','] = TOK_COMMA,   ['?'] = TOK_QMARK,  ['"'] = TOK_DQUOTE,  ['\''] = TOK_SQUOTE,
@@ -214,5 +338,3 @@ static inline bool is_valid_op(TokenKind kind) {
 }
 
 char* token_kind_str(TokenKind kind);
-
-#endif

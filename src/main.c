@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -9,13 +10,10 @@
 #include "modprim.h"
 #include "panic.h"
 #include "parser.h"
-#include "xalloc.h"
 
-void my_func(void) {
-  i64* my_int = malloc(sizeof(i64));
+typedef FILE File;
 
-  free(my_int);
-}
+#define null NULL
 
 i64 get_file_size(FILE* handle) {
   if (fseek(handle, 0, SEEK_END) != 0) {
@@ -34,10 +32,10 @@ i64 get_file_size(FILE* handle) {
 char* read_file_content(const char* file_path);
 
 i32 main(i32 argc, char* argv[]) {
-  FILE* file_handle = NULL;
-  char* file_name;
-  char* content;
-  i64 file_size;
+  File* file_handle = null;
+  char* file_name = null;
+  char* content = null;
+  i64 file_size = 0;
 
   Allocator allocator;
   allocator_init(&allocator);
@@ -49,7 +47,7 @@ i32 main(i32 argc, char* argv[]) {
     panic("missing source location argument\n");
   }
 
-  if (file_handle != NULL) {
+  if (file_handle != null) {
     printf("%s\n", file_name);
   } else {
     panic("failed to open file %s\n", file_name);
@@ -59,28 +57,29 @@ i32 main(i32 argc, char* argv[]) {
   if (file_size < 0) {
     panic("failed to read file %s\n", file_name);
   }
-  printf("%d\n", (i32)file_size);
+  printf("%jd\n", file_size);
 
-  content = xmalloc((u64)file_size + 1);
-  usize bytes_read = fread(content, 1, (u64)file_size, file_handle);
+  content = allocator_alloc(&allocator, (usize)file_size + 1);
+  usize bytes_read = fread(content, 1, (usize)file_size, file_handle);
   content[bytes_read] = '\0';
 
   printf("CONTENT START\n%s\nCONTENT END\n", content);
 
   Lexer* lexer = allocator_alloc(&allocator, sizeof(Lexer));
-  lexer_init(lexer, content);
+  lexer_init(lexer, content, file_name);
 
   Parser* parser = parser_new(&allocator, *lexer);
   Ast ast = parser_parse(&allocator, parser);
   print_ast(&ast);
 
-  AstContext ast_ctx = {};
-  check_ast(&ast, &ast_ctx);
+  AnalyzerContext ast_ctx = {
+    .is_lib = false
+  };
+  analyzer_check_ast(&ast, &ast_ctx);
 
   // clean up
   fclose(file_handle);
-  xfree(content);
-
   allocator_deinit(&allocator);
-  return 0;
+
+  return EXIT_SUCCESS;
 }

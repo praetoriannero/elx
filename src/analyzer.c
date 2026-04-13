@@ -10,33 +10,33 @@
 // check if type exists in the built-in table, then do a look-up to see if the
 // operation is supported
 
-void check_assign_stmt(AssignStmt* node, AstContext* ctx) {}
+void analyzer_check_assign_stmt(AssignStmt* node, AnalyzerContext* ctx) {}
 
-void check_continue_stmt(ContinueStmt* node, AstContext* ctx) {}
+void analyzer_check_continue_stmt(ContinueStmt* node, AnalyzerContext* ctx) {}
 
-void check_expr_stmt(ExprStmt* node, AstContext* ctx) {}
+void analyzer_check_expr_stmt(ExprStmt* node, AnalyzerContext* ctx) {}
 
-void check_for_stmt(ForStmt* node, AstContext* ctx) {}
+void analyzer_check_for_stmt(ForStmt* node, AnalyzerContext* ctx) {}
 
-void check_if_stmt(IfStmt* node, AstContext* ctx) {}
+void analyzer_check_if_stmt(IfStmt* node, AnalyzerContext* ctx) {}
 
-void check_return_stmt(ReturnStmt* node, AstContext* ctx) {}
+void analyzer_check_return_stmt(ReturnStmt* node, AnalyzerContext* ctx) {}
 
-void check_while_stmt(WhileStmt* node, AstContext* ctx) {}
+void analyzer_check_while_stmt(WhileStmt* node, AnalyzerContext* ctx) {}
 
-void check_body(Body* body, AstContext* ctx) {}
+void analyzer_check_body(Body* body, AnalyzerContext* ctx) {}
 
-void check_main(Func* main_func) {}
+void analyzer_check_main(Func* main_func) {}
 
-void check_global(Global* global, AstContext* ctx) {}
+void analyzer_check_global(Global* global, AnalyzerContext* ctx) {}
 
-void check_struct(Struct* struct_, AstContext* ctx) {}
+void analyzer_check_struct(Struct* struct_, AnalyzerContext* ctx) {}
 
-void check_enum(Enum* enum_, AstContext* ctx) {}
+void analyzer_check_enum(Enum* enum_, AnalyzerContext* ctx) {}
 
-void check_func(Func* func, AstContext* ctx) {}
+void analyzer_check_func(Func* func, AnalyzerContext* ctx) {}
 
-void check_module(Module* module, AstContext* ctx) {
+void analyzer_check_module(Module* module, AnalyzerContext* ctx) {
   /*
    * Check for redefinitions of symbols
    */
@@ -53,19 +53,19 @@ void check_module(Module* module, AstContext* ctx) {
 
     switch (symbol->kind) {
       case SYMBOL_KIND_GLOBAL:
-        check_global(&symbol->global_case, ctx);
+        analyzer_check_global(&symbol->global_case, ctx);
         break;
       case SYMBOL_KIND_STRUCT:
-        check_struct(&symbol->struct_case, ctx);
+        analyzer_check_struct(&symbol->struct_case, ctx);
         break;
       case SYMBOL_KIND_ENUM:
-        check_enum(&symbol->enum_case, ctx);
+        analyzer_check_enum(&symbol->enum_case, ctx);
         break;
       case SYMBOL_KIND_MODULE:
-        check_module(&symbol->module_case, ctx);
+        analyzer_check_module(&symbol->module_case, ctx);
         break;
       case SYMBOL_KIND_FUNC:
-        check_func(&symbol->func_case, ctx);
+        analyzer_check_func(&symbol->func_case, ctx);
         break;
       case SYMBOL_KIND_UNDEFINED:
       default:
@@ -74,7 +74,7 @@ void check_module(Module* module, AstContext* ctx) {
   }
 }
 
-void check_ast(Ast* ast, AstContext* ctx) {
+void analyzer_check_ast(Ast* ast, AnalyzerContext* ctx) {
   /*
    * Check that main exists as a function
    *
@@ -89,10 +89,10 @@ void check_ast(Ast* ast, AstContext* ctx) {
 
   for (usize idx = 0; idx < ast->module_vec.size; idx++) {
     Module* module = vector_get(&ast->module_vec, idx);
-    check_module(module, ctx);
+    analyzer_check_module(module, ctx);
   }
 
-  if (ctx->is_lib && found_main) {
+  if (!ctx->is_lib && !found_main) {
     panic("Missing program entry point 'main'\n");
   }
 }

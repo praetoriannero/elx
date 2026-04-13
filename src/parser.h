@@ -10,13 +10,14 @@ struct Expr;
 typedef struct Expr Expr;
 
 typedef struct {
-  Vector stmts;
+  Vector stmts; // Vector<Stmt>
 } Body;
 
 typedef enum {
-  TYPE_KIND_RAW,
+  TYPE_KIND_OBJ,
   TYPE_KIND_PTR,
   TYPE_KIND_REF,
+  TYPE_KIND_FN,
 } TypeKind;
 
 typedef struct type_ {
@@ -37,7 +38,7 @@ typedef enum {
 
 typedef struct {
   char* name;
-  Vector param_vec; // vec<func_arg_t>
+  Vector param_vec; // Vector<FuncArg>
   Body body;
   Type ret_type;
 } Func;
@@ -52,8 +53,8 @@ typedef struct {
 
 typedef struct {
   char* name;
-  Vector field_vec;  // vec<struct_field_t>
-  Vector method_vec; // vec<funct_t>
+  Vector field_vec;  // Vector<StructField>
+  Vector method_vec; // Vector<Func>
 } Struct;
 
 typedef struct {
@@ -232,7 +233,7 @@ struct Expr {
 
     struct {
       Expr* object;
-      Vector arg_vec; // vec<Expr>
+      Vector arg_vec; // Vector<Expr>
     } call_expr;
 
     struct {
@@ -253,7 +254,7 @@ struct Expr {
     struct {
       Expr* object;
       char* method;
-      Vector arg_vec; // vec<Expr>
+      Vector arg_vec; // Vector<Expr>
     } method_call_expr;
 
     char* ident_expr;
@@ -341,11 +342,9 @@ typedef struct {
   char* ident;
 } ContinueStmt;
 
-struct symbol;
-
 typedef struct {
   char* name;
-  Vector symbol_vec; // vec<symbol_t>
+  Vector symbol_vec; // Vector<Symbol>
 } Module;
 
 typedef enum {
@@ -394,7 +393,7 @@ typedef struct {
 
 typedef struct {
   char* name;
-  Vector kind_vec; // vec<enum_kind_t>
+  Vector kind_vec; // Vector<EnumKind>
 } Enum;
 
 typedef struct {
@@ -425,7 +424,7 @@ typedef struct {
 } Symbol;
 
 typedef struct {
-  Vector module_vec; // vec<module_t>
+  Vector module_vec; // Vector<Module>
 } Ast;
 
 typedef struct parser {
@@ -440,23 +439,23 @@ void parser_init(Parser* self, Lexer lexer);
 
 Type parse_type(Allocator* allocator, Parser* self);
 
-Body visit_body(Allocator* allocator, Parser* self);
+Body parser_visit_body(Allocator* allocator, Parser* self);
 
-Symbol visit_struct(Allocator* allocator, Parser* self);
+Symbol parser_visit_struct(Allocator* allocator, Parser* self);
 
-Symbol visit_module(Allocator* allocator, Parser* self);
+Symbol parser_visit_module(Allocator* allocator, Parser* self);
 
-Symbol visit_global(Allocator* allocator, Parser* self, bool is_var);
+Symbol parser_visit_global(Allocator* allocator, Parser* self, bool is_var);
 
-Symbol visit_enum(Allocator* allocator, Parser* self);
+Symbol parser_visit_enum(Allocator* allocator, Parser* self);
 
-Symbol visit_import(Allocator* allocator, Parser* self);
+Symbol parser_visit_import(Allocator* allocator, Parser* self);
 
-Symbol visit_func(Allocator* allocator, Parser* self);
+Symbol parser_visit_func(Allocator* allocator, Parser* self);
 
-Stmt visit_expr_stmt(Allocator* allocator, Parser* self);
+Stmt parser_visit_expr_stmt(Allocator* allocator, Parser* self);
 
-Expr* visit_expr(Allocator* allocator, Parser* self, TokenKind stop_token);
+Expr* parser_visit_expr(Allocator* allocator, Parser* self, TokenKind stop_token);
 
 u64 count_csv(const char* data, char sep);
 

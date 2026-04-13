@@ -7,7 +7,7 @@
 char* token_kind_str(TokenKind kind) {
   switch (kind) {
     TOKEN_CASE(TOK_DESTRUCTOR);
-    TOKEN_CASE(TOK_EMTPY);
+    TOKEN_CASE(TOK_EMPTY);
     TOKEN_CASE(TOK_RANGEINCL);
     TOKEN_CASE(TOK_UNIT);
     TOKEN_CASE(TOK_STRING);

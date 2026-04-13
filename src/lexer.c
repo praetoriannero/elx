@@ -1,7 +1,5 @@
 #include <ctype.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "allocator.h"
@@ -10,6 +8,7 @@
 #include "logger.h"
 #include "modprim.h"
 #include "str.h"
+#include "todo.h"
 #include "token.h"
 #include "token_kind.h"
 #include "token_tables.h"
@@ -17,42 +16,80 @@
 #include "xalloc.h"
 
 void lexer_error(Lexer* self, char* msg) {
-  panic("lexing error: %s at location %d:%d in file FILE\n", msg, self->context.line, self->context.col);
+  // handle unrecoverable errors
+  panic("lexing error: %s at location %d:%d in file '%s'\n", msg, self->context.line + 1, self->context.col, self->file_name);
 }
 
-void lexer_init(Lexer* self, char* data) {
+void lexer_init(Lexer* self, const char* data, const char* file_name) {
   xnotnull(self);
 
   self->data = data;
+  self->file_name = file_name;
   self->context.loc = 0;
   self->context.col = 0;
   self->context.length = strlen(data);
   self->context.line = 0;
 }
 
+typedef struct {
+  String* number_str;
+  const char* valid_digits;
+  const char* valid_suffixes;
+} NumberContext;
+
 static const char* whitespace = " \t\n\r";
 
+static const char* suffix_chars = "uif2346";
+
+static const char* binary_digits = "01";
+
+static const char* octal_digits = "01234567";
+
+static const char* hexadecimal_digits = "0123456789ABCDEF";
+
+static const char* decimal_digits = "0123456789";
+
+static void lexer_consume_digits(Allocator* alloc, Lexer* self, String* str, const char* valid_digits) {
+  while (true) {
+    char c = lexer_peek_first(self);
+    if (strchr(valid_digits, c)) {
+      string_push_char(alloc, str, lexer_consume(self));
+      continue;
+    } else if (c == '_') {
+      if (isdigit(lexer_peek_last(self)) && isdigit(lexer_peek_second(self))) {
+        string_push_char(alloc, str, lexer_consume(self));
+        continue;
+      }
+
+      lexer_error(self, "invalid usage of '_' in number format");
+    }
+
+    break;
+  }
+}
+
 static void lexer_skip_whitespace(Lexer* self) {
-  char c = lexer_peek_char(self);
+  char c = lexer_peek_first(self);
   while (strchr(whitespace, c)) {
     c = lexer_consume(self);
     if (c == -1) {
       break;
     }
-    c = lexer_peek_char(self);
+    c = lexer_peek_first(self);
   }
 }
 
 static void lexer_skip_comment(Lexer* self) {
-  char c = lexer_peek_char(self);
+  char c = lexer_peek_first(self);
   while (c != '\n') {
     c = lexer_consume(self);
     if (c == -1) {
       break;
     }
-    c = lexer_peek_char(self);
+    c = lexer_peek_first(self);
   }
 }
+
 
 Token lexer_advance(Allocator* allocator, Lexer* self) {
   Allocator local_allocator;
@@ -63,7 +100,7 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
   Token token;
   token_init(allocator, &token);
 
-  token.start = self->context.loc;
+  token.loc = self->context.loc;
 
   lexer_skip_whitespace(self);
   c = lexer_consume(self);
@@ -78,8 +115,8 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
   // string literal
   if (token.kind == TOK_DQUOTE) {
     string_push_char(allocator, &token.str, c);
-    while (lexer_peek_char(self) != '"') {
-      if (lexer_peek_char(self) == -1) {
+    while (lexer_peek_first(self) != '"') {
+      if (lexer_peek_first(self) == -1) {
         token.kind = TOK_EOF;
         return token;
       }
@@ -95,15 +132,15 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
     string_push_char(allocator, &token.str, c);
 
     const OperatorNode* op_iter = op_table;
-    size_t sub_table_size = 0;
-    size_t table_size = array_len(op_table);
+    usize sub_table_size = 0;
+    usize table_size = array_len(op_table);
     OperatorNode op_node;
 
-    char c_next = lexer_peek_char(self);
+    char c_next = lexer_peek_first(self);
     TokenKind kind_next = single_char_token[(u8)c_next];
 
     // get first operator node
-    for (size_t i = 0; i < table_size; i++) {
+    for (usize i = 0; i < table_size; i++) {
       op_node = op_iter[i];
       if (op_node.text == c) {
         op_iter = op_node.children;
@@ -112,9 +149,9 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
       }
     }
 
-    bool found = false;
     while (op_iter && (kind_next != TOK_INVALID) && (!strchr(whitespace, c_next))) {
-      for (size_t i = 0; i < sub_table_size; i++) {
+      bool found = false;
+      for (usize i = 0; i < sub_table_size; i++) {
         op_node = op_iter[i];
         if (op_node.text == c_next) {
           string_push_char(allocator, &token.str, lexer_consume(self));
@@ -130,7 +167,7 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
         break;
       }
 
-      c_next = lexer_peek_char(self);
+      c_next = lexer_peek_first(self);
       kind_next = single_char_token[(u8)c_next];
     }
 
@@ -141,13 +178,13 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
   if (is_valid_ident_start(c)) {
     while (is_ident_char(c)) {
       string_push_char(allocator, &token.str, c);
-      if (!is_ident_char(lexer_peek_char(self))) {
+      if (!is_ident_char(lexer_peek_first(self))) {
         break;
       }
       c = lexer_consume(self);
     }
 
-    size_t length = array_len(keyword_kind_table);
+    usize length = array_len(keyword_kind_table);
     for (u8 i = 0; i < length; i++) {
       StringToken st = keyword_kind_table[i];
       if (strcmp(st.text, token.str.data) == 0) {
@@ -161,48 +198,79 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
 
   // integer/float
   if (isdigit(c)) {
-    // LexerContext context = self->context; // used if we need to roll-back during range operator lexing
-    u8 decimal_count = 0;
-    while (isdigit(c) || c == '.') {
-      if (c == '.') {
-        decimal_count++;
+    string_push_char(allocator, &token.str, c);
+    token.kind = TOK_INTEGER;
+
+    char c_first = lexer_peek_first(self);
+    const char* base_digits = decimal_digits;
+    BaseKind base_kind = BASE_DECIMAL;
+
+    // could be 0bXXX, 0oXXX, or 0xXXX
+    if (c == '0') {
+      if (c_first == 'b') {
+        base_digits = binary_digits;
+        base_kind = BASE_BINARY;
+        string_push_char(allocator, &token.str, lexer_consume(self));
+      } else if (c_first == 'o') {
+        base_digits = octal_digits;
+        base_kind = BASE_OCTAL;
+        string_push_char(allocator, &token.str, lexer_consume(self));
+      } else if (c_first == 'x') {
+        base_digits = hexadecimal_digits;
+        base_kind = BASE_HEXADECIMAL;
+        string_push_char(allocator, &token.str, lexer_consume(self));
       }
 
-      if (decimal_count > 1) {
-        // todo: handle range expressions
-        lexer_error(self, "invalid integer format");
-      }
-
-      string_push_char(allocator, &token.str, c);
-      char c_next = lexer_peek_char(self);
-      if ((c_next != '.') && (!isdigit(c_next))) {
-        break;
-      }
-
-      c = lexer_consume(self);
+      token.number.base_digits = base_digits;
+      token.number.base_kind = base_kind;
     }
 
-    // bool has_decimal = false;
-    // while (isdigit(c)) {
-    //     string_push_char(arena, &token.str, c);
-    //     char c_next = lexer_peek_char(self);
-    //     if (!isdigit(c_next)) {
-    //         break;
-    //     }
-    //     c = lexer_consume(self);
-    // }
-    //
-    // if (c == '.') {
-    //     has_decimal = true;
-    //     if (lexer_peek_char(self) == '.') { // likely a range expression
-    //
-    //     }
-    // }
+    lexer_consume_digits(allocator, self, &token.str, base_digits);
 
-    if (decimal_count) {
+    c_first = lexer_peek_first(self);
+    char c_second = lexer_peek_second(self);
+
+    if (c_first == '.') {
+      if (c_second == '.') {
+        goto fn_next_exit;
+      }
+
+      // consume the decimal
+      string_push_char(allocator, &token.str, lexer_consume(self));
+
+      if (base_kind != BASE_DECIMAL) {
+        lexer_error(self, "invalid floating point base value");
+      }
+
+      lexer_consume_digits(allocator, self, &token.str, base_digits);
       token.kind = TOK_FLOAT;
-    } else {
-      token.kind = TOK_INTEGER;
+
+    }
+
+    c_first = lexer_peek_first(self);
+    if (c_first == 'e' || c_first == 'E') {
+      if (base_kind != BASE_DECIMAL) {
+        lexer_error(self, "invalid floating point base value");
+      }
+
+      // consume c_first
+      string_push_char(allocator, &token.str, lexer_consume(self));
+
+      if (c_second == '-' || c_second == '+') {
+        // consume c_second
+        string_push_char(allocator, &token.str, lexer_consume(self));
+      }
+
+      // consume the exponent
+      lexer_consume_digits(allocator, self, &token.str, base_digits);
+      token.kind = TOK_FLOAT;
+    }
+
+    // might still contain a suffix
+    c_first = lexer_peek_first(self);
+    while (strchr(suffix_chars, c_first)) {
+      string_push_char(allocator, &token.str, lexer_consume(self));
+      c_first = lexer_peek_first(self);
     }
   }
 
@@ -212,7 +280,7 @@ fn_next_exit:
     return lexer_next(allocator, self);
   }
 
-  token.end = self->context.loc;
+  token.size = self->context.loc - token.loc;
 
   if (token.kind == TOK_INVALID) {
     lexer_error(self, "invalid token");
@@ -259,7 +327,25 @@ i64 lexer_scan(Lexer* self, TokenKind key) {
   return pos;
 }
 
-char lexer_peek_char(Lexer* self) { return self->data[self->context.loc]; }
+char lexer_peek_last(Lexer* self) {
+  if (self->context.loc == 0) {
+    panic("unexpected peek from beginning of file");
+  }
+
+  return self->data[self->context.loc - 1];
+}
+
+char lexer_peek_first(Lexer* self) {
+  return self->data[self->context.loc];
+}
+
+char lexer_peek_second(Lexer* self) {
+  if (self->context.loc == self->context.length - 1) {
+    panic("unexpected end of file");
+  }
+
+  return self->data[self->context.loc + 1];
+}
 
 char lexer_consume(Lexer* self) {
   if (self->context.loc == self->context.length - 1) {
@@ -277,3 +363,44 @@ char lexer_consume(Lexer* self) {
 
   return c;
 }
+
+void lexer_consume_into(Allocator* alloc, Lexer* self, String* string, usize count) {
+  for (usize idx = 0; idx < count; idx++) {
+    string_push_char(alloc, string, lexer_consume(self));
+  }
+}
+
+  //   while (isdigit(c) || c == '.' || c == '_' || c == 'o' || c == 'x' || c == 'b') {
+  //     if (c == '.') {
+  //       if (is_float) {
+  //         if (lexer_peek_first(self) == '.') {
+  //           // todo: handle range token
+  //         }
+  //         lexer_error(self, "invalid floating point format");
+  //       }
+  //       is_float = true;
+  //     }
+  //
+  //     if (c == '_') {
+  //       // todo: ensure the last character and the next character are digits
+  //     }
+  //
+  //     if (c == 'o' || c == 'x' || c == 'b') {
+  //       // todo: ensure the last character was a '0' and the next character is a digit
+  //     }
+  //
+  //     string_push_char(allocator, &token.str, c);
+  //     char c_next = lexer_peek_first(self);
+  //     if ((c_next != '.') && (!isdigit(c_next))) {
+  //       break;
+  //     }
+  //
+  //     c = lexer_consume(self);
+  //   }
+  //
+  //   if (is_float) {
+  //     token.kind = TOK_FLOAT;
+  //   } else {
+  //     token.kind = TOK_INTEGER;
+  //   }
+  // }

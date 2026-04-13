@@ -3,15 +3,13 @@
 #include "allocator.h"
 #include "str_utils.h"
 
-char* strdup2(Allocator* allocator, const char* str) {
+char* elx_strdup(Allocator* allocator, const char* str) {
   if (!str)
     return NULL;
 
   size_t len = strlen(str) + 1;
   char* copy = allocator_alloc(allocator, len);
-  if (copy) {
-    memcpy(copy, str, len);
-  }
+  memcpy(copy, str, len);
 
   return copy;
 }

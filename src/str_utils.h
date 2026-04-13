@@ -4,7 +4,7 @@
 
 #include "allocator.h"
 
-char* strdup2(Allocator* allocator, const char* str);
+char* elx_strdup(Allocator* allocator, const char* str);
 
 char* strmov(char** str);
 

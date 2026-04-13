@@ -13,8 +13,8 @@ void token_init(Allocator* allocator, Token* self) {
 
   *self = (Token){
       .kind = TOK_INVALID,
-      .start = 0,
-      .end = 0,
+      .loc = 0,
+      .size = 0,
   };
 
   string_init(allocator, &self->str);
@@ -28,8 +28,8 @@ Token* token_copy(Allocator* allocator, Token* self) {
   *token = (Token){
       .kind = self->kind,
       .str = string_copy(allocator, &self->str),
-      .start = self->start,
-      .end = self->end,
+      .loc = self->loc,
+      .size = self->size,
   };
 
   return token;

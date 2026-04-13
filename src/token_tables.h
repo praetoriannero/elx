@@ -151,7 +151,6 @@ static const StringToken keyword_kind_table[] = {
     {"super", TOK_KW_SUPER},   {"trait", TOK_KW_TRAIT},   {"true", TOK_KW_TRUE},
     {"type", TOK_KW_TYPE},     {"use", TOK_KW_USE},       {"var", TOK_KW_VAR},
     {"while", TOK_KW_WHILE},   {"yield", TOK_KW_YIELD},
-    // {"mut", TOK_KW_MUT},
 };
 
 typedef struct lookup_result {

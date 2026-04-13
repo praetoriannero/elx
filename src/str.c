@@ -49,7 +49,7 @@ String string_copy(Allocator* allocator, String* self) {
   String string = (String){
       .size = self->size,
       .capacity = self->capacity,
-      .data = strdup2(allocator, self->data),
+      .data = elx_strdup(allocator, self->data),
   };
 
   return string;

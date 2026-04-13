@@ -119,7 +119,7 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
     // identifier
     log("identifier expr\n");
     lhs->expr_kind = EXPR_KIND_IDENT;
-    lhs->ident_expr = strdup2(allocator, left_tok.str.data);
+    lhs->ident_expr = elx_strdup(allocator, left_tok.str.data);
 
     // todo: missing byte and char literal support in AST
   } else if (left_tok.kind == TOK_FLOAT) {
@@ -127,27 +127,27 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
     log("float expr\n");
     lhs->expr_kind = EXPR_KIND_LITERAL;
     lhs->literal_expr.kind = LITERAL_KIND_FLOAT;
-    lhs->literal_expr.float_ = strdup2(allocator, left_tok.str.data);
+    lhs->literal_expr.float_ = elx_strdup(allocator, left_tok.str.data);
 
   } else if (left_tok.kind == TOK_INTEGER) {
     // integer literal
     log("integer expr\n");
     lhs->expr_kind = EXPR_KIND_LITERAL;
     lhs->literal_expr.kind = LITERAL_KIND_INTEGER;
-    lhs->literal_expr.integer = strdup2(allocator, left_tok.str.data);
+    lhs->literal_expr.integer = elx_strdup(allocator, left_tok.str.data);
 
   } else if (left_tok.kind == TOK_STRING) {
     // string literal
     log("string expr\n");
     lhs->expr_kind = EXPR_KIND_LITERAL;
     lhs->literal_expr.kind = LITERAL_KIND_STRING;
-    lhs->literal_expr.string = strdup2(allocator, left_tok.str.data);
+    lhs->literal_expr.string = elx_strdup(allocator, left_tok.str.data);
 
   } else if ((left_tok.kind == TOK_KW_FALSE) || (left_tok.kind == TOK_KW_TRUE)) {
     log("bool expr\n");
     lhs->expr_kind = EXPR_KIND_LITERAL;
     lhs->literal_expr.kind = LITERAL_KIND_BOOL;
-    lhs->literal_expr.bool_ = strdup2(allocator, left_tok.str.data);
+    lhs->literal_expr.bool_ = elx_strdup(allocator, left_tok.str.data);
 
   } else if (left_tok.kind == TOK_LBRACK) {
     // array implicit literal, ex: [u32; 10]
@@ -296,7 +296,7 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
 
           lhs->expr_kind = EXPR_KIND_METHOD_CALL;
           lhs->method_call_expr.object = prev_lhs;
-          lhs->method_call_expr.method = strdup2(allocator, operator_tok.str.data);
+          lhs->method_call_expr.method = elx_strdup(allocator, operator_tok.str.data);
 
           u64 comma_count = count_csv(self->lexer.data + self->lexer.context.loc, '(');
           for (u64 i = 0; i < comma_count; i++) {
@@ -319,7 +319,7 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
         lhs = allocator_alloc(allocator, sizeof(Expr));
         lhs->expr_kind = EXPR_KIND_FIELD;
         lhs->field_expr.object = prev_lhs;
-        lhs->field_expr.name = strdup2(allocator, operator_tok.str.data);
+        lhs->field_expr.name = elx_strdup(allocator, operator_tok.str.data);
         continue;
 
       } else if (operator_tok.kind == TOK_LBRACK) {
@@ -350,7 +350,7 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
         lhs = allocator_alloc(allocator, sizeof(Expr));
         lhs->expr_kind = EXPR_KIND_PATH;
         assert(prev_lhs->expr_kind == EXPR_KIND_IDENT);
-        lhs->path_expr.stem = strdup2(allocator, prev_lhs->ident_expr);
+        lhs->path_expr.stem = elx_strdup(allocator, prev_lhs->ident_expr);
         lhs->path_expr.expr = parse_expr_prec(allocator, self, stop_token, infix_prec - 1);
         continue;
 
@@ -380,14 +380,14 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
   return lhs;
 }
 
-Expr* visit_expr(Allocator* allocator, Parser* self, TokenKind stop_token) {
+Expr* parser_visit_expr(Allocator* allocator, Parser* self, TokenKind stop_token) {
   /*
    * Consume tokens until we reach the stop token, creating an expression tree
    */
   return parse_expr_prec(allocator, self, stop_token, 0);
 }
 
-Stmt visit_break_stmt(Allocator* allocator, Parser* self) {
+Stmt parser_visit_break_stmt(Allocator* allocator, Parser* self) {
   // scope_t* scope = arena_new_scope(arena);
 
   parser_expect(TOK_KW_BREAK, lexer_next(allocator, &self->lexer));
@@ -402,10 +402,10 @@ Stmt visit_break_stmt(Allocator* allocator, Parser* self) {
   return stmt;
 }
 
-Stmt visit_expr_stmt(Allocator* allocator, Parser* self) {
+Stmt parser_visit_expr_stmt(Allocator* allocator, Parser* self) {
   Stmt stmt = {};
 
-  Expr* expr = visit_expr(allocator, self, TOK_SEMICOLON);
+  Expr* expr = parser_visit_expr(allocator, self, TOK_SEMICOLON);
 
   // scope_t* scope = arena_new_scope(arena);
   parser_expect(TOK_SEMICOLON, lexer_next(allocator, &self->lexer));
@@ -416,7 +416,7 @@ Stmt visit_expr_stmt(Allocator* allocator, Parser* self) {
   return stmt;
 }
 
-Stmt visit_for_stmt(Allocator* allocator, Parser* self) {
+Stmt parser_visit_for_stmt(Allocator* allocator, Parser* self) {
   Allocator local_allocator = {};
   Stmt stmt = {};
   Token feed = {};
@@ -428,18 +428,18 @@ Stmt visit_for_stmt(Allocator* allocator, Parser* self) {
   feed = parser_expect(TOK_IDENT, lexer_next(&local_allocator, &self->lexer));
   stmt.kind = STMT_KIND_FOR;
 
-  stmt.for_stmt.iterator = strdup2(allocator, feed.str.data);
+  stmt.for_stmt.iterator = elx_strdup(allocator, feed.str.data);
   parser_expect(TOK_KW_IN, lexer_next(&local_allocator, &self->lexer));
-  stmt.for_stmt.iterable = visit_expr(allocator, self, TOK_LBRACE);
+  stmt.for_stmt.iterable = parser_visit_expr(allocator, self, TOK_LBRACE);
   parser_expect(TOK_LBRACE, lexer_next(&local_allocator, &self->lexer));
-  stmt.for_stmt.body = visit_body(allocator, self);
+  stmt.for_stmt.body = parser_visit_body(allocator, self);
   parser_expect(TOK_RBRACE, lexer_next(&local_allocator, &self->lexer));
 
   allocator_deinit(&local_allocator);
   return stmt;
 }
 
-Stmt visit_if_stmt(Allocator* allocator, Parser* self) {
+Stmt parser_visit_if_stmt(Allocator* allocator, Parser* self) {
   Allocator local_allocator = {};
   Stmt stmt = {};
   Token feed = {};
@@ -450,11 +450,11 @@ Stmt visit_if_stmt(Allocator* allocator, Parser* self) {
   feed = parser_expect(TOK_KW_IF, lexer_next(&local_allocator, &self->lexer));
 
   stmt.kind = STMT_KIND_IF;
-  stmt.if_stmt.condition = visit_expr(allocator, self, TOK_LBRACE);
+  stmt.if_stmt.condition = parser_visit_expr(allocator, self, TOK_LBRACE);
 
   parser_expect(TOK_LBRACE, lexer_next(&local_allocator, &self->lexer));
 
-  stmt.if_stmt.body = visit_body(allocator, self);
+  stmt.if_stmt.body = parser_visit_body(allocator, self);
   vector_init(allocator, &stmt.if_stmt.elif_clause_vec, sizeof(ElifClause), 1);
 
   parser_expect(TOK_RBRACE, lexer_next(&local_allocator, &self->lexer));
@@ -471,16 +471,16 @@ Stmt visit_if_stmt(Allocator* allocator, Parser* self) {
     if (feed.kind == TOK_KW_IF) {
       ElifClause elif_clause = {};
       parser_expect(TOK_KW_IF, lexer_next(&local_allocator, &self->lexer));
-      elif_clause.condition = visit_expr(allocator, self, TOK_LBRACE);
+      elif_clause.condition = parser_visit_expr(allocator, self, TOK_LBRACE);
       parser_expect(TOK_LBRACE, lexer_next(&local_allocator, &self->lexer));
-      elif_clause.body = visit_body(allocator, self);
+      elif_clause.body = parser_visit_body(allocator, self);
       parser_expect(TOK_RBRACE, lexer_next(&local_allocator, &self->lexer));
       vector_push(allocator, &stmt.if_stmt.elif_clause_vec, &elif_clause);
 
     } else {
       ElseClause else_clause = {};
       parser_expect(TOK_LBRACE, lexer_next(&local_allocator, &self->lexer));
-      else_clause.body = visit_body(allocator, self);
+      else_clause.body = parser_visit_body(allocator, self);
       parser_expect(TOK_RBRACE, lexer_next(&local_allocator, &self->lexer));
       stmt.if_stmt.else_clause = else_clause;
       break;
@@ -491,7 +491,7 @@ Stmt visit_if_stmt(Allocator* allocator, Parser* self) {
   return stmt;
 }
 
-Stmt visit_while_stmt(Allocator* allocator, Parser* self) {
+Stmt parser_visit_while_stmt(Allocator* allocator, Parser* self) {
   Allocator local_allocator = {};
   Stmt stmt = {};
 
@@ -499,23 +499,23 @@ Stmt visit_while_stmt(Allocator* allocator, Parser* self) {
 
   parser_expect(TOK_KW_WHILE, lexer_next(&local_allocator, &self->lexer));
   stmt.kind = STMT_KIND_WHILE;
-  stmt.while_stmt.condition = visit_expr(allocator, self, TOK_LBRACE);
+  stmt.while_stmt.condition = parser_visit_expr(allocator, self, TOK_LBRACE);
   parser_expect(TOK_LBRACE, lexer_next(&local_allocator, &self->lexer));
-  stmt.while_stmt.body = visit_body(allocator, self);
+  stmt.while_stmt.body = parser_visit_body(allocator, self);
   parser_expect(TOK_RBRACE, lexer_next(&local_allocator, &self->lexer));
 
   allocator_deinit(&local_allocator);
   return stmt;
 }
 
-Stmt visit_return_stmt(Allocator* allocator, Parser* self) {
+Stmt parser_visit_return_stmt(Allocator* allocator, Parser* self) {
   // log("entering return stmt\n");
   Stmt stmt = {};
 
   parser_expect(TOK_KW_RETURN, lexer_next(allocator, &self->lexer));
 
   stmt.kind = STMT_KIND_RETURN;
-  stmt.return_stmt.expr = visit_expr(allocator, self, TOK_SEMICOLON);
+  stmt.return_stmt.expr = parser_visit_expr(allocator, self, TOK_SEMICOLON);
 
   parser_expect(TOK_SEMICOLON, lexer_next(allocator, &self->lexer));
 
@@ -523,7 +523,7 @@ Stmt visit_return_stmt(Allocator* allocator, Parser* self) {
   return stmt;
 }
 
-Stmt visit_continue_stmt(Allocator* allocator, Parser* self) {
+Stmt parser_visit_continue_stmt(Allocator* allocator, Parser* self) {
   parser_expect(TOK_KW_CONTINUE, lexer_next(allocator, &self->lexer));
   Stmt stmt = {};
   stmt.kind = STMT_KIND_CONTINUE;
@@ -533,7 +533,7 @@ Stmt visit_continue_stmt(Allocator* allocator, Parser* self) {
   return stmt;
 }
 
-Stmt visit_assign_stmt(Allocator* allocator, Parser* self) {
+Stmt parser_visit_assign_stmt(Allocator* allocator, Parser* self) {
   Allocator local_allocator = {};
   allocator_init(&local_allocator);
   Stmt stmt = {};
@@ -550,18 +550,18 @@ Stmt visit_assign_stmt(Allocator* allocator, Parser* self) {
   stmt.assign_stmt.mut = mut;
 
   feed = parser_expect(TOK_IDENT, lexer_next(allocator, &self->lexer));
-  stmt.assign_stmt.name = strdup2(allocator, feed.str.data);
+  stmt.assign_stmt.name = elx_strdup(allocator, feed.str.data);
 
   parser_expect(TOK_EQ, lexer_next(allocator, &self->lexer));
-  stmt.assign_stmt.expr = visit_expr(allocator, self, TOK_SEMICOLON);
+  stmt.assign_stmt.expr = parser_visit_expr(allocator, self, TOK_SEMICOLON);
   parser_expect(TOK_SEMICOLON, lexer_next(&local_allocator, &self->lexer));
 
   allocator_deinit(&local_allocator);
   return stmt;
 }
 
-Body visit_body(Allocator* allocator, Parser* self) {
-  // log("entering visit_body\n");
+Body parser_visit_body(Allocator* allocator, Parser* self) {
+  // log("entering parser_visit_body\n");
   Body body = {};
   vector_init(allocator, &body.stmts, sizeof(Stmt), 4);
 
@@ -580,43 +580,43 @@ Body visit_body(Allocator* allocator, Parser* self) {
       case TOK_INTEGER:
       case TOK_FLOAT:
       case TOK_IDENT:
-        stmt = visit_expr_stmt(allocator, self);
+        stmt = parser_visit_expr_stmt(allocator, self);
         vector_push(allocator, &body.stmts, &stmt);
         continue;
 
       case TOK_KW_FOR:
-        stmt = visit_for_stmt(allocator, self);
+        stmt = parser_visit_for_stmt(allocator, self);
         vector_push(allocator, &body.stmts, &stmt);
         continue;
 
       case TOK_KW_IF:
-        stmt = visit_if_stmt(allocator, self);
+        stmt = parser_visit_if_stmt(allocator, self);
         vector_push(allocator, &body.stmts, &stmt);
         continue;
 
       case TOK_KW_WHILE:
-        stmt = visit_while_stmt(allocator, self);
+        stmt = parser_visit_while_stmt(allocator, self);
         vector_push(allocator, &body.stmts, &stmt);
         continue;
 
       case TOK_KW_RETURN:
-        stmt = visit_return_stmt(allocator, self);
+        stmt = parser_visit_return_stmt(allocator, self);
         vector_push(allocator, &body.stmts, &stmt);
         continue;
 
       case TOK_KW_CONTINUE:
-        stmt = visit_continue_stmt(allocator, self);
+        stmt = parser_visit_continue_stmt(allocator, self);
         vector_push(allocator, &body.stmts, &stmt);
         continue;
 
       case TOK_KW_BREAK:
-        stmt = visit_break_stmt(allocator, self);
+        stmt = parser_visit_break_stmt(allocator, self);
         vector_push(allocator, &body.stmts, &stmt);
         continue;
 
       case TOK_KW_VAR:
       case TOK_KW_LET:
-        stmt = visit_assign_stmt(allocator, self);
+        stmt = parser_visit_assign_stmt(allocator, self);
         vector_push(allocator, &body.stmts, &stmt);
         continue;
 
@@ -633,12 +633,12 @@ Body visit_body(Allocator* allocator, Parser* self) {
   }
 
   allocator_deinit(&local_allocator);
-  // log("leaving visit_body\n");
+  // log("leaving parser_visit_body\n");
   return body;
 }
 
-Vector visit_module_inner(Allocator* allocator, Parser* self, u8 is_source) {
-  // log("entering visit_module_inner\n");
+Vector parser_visit_module_inner(Allocator* allocator, Parser* self, u8 is_source) {
+  // log("entering parser_visit_module_inner\n");
 
   Token token = {};
   char* tok_str = NULL;
@@ -659,37 +659,37 @@ Vector visit_module_inner(Allocator* allocator, Parser* self, u8 is_source) {
         continue;
 
       case TOK_KW_STRUCT:
-        symbol = visit_struct(allocator, self);
+        symbol = parser_visit_struct(allocator, self);
         vector_push(allocator, &symbol_vec, &symbol);
         continue;
 
       case TOK_KW_MODULE:
-        symbol = visit_module(allocator, self);
+        symbol = parser_visit_module(allocator, self);
         vector_push(allocator, &symbol_vec, &symbol);
         continue;
 
       case TOK_KW_VAR:
-        symbol = visit_global(allocator, self, true);
+        symbol = parser_visit_global(allocator, self, true);
         vector_push(allocator, &symbol_vec, &symbol);
         continue;
 
       case TOK_KW_LET:
-        symbol = visit_global(allocator, self, false);
+        symbol = parser_visit_global(allocator, self, false);
         vector_push(allocator, &symbol_vec, &symbol);
         continue;
 
       case TOK_KW_ENUM:
-        symbol = visit_enum(allocator, self);
+        symbol = parser_visit_enum(allocator, self);
         vector_push(allocator, &symbol_vec, &symbol);
         continue;
 
       case TOK_KW_USE:
-        symbol = visit_import(allocator, self);
+        symbol = parser_visit_import(allocator, self);
         vector_push(allocator, &symbol_vec, &symbol);
         continue;
 
       case TOK_KW_FN:
-        symbol = visit_func(allocator, self);
+        symbol = parser_visit_func(allocator, self);
         vector_push(allocator, &symbol_vec, &symbol);
         continue;
 
@@ -712,21 +712,21 @@ Vector visit_module_inner(Allocator* allocator, Parser* self, u8 is_source) {
   }
 
   allocator_deinit(&local_allocator);
-  // log("leaving visit_module_inner\n");
+  // log("leaving parser_visit_module_inner\n");
   return symbol_vec;
 }
 
 Ast parser_parse(Allocator* allocator, Parser* self) {
   // log("entering parser_parse\n");
   Ast ast = {};
-  Module module = {.name = "ANONYMOUS", visit_module_inner(allocator, self, true)};
+  Module module = {.name = "ANONYMOUS", parser_visit_module_inner(allocator, self, true)};
   vector_init(allocator, &ast.module_vec, sizeof(Module), 1);
   vector_push(allocator, &ast.module_vec, &module);
 
   return ast;
 }
 
-Symbol visit_struct(Allocator* allocator, Parser* self) {
+Symbol parser_visit_struct(Allocator* allocator, Parser* self) {
   // log("visiting struct\n");
 
   Allocator local_allocator = {};
@@ -741,7 +741,7 @@ Symbol visit_struct(Allocator* allocator, Parser* self) {
 
   // struct name
   Token feed = parser_expect(TOK_IDENT, lexer_next(allocator, &self->lexer));
-  struct_.name = strdup2(allocator, feed.str.data);
+  struct_.name = elx_strdup(allocator, feed.str.data);
   symbol.name = struct_.name;
 
   parser_expect(TOK_LBRACE, lexer_next(&local_allocator, &self->lexer));
@@ -754,18 +754,18 @@ Symbol visit_struct(Allocator* allocator, Parser* self) {
       feed = lexer_next(&local_allocator, &self->lexer);
       StructField field = {};
 
-      field.name = strdup2(allocator, feed.str.data);
+      field.name = elx_strdup(allocator, feed.str.data);
 
       parser_expect(TOK_COLON, lexer_next(&local_allocator, &self->lexer));
 
       feed = parser_expect(TOK_IDENT, lexer_next(allocator, &self->lexer));
-      field.type.name = strdup2(allocator, feed.str.data);
+      field.type.name = elx_strdup(allocator, feed.str.data);
       vector_push(allocator, &struct_.field_vec, &field);
 
       parser_expect(TOK_SEMICOLON, lexer_next(&local_allocator, &self->lexer));
 
     } else if (feed.kind == TOK_KW_FN) { // struct method
-      Symbol method = visit_func(allocator, self);
+      Symbol method = parser_visit_func(allocator, self);
       vector_push(allocator, &struct_.method_vec, &method);
 
     } else { // unexpected input
@@ -787,7 +787,7 @@ Symbol visit_struct(Allocator* allocator, Parser* self) {
   return symbol;
 }
 
-Symbol visit_module(Allocator* allocator, Parser* self) {
+Symbol parser_visit_module(Allocator* allocator, Parser* self) {
   // log("visiting module\n");
 
   Allocator local_allocator = {};
@@ -800,12 +800,12 @@ Symbol visit_module(Allocator* allocator, Parser* self) {
 
   // module name
   Token feed = parser_expect(TOK_IDENT, lexer_next(allocator, &self->lexer));
-  module.name = strdup2(allocator, feed.str.data);
+  module.name = elx_strdup(allocator, feed.str.data);
   symbol.name = module.name;
 
   // module content
   parser_expect(TOK_LBRACE, lexer_next(&local_allocator, &self->lexer));
-  module.symbol_vec = visit_module_inner(allocator, self, 0);
+  module.symbol_vec = parser_visit_module_inner(allocator, self, 0);
   parser_expect(TOK_RBRACE, lexer_next(&local_allocator, &self->lexer));
 
   symbol.kind = SYMBOL_KIND_MODULE;
@@ -816,7 +816,7 @@ Symbol visit_module(Allocator* allocator, Parser* self) {
   return symbol;
 }
 
-Symbol visit_func(Allocator* allocator, Parser* self) {
+Symbol parser_visit_func(Allocator* allocator, Parser* self) {
   // log("visiting func\n");
   xnotnull(allocator);
   xnotnull(self);
@@ -832,7 +832,7 @@ Symbol visit_func(Allocator* allocator, Parser* self) {
 
   // function name
   Token feed = parser_expect(TOK_IDENT, lexer_next(allocator, &self->lexer));
-  func.name = strdup2(allocator, feed.str.data);
+  func.name = elx_strdup(allocator, feed.str.data);
   symbol.name = func.name;
 
   parser_expect(TOK_LPAREN, lexer_next(&local_allocator, &self->lexer));
@@ -842,10 +842,10 @@ Symbol visit_func(Allocator* allocator, Parser* self) {
   // function arguments
   while (feed.kind != TOK_RPAREN) {
     FuncArg arg = {};
-    arg.name = strdup2(allocator, feed.str.data);
+    arg.name = elx_strdup(allocator, feed.str.data);
     parser_expect(TOK_COLON, lexer_next(&local_allocator, &self->lexer));
     feed = parser_expect(TOK_IDENT, lexer_next(allocator, &self->lexer));
-    arg.type.name = strdup2(allocator, feed.str.data);
+    arg.type.name = elx_strdup(allocator, feed.str.data);
     vector_push(allocator, &func.param_vec, &arg);
 
     feed = lexer_next(&local_allocator, &self->lexer);
@@ -856,13 +856,14 @@ Symbol visit_func(Allocator* allocator, Parser* self) {
 
   parser_expect(TOK_RPAREN, feed);
 
+  // todo: allow empty return type
   parser_expect(TOK_ARROW, lexer_next(&local_allocator, &self->lexer));
   feed = parser_expect(TOK_IDENT, lexer_next(allocator, &self->lexer));
-  func.ret_type.name = strdup2(allocator, feed.str.data);
+  func.ret_type.name = elx_strdup(allocator, feed.str.data);
 
   parser_expect(TOK_LBRACE, lexer_next(&local_allocator, &self->lexer));
 
-  func.body = visit_body(allocator, self);
+  func.body = parser_visit_body(allocator, self);
 
   parser_expect(TOK_RBRACE, lexer_next(&local_allocator, &self->lexer));
 
@@ -874,7 +875,7 @@ Symbol visit_func(Allocator* allocator, Parser* self) {
   return symbol;
 }
 
-Symbol visit_global(Allocator* allocator, Parser* self, bool is_var) {
+Symbol parser_visit_global(Allocator* allocator, Parser* self, bool is_var) {
   /*
    *  Parse a global identifier declaration
    *  examples:
@@ -901,20 +902,20 @@ Symbol visit_global(Allocator* allocator, Parser* self, bool is_var) {
 
   // variable name
   feed = parser_expect(TOK_IDENT, feed);
-  global.name = strdup2(allocator, feed.str.data);
+  global.name = elx_strdup(allocator, feed.str.data);
   symbol.name = global.name;
 
   feed = parser_expect(TOK_COLON, lexer_next(allocator, &self->lexer));
 
   // type name
   feed = parser_expect(TOK_IDENT, lexer_next(allocator, &self->lexer));
-  global.type.name = strdup2(allocator, feed.str.data);
+  global.type.name = elx_strdup(allocator, feed.str.data);
 
   // globals must always be initialized
   feed = parser_expect(TOK_EQ, lexer_next(allocator, &self->lexer));
 
   // remaining tokens become expression
-  global.expr = visit_expr(allocator, self, TOK_SEMICOLON);
+  global.expr = parser_visit_expr(allocator, self, TOK_SEMICOLON);
 
   symbol.kind = SYMBOL_KIND_GLOBAL;
   symbol.global_case = global;
@@ -924,7 +925,7 @@ Symbol visit_global(Allocator* allocator, Parser* self, bool is_var) {
   return symbol;
 }
 
-Symbol visit_enum(Allocator* allocator, Parser* self) {
+Symbol parser_visit_enum(Allocator* allocator, Parser* self) {
   // log("visiting enum\n");
   xnotnull(allocator);
   xnotnull(self);
@@ -937,7 +938,7 @@ Symbol visit_enum(Allocator* allocator, Parser* self) {
   allocator_init(&local_allocator);
 
   feed = parser_expect(TOK_IDENT, lexer_next(allocator, &self->lexer));
-  enum_.name = strdup2(allocator, feed.str.data);
+  enum_.name = elx_strdup(allocator, feed.str.data);
   symbol.name = enum_.name;
 
   parser_expect(TOK_LBRACE, lexer_next(&local_allocator, &self->lexer));
@@ -951,7 +952,7 @@ Symbol visit_enum(Allocator* allocator, Parser* self) {
     EnumKind* enum_kind = allocator_alloc(allocator, sizeof(EnumKind));
 
     parser_expect(TOK_IDENT, feed);
-    enum_kind->name = strdup2(allocator, feed.str.data);
+    enum_kind->name = elx_strdup(allocator, feed.str.data);
 
     feed = lexer_next(&local_allocator, &self->lexer);
     if (feed.kind == TOK_COMMA) {
@@ -963,7 +964,7 @@ Symbol visit_enum(Allocator* allocator, Parser* self) {
     if (feed.kind == TOK_LPAREN) {
       enum_kind->variant = ENUM_VARIANT_ALG;
       feed = parser_expect(TOK_IDENT, lexer_next(allocator, &self->lexer));
-      enum_kind->type.name = strdup2(allocator, feed.str.data);
+      enum_kind->type.name = elx_strdup(allocator, feed.str.data);
       parser_expect(TOK_RPAREN, lexer_next(&local_allocator, &self->lexer));
       parser_expect(TOK_COMMA, lexer_next(&local_allocator, &self->lexer));
     }
@@ -979,7 +980,7 @@ Symbol visit_enum(Allocator* allocator, Parser* self) {
   return symbol;
 }
 
-Symbol visit_import(Allocator* allocator, Parser* self) {
+Symbol parser_visit_import(Allocator* allocator, Parser* self) {
   todo();
   xnotnull(allocator);
   xnotnull(self);
