@@ -93,7 +93,7 @@ void vector_iter_reset(VectorIter* self) {
   self->idx = 0;
 }
 
-bool vector_iter(VectorIter* self, void** element) {
+bool vector_iter_next(VectorIter* self, void** element) {
   if (self->idx < self->vector->size) {
     *element = vector_get(self->vector, self->idx);
     self->idx++;

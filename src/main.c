@@ -65,11 +65,12 @@ i32 main(i32 argc, char* argv[]) {
 
   printf("CONTENT START\n%s\nCONTENT END\n", content);
 
-  Lexer* lexer = allocator_alloc(&allocator, sizeof(Lexer));
-  lexer_init(lexer, content, file_name);
+  Lexer lexer = {};
+  lexer_init(&lexer, &allocator, content, file_name);
 
-  Parser* parser = parser_new(&allocator, *lexer);
-  Ast ast = parser_parse(&allocator, parser);
+  Parser parser = {};
+  parser_init(&parser, lexer);
+  Ast ast = parser_parse(&allocator, &parser);
   print_ast(&ast);
 
   AnalyzerContext ast_ctx = {};

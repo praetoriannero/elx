@@ -36,4 +36,4 @@ void vector_clear(Vector* self, VectorFreeInner inner_cb);
 
 void vector_iter_init(VectorIter* self, Vector* vector);
 
-bool vector_iter(VectorIter* self, void** element);
+bool vector_iter_next(VectorIter* self, void** element);

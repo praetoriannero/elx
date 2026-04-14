@@ -17,13 +17,14 @@ typedef struct lexer {
   const char* data;
   const char* file_name;
   LexerContext context;
+  Allocator* alloc;
 } Lexer;
 
-void lexer_init(Lexer* self, const char* data, const char* file_name);
+void lexer_init(Lexer* self, Allocator* alloc, const char* data, const char* file_name);
 
-Token lexer_next(Allocator* allocator, Lexer* self);
+Token lexer_next(Lexer* self);
 
-Token lexer_peek(Allocator* allocator, Lexer* self);
+Token lexer_peek(Lexer* self);
 
 i64 lexer_scan(Lexer* self, TokenKind key);
 

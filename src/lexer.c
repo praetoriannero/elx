@@ -8,7 +8,6 @@
 #include "logger.h"
 #include "modprim.h"
 #include "str.h"
-#include "todo.h"
 #include "token.h"
 #include "token_kind.h"
 #include "token_tables.h"
@@ -21,11 +20,12 @@ void lexer_error(Lexer* self, char* msg) {
         self->file_name);
 }
 
-void lexer_init(Lexer* self, const char* data, const char* file_name) {
+void lexer_init(Lexer* self, Allocator* alloc, const char* data, const char* file_name) {
   xnotnull(self);
 
   self->data = data;
   self->file_name = file_name;
+  self->alloc = alloc;
   self->context.loc = 0;
   self->context.col = 0;
   self->context.length = strlen(data);
@@ -50,7 +50,7 @@ static const char* hexadecimal_digits = "0123456789ABCDEF";
 
 static const char* decimal_digits = "0123456789";
 
-static void lexer_consume_digits(Allocator* alloc, Lexer* self, String* str, const char* valid_digits) {
+static void lexer_consume_digits(Lexer* self, String* str, const char* valid_digits) {
   while (true) {
     char c = lexer_peek_first(self);
     if (strchr(valid_digits, c)) {
@@ -91,14 +91,11 @@ static void lexer_skip_comment(Lexer* self) {
   }
 }
 
-Token lexer_advance(Allocator* allocator, Lexer* self) {
-  Allocator local_allocator;
-  allocator_init(&local_allocator);
-
+Token lexer_advance(Lexer* self) {
   char c;
 
   Token token;
-  token_init(allocator, &token);
+  token_init(self->alloc, &token);
 
   token.loc = self->context.loc;
 
@@ -225,7 +222,7 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
       token.number.base_kind = base_kind;
     }
 
-    lexer_consume_digits(allocator, self, &token.str, base_digits);
+    lexer_consume_digits(self, &token.str, base_digits);
 
     c_first = lexer_peek_first(self);
     char c_second = lexer_peek_second(self);
@@ -242,7 +239,7 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
         lexer_error(self, "invalid floating point base value");
       }
 
-      lexer_consume_digits(allocator, self, &token.str, base_digits);
+      lexer_consume_digits(self, &token.str, base_digits);
       token.kind = TOK_FLOAT;
     }
 
@@ -261,7 +258,7 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
       }
 
       // consume the exponent
-      lexer_consume_digits(allocator, self, &token.str, base_digits);
+      lexer_consume_digits(self, &token.str, base_digits);
       token.kind = TOK_FLOAT;
     }
 
@@ -276,7 +273,7 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
 fn_next_exit:
   if (token.kind == TOK_COMMENT) {
     lexer_skip_comment(self);
-    return lexer_next(allocator, self);
+    return lexer_next(self);
   }
 
   token.size = self->context.loc - token.loc;
@@ -285,33 +282,29 @@ fn_next_exit:
     lexer_error(self, "invalid token");
   }
 
-  allocator_deinit(&local_allocator);
   return token;
 }
 
-Token lexer_next(Allocator* allocator, Lexer* self) {
-  Token token = lexer_advance(allocator, self);
-  log("%s\n", token_string(allocator, &token));
+Token lexer_next(Lexer* self) {
+  Token token = lexer_advance(self);
+  log("%s\n", token_string(self->alloc, &token));
   return token;
 }
 
-Token lexer_peek(Allocator* allocator, Lexer* self) {
+Token lexer_peek(Lexer* self) {
   LexerContext context = self->context;
-  Token token = lexer_advance(allocator, self);
+  Token token = lexer_advance(self);
   self->context = context;
   return token;
 }
 
 i64 lexer_scan(Lexer* self, TokenKind key) {
   LexerContext start_context = self->context;
-  Allocator local_allocator = {};
   i64 pos = -1;
-
-  allocator_init(&local_allocator);
 
   while (true) {
     LexerContext cursor = self->context;
-    Token token = lexer_next(&local_allocator, self);
+    Token token = lexer_next(self);
     if (token.kind == key) {
       pos = (i64)cursor.loc;
       break;
@@ -320,7 +313,6 @@ i64 lexer_scan(Lexer* self, TokenKind key) {
     }
   }
 
-  allocator_deinit(&local_allocator);
   self->context = start_context;
 
   return pos;

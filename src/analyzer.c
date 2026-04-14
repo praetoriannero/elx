@@ -44,7 +44,7 @@ void analyzer_visit_module(Module* module, AnalyzerContext* ctx) {
   vector_iter_init(&vec_iter, &module->ast_node_vec);
   void* element = NULL;
 
-  while (vector_iter(&vec_iter, &element)) {
+  while (vector_iter_next(&vec_iter, &element)) {
     AstNode* ast_node = (AstNode*)element;
     printf("validating symbol '%s'\n", ast_node->name);
     if (g_hash_table_contains(ast_node_set, ast_node->name)) {
