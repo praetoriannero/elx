@@ -8,13 +8,13 @@
 static const u64 MAX_STR_ALLOC = 4096;
 static const usize INITIAL_STR_ALLOC = 4;
 
-void string_push(Allocator* allocator, String* self, char c) {
+void string_push(String* self, char c) {
   xnotnull(self);
 
   usize new_size = self->size + 1;
   if (new_size == self->capacity) {
     usize new_alloc = self->capacity * 2;
-    char* new_data_ptr = (char*)allocator_realloc(allocator, self->data, new_alloc);
+    char* new_data_ptr = (char*)allocator_realloc(self->alloc, self->data, new_alloc);
     if (new_data_ptr == NULL) {
       panic("failed to reallocate string buffer\n");
     }
@@ -38,6 +38,7 @@ void string_init(Allocator* allocator, String* self) {
       .data = allocator_alloc(allocator, INITIAL_STR_ALLOC),
       .capacity = INITIAL_STR_ALLOC,
       .size = 0,
+      .alloc = allocator,
   };
 
   self->data[0] = '\0';
@@ -73,10 +74,10 @@ void string_deinit(String* self) {
     return;
   }
 
-  xfree(self->data);
+  allocator_free(self->alloc, self->data);
 }
 
 void string_free(String* self) {
-  xfree(self->data);
+  string_deinit(self);
   xfree(self);
 }

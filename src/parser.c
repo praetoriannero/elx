@@ -171,13 +171,13 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
       for (u64 i = 0; i < comma_count; i++) {
         Expr* arg_expr = parse_expr_prec(allocator, self, TOK_COMMA, 0);
         parser_expect(TOK_COMMA, lexer_next(&local_allocator, &self->lexer));
-        vector_push(allocator, &lhs->array_explicit_expr.arg_vec, arg_expr);
+        vector_push(&lhs->array_explicit_expr.arg_vec, arg_expr);
       }
 
       if (lexer_peek(allocator, &self->lexer).kind != TOK_RBRACK) {
         Expr* arg_expr = parse_expr_prec(allocator, self, TOK_RBRACK, 0);
         parser_expect(TOK_RBRACK, lexer_next(&local_allocator, &self->lexer));
-        vector_push(allocator, &lhs->array_explicit_expr.arg_vec, arg_expr);
+        vector_push(&lhs->array_explicit_expr.arg_vec, arg_expr);
       }
     }
 
@@ -235,12 +235,12 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
         for (u64 i = 0; i < comma_count; i++) {
           Expr* arg_expr = parse_expr_prec(allocator, self, TOK_COMMA, 0);
           parser_expect(TOK_COMMA, lexer_next(&local_allocator, &self->lexer));
-          vector_push(allocator, &lhs->struct_init_expr.arg_vec, arg_expr);
+          vector_push(&lhs->struct_init_expr.arg_vec, arg_expr);
         }
 
         if (lexer_peek(allocator, &self->lexer).kind != TOK_RBRACE) {
           Expr* arg_expr = parse_expr_prec(allocator, self, TOK_RBRACE, 0);
-          vector_push(allocator, &lhs->struct_init_expr.arg_vec, arg_expr);
+          vector_push(&lhs->struct_init_expr.arg_vec, arg_expr);
         }
 
         parser_expect(TOK_RBRACE, lexer_next(&local_allocator, &self->lexer));
@@ -265,12 +265,12 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
           for (u64 i = 0; i < comma_count; i++) {
             Expr* arg_expr = parse_expr_prec(allocator, self, TOK_COMMA, 0);
             parser_expect(TOK_COMMA, lexer_next(&local_allocator, &self->lexer));
-            vector_push(allocator, &lhs->call_expr.arg_vec, arg_expr);
+            vector_push(&lhs->call_expr.arg_vec, arg_expr);
           }
 
           if (lexer_peek(allocator, &self->lexer).kind != TOK_RPAREN) {
             Expr* arg_expr = parse_expr_prec(allocator, self, TOK_RPAREN, 0);
-            vector_push(allocator, &lhs->call_expr.arg_vec, arg_expr);
+            vector_push(&lhs->call_expr.arg_vec, arg_expr);
           }
 
           parser_expect(TOK_RPAREN, lexer_next(&local_allocator, &self->lexer));
@@ -302,13 +302,13 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
           for (u64 i = 0; i < comma_count; i++) {
             Expr* arg_expr = parse_expr_prec(allocator, self, TOK_COMMA, 0);
             parser_expect(TOK_COMMA, lexer_next(&local_allocator, &self->lexer));
-            vector_push(allocator, &lhs->method_call_expr.arg_vec, arg_expr);
+            vector_push(&lhs->method_call_expr.arg_vec, arg_expr);
           }
 
           if (lexer_peek(allocator, &self->lexer).kind != TOK_RPAREN) {
             Expr* arg_expr = parse_expr_prec(allocator, self, TOK_RPAREN, 0);
             parser_expect(TOK_RPAREN, lexer_next(&local_allocator, &self->lexer));
-            vector_push(allocator, &lhs->method_call_expr.arg_vec, arg_expr);
+            vector_push(&lhs->method_call_expr.arg_vec, arg_expr);
           }
 
           continue;
@@ -475,7 +475,7 @@ Stmt parser_visit_if_stmt(Allocator* allocator, Parser* self) {
       parser_expect(TOK_LBRACE, lexer_next(&local_allocator, &self->lexer));
       elif_clause.body = parser_visit_body(allocator, self);
       parser_expect(TOK_RBRACE, lexer_next(&local_allocator, &self->lexer));
-      vector_push(allocator, &stmt.if_stmt.elif_clause_vec, &elif_clause);
+      vector_push(&stmt.if_stmt.elif_clause_vec, &elif_clause);
 
     } else {
       ElseClause else_clause = {};
@@ -581,43 +581,43 @@ Body parser_visit_body(Allocator* allocator, Parser* self) {
       case TOK_FLOAT:
       case TOK_IDENT:
         stmt = parser_visit_expr_stmt(allocator, self);
-        vector_push(allocator, &body.stmts, &stmt);
+        vector_push(&body.stmts, &stmt);
         continue;
 
       case TOK_KW_FOR:
         stmt = parser_visit_for_stmt(allocator, self);
-        vector_push(allocator, &body.stmts, &stmt);
+        vector_push(&body.stmts, &stmt);
         continue;
 
       case TOK_KW_IF:
         stmt = parser_visit_if_stmt(allocator, self);
-        vector_push(allocator, &body.stmts, &stmt);
+        vector_push(&body.stmts, &stmt);
         continue;
 
       case TOK_KW_WHILE:
         stmt = parser_visit_while_stmt(allocator, self);
-        vector_push(allocator, &body.stmts, &stmt);
+        vector_push(&body.stmts, &stmt);
         continue;
 
       case TOK_KW_RETURN:
         stmt = parser_visit_return_stmt(allocator, self);
-        vector_push(allocator, &body.stmts, &stmt);
+        vector_push(&body.stmts, &stmt);
         continue;
 
       case TOK_KW_CONTINUE:
         stmt = parser_visit_continue_stmt(allocator, self);
-        vector_push(allocator, &body.stmts, &stmt);
+        vector_push(&body.stmts, &stmt);
         continue;
 
       case TOK_KW_BREAK:
         stmt = parser_visit_break_stmt(allocator, self);
-        vector_push(allocator, &body.stmts, &stmt);
+        vector_push(&body.stmts, &stmt);
         continue;
 
       case TOK_KW_VAR:
       case TOK_KW_LET:
         stmt = parser_visit_assign_stmt(allocator, self);
-        vector_push(allocator, &body.stmts, &stmt);
+        vector_push(&body.stmts, &stmt);
         continue;
 
       case TOK_RBRACE:
@@ -660,37 +660,37 @@ Vector parser_visit_module_inner(Allocator* allocator, Parser* self, u8 is_sourc
 
       case TOK_KW_STRUCT:
         ast_node = parser_visit_struct(allocator, self);
-        vector_push(allocator, &ast_node_vec, &ast_node);
+        vector_push(&ast_node_vec, &ast_node);
         continue;
 
       case TOK_KW_MODULE:
         ast_node = parser_visit_module(allocator, self);
-        vector_push(allocator, &ast_node_vec, &ast_node);
+        vector_push(&ast_node_vec, &ast_node);
         continue;
 
       case TOK_KW_VAR:
         ast_node = parser_visit_global(allocator, self, true);
-        vector_push(allocator, &ast_node_vec, &ast_node);
+        vector_push(&ast_node_vec, &ast_node);
         continue;
 
       case TOK_KW_LET:
         ast_node = parser_visit_global(allocator, self, false);
-        vector_push(allocator, &ast_node_vec, &ast_node);
+        vector_push(&ast_node_vec, &ast_node);
         continue;
 
       case TOK_KW_ENUM:
         ast_node = parser_visit_enum(allocator, self);
-        vector_push(allocator, &ast_node_vec, &ast_node);
+        vector_push(&ast_node_vec, &ast_node);
         continue;
 
       case TOK_KW_USE:
         ast_node = parser_visit_import(allocator, self);
-        vector_push(allocator, &ast_node_vec, &ast_node);
+        vector_push(&ast_node_vec, &ast_node);
         continue;
 
       case TOK_KW_FN:
         ast_node = parser_visit_func(allocator, self);
-        vector_push(allocator, &ast_node_vec, &ast_node);
+        vector_push(&ast_node_vec, &ast_node);
         continue;
 
       case TOK_EOF:
@@ -721,7 +721,7 @@ Ast parser_parse(Allocator* allocator, Parser* self) {
   Ast ast = {};
   Module module = {.name = "ANONYMOUS", parser_visit_module_inner(allocator, self, true)};
   vector_init(allocator, &ast.module_vec, sizeof(Module), 1);
-  vector_push(allocator, &ast.module_vec, &module);
+  vector_push(&ast.module_vec, &module);
 
   return ast;
 }
@@ -760,13 +760,13 @@ AstNode parser_visit_struct(Allocator* allocator, Parser* self) {
 
       feed = parser_expect(TOK_IDENT, lexer_next(allocator, &self->lexer));
       field.type.name = elx_strdup(allocator, feed.str.data);
-      vector_push(allocator, &struct_.field_vec, &field);
+      vector_push(&struct_.field_vec, &field);
 
       parser_expect(TOK_SEMICOLON, lexer_next(&local_allocator, &self->lexer));
 
     } else if (feed.kind == TOK_KW_FN) { // struct method
       AstNode method = parser_visit_func(allocator, self);
-      vector_push(allocator, &struct_.method_vec, &method);
+      vector_push(&struct_.method_vec, &method);
 
     } else { // unexpected input
       panic("unexpected token '%s'", feed.str.data);
@@ -846,7 +846,7 @@ AstNode parser_visit_func(Allocator* allocator, Parser* self) {
     parser_expect(TOK_COLON, lexer_next(&local_allocator, &self->lexer));
     feed = parser_expect(TOK_IDENT, lexer_next(allocator, &self->lexer));
     arg.type.name = elx_strdup(allocator, feed.str.data);
-    vector_push(allocator, &func.param_vec, &arg);
+    vector_push(&func.param_vec, &arg);
 
     feed = lexer_next(&local_allocator, &self->lexer);
     if (feed.kind == TOK_COMMA) {

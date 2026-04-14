@@ -14,6 +14,7 @@ void vector_init(Allocator* allocator, Vector* self, usize datum_size, usize ini
   self->capacity = initial_capacity;
   self->datum_size = datum_size;
   self->size = 0;
+  self->alloc = allocator;
 }
 
 Vector* vector_new(Allocator* allocator, usize datum_size, usize initial_capacity) {
@@ -22,7 +23,7 @@ Vector* vector_new(Allocator* allocator, usize datum_size, usize initial_capacit
   return vec;
 }
 
-void vector_push(Allocator* allocator, Vector* self, const void* datum) {
+void vector_push(Vector* self, const void* datum) {
   xnotnull(self);
 
   usize new_len = self->size + 1;
@@ -30,7 +31,7 @@ void vector_push(Allocator* allocator, Vector* self, const void* datum) {
     usize new_capacity = self->capacity ? self->capacity * 2 : DEFAULT_VEC_SIZE;
     usize new_alloc = new_capacity * self->datum_size;
 
-    void* new_data = allocator_realloc(allocator, self->data, new_alloc);
+    void* new_data = allocator_realloc(self->alloc, self->data, new_alloc);
     self->capacity = new_capacity;
     self->data = new_data;
   }
@@ -79,6 +80,25 @@ void vector_free(Vector* self, VectorFreeInner inner_cb) {
     }
   }
 
-  xfree(self->data);
+  allocator_free(self->alloc, self->data);
   xfree(self);
+}
+
+void vector_iter_init(VectorIter* self, Vector* vector) {
+  self->vector = vector;
+  self->idx = 0;
+}
+
+void vector_iter_reset(VectorIter* self) {
+  self->idx = 0;
+}
+
+bool vector_iter(VectorIter* self, void** element) {
+  if (self->idx < self->vector->size) {
+    *element = vector_get(self->vector, self->idx);
+    self->idx++;
+    return true;
+  }
+
+  return false;
 }

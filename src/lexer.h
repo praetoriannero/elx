@@ -37,4 +37,4 @@ char lexer_consume(Lexer* stream);
 
 void lexer_deinit(Lexer* stream);
 
-void lexer_consume_into(Allocator* alloc, Lexer* self, String* string, usize count);
+void lexer_consume_into(Lexer* self, String* string, usize count);

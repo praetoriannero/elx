@@ -54,11 +54,11 @@ static void lexer_consume_digits(Allocator* alloc, Lexer* self, String* str, con
   while (true) {
     char c = lexer_peek_first(self);
     if (strchr(valid_digits, c)) {
-      string_push(alloc, str, lexer_consume(self));
+      string_push(str, lexer_consume(self));
       continue;
     } else if (c == '_') {
       if (isdigit(lexer_peek_last(self)) && isdigit(lexer_peek_second(self))) {
-        string_push(alloc, str, lexer_consume(self));
+        string_push(str, lexer_consume(self));
         continue;
       }
 
@@ -114,22 +114,22 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
 
   // string literal
   if (token.kind == TOK_DQUOTE) {
-    string_push(allocator, &token.str, c);
+    string_push(&token.str, c);
     while (lexer_peek_first(self) != '"') {
       if (lexer_peek_first(self) == -1) {
         token.kind = TOK_EOF;
         return token;
       }
-      string_push(allocator, &token.str, lexer_consume(self));
+      string_push(&token.str, lexer_consume(self));
     }
-    string_push(allocator, &token.str, lexer_consume(self));
+    string_push(&token.str, lexer_consume(self));
     token.kind = TOK_STRING;
     goto fn_next_exit;
   }
 
   // operator
   if (token.kind != TOK_INVALID) {
-    string_push(allocator, &token.str, c);
+    string_push(&token.str, c);
 
     const OperatorNode* op_iter = op_table;
     usize sub_table_size = 0;
@@ -154,7 +154,7 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
       for (usize i = 0; i < sub_table_size; i++) {
         op_node = op_iter[i];
         if (op_node.text == c_next) {
-          string_push(allocator, &token.str, lexer_consume(self));
+          string_push(&token.str, lexer_consume(self));
           op_iter = op_node.children;
           sub_table_size = op_node.child_count;
           token.kind = op_node.kind;
@@ -177,7 +177,7 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
   // identifier
   if (is_valid_ident_start(c)) {
     while (is_ident_char(c)) {
-      string_push(allocator, &token.str, c);
+      string_push(&token.str, c);
       if (!is_ident_char(lexer_peek_first(self))) {
         break;
       }
@@ -198,7 +198,7 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
 
   // integer/float
   if (isdigit(c)) {
-    string_push(allocator, &token.str, c);
+    string_push(&token.str, c);
     token.kind = TOK_INTEGER;
 
     char c_first = lexer_peek_first(self);
@@ -210,15 +210,15 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
       if (c_first == 'b') {
         base_digits = binary_digits;
         base_kind = BASE_BINARY;
-        string_push(allocator, &token.str, lexer_consume(self));
+        string_push(&token.str, lexer_consume(self));
       } else if (c_first == 'o') {
         base_digits = octal_digits;
         base_kind = BASE_OCTAL;
-        string_push(allocator, &token.str, lexer_consume(self));
+        string_push(&token.str, lexer_consume(self));
       } else if (c_first == 'x') {
         base_digits = hexadecimal_digits;
         base_kind = BASE_HEXADECIMAL;
-        string_push(allocator, &token.str, lexer_consume(self));
+        string_push(&token.str, lexer_consume(self));
       }
 
       token.number.base_digits = base_digits;
@@ -236,7 +236,7 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
       }
 
       // consume the decimal
-      string_push(allocator, &token.str, lexer_consume(self));
+      string_push(&token.str, lexer_consume(self));
 
       if (base_kind != BASE_DECIMAL) {
         lexer_error(self, "invalid floating point base value");
@@ -253,11 +253,11 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
       }
 
       // consume c_first
-      string_push(allocator, &token.str, lexer_consume(self));
+      string_push(&token.str, lexer_consume(self));
 
       if (c_second == '-' || c_second == '+') {
         // consume c_second
-        string_push(allocator, &token.str, lexer_consume(self));
+        string_push(&token.str, lexer_consume(self));
       }
 
       // consume the exponent
@@ -268,7 +268,7 @@ Token lexer_advance(Allocator* allocator, Lexer* self) {
     // might still contain a suffix
     c_first = lexer_peek_first(self);
     while (strchr(suffix_chars, c_first)) {
-      string_push(allocator, &token.str, lexer_consume(self));
+      string_push(&token.str, lexer_consume(self));
       c_first = lexer_peek_first(self);
     }
   }
@@ -361,8 +361,8 @@ char lexer_consume(Lexer* self) {
   return c;
 }
 
-void lexer_consume_into(Allocator* alloc, Lexer* self, String* string, usize count) {
+void lexer_consume_into(Lexer* self, String* string, usize count) {
   for (usize idx = 0; idx < count; idx++) {
-    string_push(alloc, string, lexer_consume(self));
+    string_push(string, lexer_consume(self));
   }
 }

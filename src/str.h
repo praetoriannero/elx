@@ -9,6 +9,7 @@ typedef struct string {
   char* data;
   usize capacity;
   usize size;
+  Allocator* alloc;
 } String;
 
 String* string_new(char* str);
@@ -25,8 +26,8 @@ String string_copy(Allocator* allocator, String* self);
 
 void string_move(String* src, String* dst);
 
-void string_push(Allocator* allocator, String* str, char c);
+void string_push(String* str, char c);
 
-void string_extend(Allocator* allocator, String* lhs, String rhs);
+void string_extend(String* lhs, String rhs);
 
 bool string_equals(const String* lhs, const String* rhs);
