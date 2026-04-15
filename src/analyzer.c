@@ -46,6 +46,7 @@ void analyzer_visit_module(Module* module, AnalyzerContext* ctx) {
 
   while (vector_iter_next(&vec_iter, &element)) {
     AstNode* ast_node = (AstNode*)element;
+
     printf("validating symbol '%s'\n", ast_node->name);
     if (g_hash_table_contains(ast_node_set, ast_node->name)) {
       panic("redefinition of symbol '%s'\n", ast_node->name);
