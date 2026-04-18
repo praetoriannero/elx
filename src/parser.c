@@ -255,7 +255,8 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token,
         // call or group expression
         if (lhs->expr_kind == EXPR_KIND_BINARY) {
           // group expression
-          panic("unhandled binary expression preceding group - edge case\n");
+          panic("unhandled binary expression preceding group - edge "
+                "case\n");
         } else {
           // call expression
           log("call expr\n");
@@ -287,7 +288,8 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token,
         // field-type expression
         operator_tok = lexer_next(&self->lexer); // field
         if (TOK_IDENT != operator_tok.kind) {
-          panic("expected field identifier after token '.' but found '%s'",
+          panic("expected field identifier after token '.' but found "
+                "'%s'",
                 operator_tok.str.data);
         }
 

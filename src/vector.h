@@ -40,7 +40,9 @@ void vector_iter_init(VectorIter* self, Vector* vector);
 
 bool vector_iter_next(VectorIter* self, void** element);
 
-#define vector_foreach(item, vec)                       \
-  VectorIter iter;                                      \
-  vector_iter_init(&iter, &vec);                        \
-  while (vector_iter_next(&iter, (void*)&item))         \
+#define vector_foreach(item, vec)                                              \
+  VectorIter iter;                                                             \
+  vector_iter_init(&iter, &vec);                                               \
+  while (vector_iter_next(&iter, (void*)&item))
+
+#define vector_iter(vec) for (usize idx = 0; idx < vec.size; idx++)\

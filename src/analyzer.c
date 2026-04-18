@@ -80,7 +80,7 @@ void analyzer_visit_ast(Ast* ast, AnalyzerContext* ctx) {
   ctx->global_scope = allocator_alloc(&alloc, sizeof(Scope));
   ctx->global_scope->symbol_table = g_hash_table_new(g_str_hash, g_str_equal);
 
-  for (usize idx = 0; idx < ast->module_vec.size; idx++) {
+  vector_iter(ast->module_vec) {
     Module* module = vector_get(&ast->module_vec, idx);
     analyzer_visit_module(module, ctx);
   }

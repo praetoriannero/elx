@@ -251,7 +251,7 @@ typedef enum token_kind {
  * - whitespace
  */
 
-static const TokenKind single_char_token[256] = {
+static constexpr TokenKind single_char_token[] = {
     ['.'] = TOK_DECIMAL,   [','] = TOK_COMMA,   ['?'] = TOK_QMARK,
     ['"'] = TOK_DQUOTE,    ['\''] = TOK_SQUOTE, ['!'] = TOK_EXCLAM,
     [':'] = TOK_COLON,     ['^'] = TOK_XOR,     ['%'] = TOK_PERCENT,
@@ -263,6 +263,14 @@ static const TokenKind single_char_token[256] = {
     ['&'] = TOK_AMPER,     ['['] = TOK_LBRACK,  [']'] = TOK_RBRACK,
     ['|'] = TOK_PIPE,      ['>'] = TOK_GT,      ['<'] = TOK_LT,
     [';'] = TOK_SEMICOLON,
+};
+
+#include "array.h"
+
+static const Array single_char_token_arr = {
+  .data = (void*)single_char_token,
+  .length = sizeof(single_char_token),
+  .datum_size = sizeof(TokenKind),
 };
 
 static const u32 valid_ops[] = {

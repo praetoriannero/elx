@@ -66,6 +66,11 @@
 },
 {
   "directory": "/home/heaven/source/elx",
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/hash.c.o", "src/hash.c"],
+  "file": "src/hash.c"
+},
+{
+  "directory": "/home/heaven/source/elx",
   "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/str.c.o", "src/str.c"],
   "file": "src/str.c"
 },
@@ -78,6 +83,11 @@
   "directory": "/home/heaven/source/elx",
   "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/allocator.c.o", "src/allocator.c"],
   "file": "src/allocator.c"
+},
+{
+  "directory": "/home/heaven/source/elx",
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/array.c.o", "src/array.c"],
+  "file": "src/array.c"
 },
 {
   "directory": "/home/heaven/source/elx",
