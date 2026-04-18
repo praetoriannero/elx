@@ -32,6 +32,7 @@ typedef struct HashTableEntry HashTableEntry;
 struct HashTableEntry {
   void* key;
   void* value;
+  HashTableEntry* last_entry;
   HashTableEntry* next_entry;
 };
 
@@ -39,16 +40,6 @@ typedef struct {
   HashTable* table;
   usize idx;
 } HashTableIter;
-
-typedef struct {
-  HashTable* table;
-  usize idx;
-} HashTableKeyIter;
-
-typedef struct {
-  HashTable* table;
-  usize idx;
-} HashTableValueIter;
 
 HashTable* hash_table_new(Allocator* alloc, HashFunc hash_func,
                           KeyEqualFunc key_comp, HashTableFreeKey free_key,
@@ -58,26 +49,26 @@ void hash_table_init(HashTable* table, Allocator* alloc, HashFunc hash_func,
                      KeyEqualFunc key_comp, HashTableFreeKey free_key,
                      HashTableFreeValue free_value);
 
-void hash_table_add(HashTable* table, void* key, void* value);
+void hash_table_add(HashTable* self, void* key, void* value);
 
-void* hash_table_remove(HashTable* table, void* key);
+void* hash_table_remove(HashTable* self, void* key);
 
-void* hash_table_get(HashTable* table, void* key);
+void* hash_table_get(HashTable* self, void* key);
 
-void hash_table_free(HashTable* table);
+void hash_table_free(HashTable* self);
 
-void hash_table_iter_init(HashTableIter* table_iter, HashTable* table);
+void hash_table_iter_init(HashTableIter* self, HashTable* table);
 
-void hash_table_iter_next(HashTableIter* table_iter, void** key, void** value);
+void hash_table_iter_next(HashTableIter* self, void** key, void** value);
 
-void hash_table_key_iter_init(HashTableKeyIter* table_iter, HashTable* table);
+void hash_table_key_iter_init(HashTableIter* self, HashTable* table);
 
-void hash_table_key_iter_next(HashTableKeyIter* table_iter, void** key);
+void hash_table_key_iter_next(HashTableIter* self, void** key);
 
-void hash_table_value_iter_init(HashTableValueIter* table_iter,
+void hash_table_value_iter_init(HashTableIter* self,
                                 HashTable* table);
 
-void hash_table_value_iter_next(HashTableValueIter* table_iter, void** value);
+void hash_table_value_iter_next(HashTableIter* self, void** value);
 
 static u64 hash_primes[] = {
     53,        97,        193,       389,       769,        1543,     3079,

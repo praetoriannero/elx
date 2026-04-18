@@ -6,7 +6,7 @@
 typedef struct {
   void* data;
   usize length;
-  usize datum_size;
+  usize item_size;
 } Array;
 
 typedef struct {
@@ -20,8 +20,8 @@ typedef struct {
   ((i) < array_len(arr) ? (arr)[i]                                             \
                         : (panic("array index out of bounds"), (arr)[0]))
 
-void array_init(Array* self, Allocator* alloc, usize datum_size, usize capacity);
+void array_init(Array* self, Allocator* alloc, usize item_size, usize capacity);
 
-void array_init_ce(Array* self, usize datum_size, usize capacity);
+void array_init_ce(Array* self, usize item_size, usize capacity);
 
-Array* array_new(Allocator* alloc, usize datum_size, usize capacity);
+Array* array_new(Allocator* alloc, usize item_size, usize capacity);

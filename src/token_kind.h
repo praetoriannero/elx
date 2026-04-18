@@ -270,7 +270,7 @@ static constexpr TokenKind single_char_token[] = {
 static const Array single_char_token_arr = {
   .data = (void*)single_char_token,
   .length = sizeof(single_char_token),
-  .datum_size = sizeof(TokenKind),
+  .item_size = sizeof(TokenKind),
 };
 
 static const u32 valid_ops[] = {

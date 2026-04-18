@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "allocator.h"
 #include "lexer.h"
 #include "vector.h"
 
@@ -428,34 +429,35 @@ typedef struct {
 } Ast;
 
 typedef struct parser {
-  Lexer lexer;
+  Lexer* lexer;
+  Allocator* alloc;
 } Parser;
 
-Ast parser_parse(Allocator* allocator, Parser* self);
+Ast parser_parse(Parser* self);
 
-Parser* parser_new(Allocator* allocator, Lexer lexer);
+Parser* parser_new(Allocator* alloc, Lexer* lexer);
 
-void parser_init(Parser* self, Lexer lexer);
+void parser_init(Parser* self, Allocator* alloc, Lexer* lexer);
 
-Type parse_type(Allocator* allocator, Parser* self);
+Type parse_type(Parser* self);
 
-Body parser_visit_body(Allocator* allocator, Parser* self);
+Body parser_visit_body(Parser* self);
 
-AstNode parser_visit_struct(Allocator* allocator, Parser* self);
+AstNode parser_visit_struct(Parser* self);
 
-AstNode parser_visit_module(Allocator* allocator, Parser* self);
+AstNode parser_visit_module(Parser* self);
 
-AstNode parser_visit_global(Allocator* allocator, Parser* self, bool is_var);
+AstNode parser_visit_global(Parser* self, bool is_var);
 
-AstNode parser_visit_enum(Allocator* allocator, Parser* self);
+AstNode parser_visit_enum(Parser* self);
 
-AstNode parser_visit_import(Allocator* allocator, Parser* self);
+AstNode parser_visit_import(Parser* self);
 
-AstNode parser_visit_func(Allocator* allocator, Parser* self);
+AstNode parser_visit_func(Parser* self);
 
-Stmt parser_visit_expr_stmt(Allocator* allocator, Parser* self);
+Stmt parser_visit_expr_stmt(Parser* self);
 
-Expr* parser_visit_expr(Allocator* allocator, Parser* self,
+Expr* parser_visit_expr(Parser* self,
                         TokenKind stop_token);
 
 u64 count_csv(const char* data, char sep);

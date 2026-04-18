@@ -80,7 +80,7 @@ void analyzer_visit_ast(Ast* ast, AnalyzerContext* ctx) {
   ctx->global_scope = allocator_alloc(&alloc, sizeof(Scope));
   ctx->global_scope->symbol_table = g_hash_table_new(g_str_hash, g_str_equal);
 
-  vector_iter(ast->module_vec) {
+  for vector_iter(idx, ast->module_vec) {
     Module* module = vector_get(&ast->module_vec, idx);
     analyzer_visit_module(module, ctx);
   }
@@ -96,9 +96,9 @@ void analyzer_visit_ast(Ast* ast, AnalyzerContext* ctx) {
     }
   }
 
-  // if (!found_main) {
-  //   panic("Missing program entry point 'main'\n");
-  // }
+  if (!found_main) {
+    panic("Missing program entry point 'main'\n");
+  }
 
   g_hash_table_destroy(ctx->global_scope->symbol_table);
   allocator_deinit(&alloc);

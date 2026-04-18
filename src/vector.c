@@ -1,45 +1,47 @@
 #include <stddef.h>
 #include <string.h>
 
+#include "allocator.h"
 #include "panic.h"
 #include "vector.h"
 #include "xalloc.h"
 
 #define DEFAULT_VEC_SIZE 8
 
-void vector_init(Allocator* allocator, Vector* self, usize datum_size,
-                 usize initial_capacity) {
+void vector_init(Vector* self, Allocator* allocator, usize item_size,
+                 usize initial_capacity, VectorFreeItem free_item_cb) {
   xnotnull(self);
 
-  self->data = allocator_alloc(allocator, datum_size * initial_capacity);
+  self->data = allocator_alloc(allocator, item_size * initial_capacity);
   self->capacity = initial_capacity;
-  self->datum_size = datum_size;
+  self->item_size = item_size;
   self->size = 0;
   self->alloc = allocator;
+  self->free_item_cb = free_item_cb;
 }
 
-Vector* vector_new(Allocator* allocator, usize datum_size,
-                   usize initial_capacity) {
-  Vector* vec = allocator_alloc(allocator, sizeof(Vector));
-  vector_init(allocator, vec, datum_size, initial_capacity);
+Vector* vector_new(Allocator* alloc, usize item_size,
+                   usize initial_capacity, VectorFreeItem free_item_cb) {
+  Vector* vec = allocator_alloc(alloc, sizeof(Vector));
+  vector_init(vec, alloc, item_size, initial_capacity, free_item_cb);
   return vec;
 }
 
-void vector_push(Vector* self, const void* datum) {
+void vector_push(Vector* self, const void* item) {
   xnotnull(self);
 
   usize new_len = self->size + 1;
-  if (new_len == self->capacity) {
+  if (new_len > self->capacity) {
     usize new_capacity = self->capacity ? self->capacity * 2 : DEFAULT_VEC_SIZE;
-    usize new_alloc = new_capacity * self->datum_size;
+    usize new_alloc = new_capacity * self->item_size;
 
     void* new_data = allocator_realloc(self->alloc, self->data, new_alloc);
     self->capacity = new_capacity;
     self->data = new_data;
   }
 
-  memcpy((char*)self->data + self->size * self->datum_size, datum,
-         self->datum_size);
+  memcpy((char*)self->data + self->size * self->item_size, item,
+         self->item_size);
 
   self->size++;
 }
@@ -50,7 +52,7 @@ void* vector_pop(Vector* self) {
 
   self->size--;
 
-  return (u8*)self->data + self->size * self->datum_size;
+  return (u8*)self->data + self->size * self->item_size;
 }
 
 void* vector_get(Vector* self, usize index) {
@@ -58,35 +60,31 @@ void* vector_get(Vector* self, usize index) {
     panic("vector_get on out of bounds index");
   }
 
-  return (u8*)self->data + (index * self->datum_size);
+  return (u8*)self->data + (index * self->item_size);
 }
 
-void vector_clear(Vector* self, VectorFreeInner inner_cb) {
-  usize idx;
-  if (inner_cb) {
-    for (idx = 0; idx < self->size; idx++) {
-      inner_cb((char*)self->data + idx * self->datum_size);
+static inline void _vector_free_items(Vector* self) {
+  if (self->free_item_cb) {
+    for (usize idx = 0; idx < self->size; idx++) {
+      self->free_item_cb((u8*)self->data + idx * self->item_size);
     }
   }
+}
 
+void vector_clear(Vector* self) {
+  _vector_free_items(self);
   self->size = 0;
   self->capacity = 0;
 }
 
-void vector_deinit(Vector* self, VectorFreeInner inner_cb) {
-  vector_clear(self, inner_cb);
+void vector_deinit(Vector* self) {
+  vector_clear(self);
 }
 
-void vector_free(Vector* self, VectorFreeInner inner_cb) {
-  usize idx;
-  if (inner_cb) {
-    for (idx = 0; idx < self->size; idx++) {
-      inner_cb((char*)self->data + idx * self->datum_size);
-    }
-  }
-
+void vector_free(Vector* self) {
+  _vector_free_items(self);
   allocator_free(self->alloc, self->data);
-  xfree(self);
+  allocator_free(self->alloc, self);
 }
 
 void vector_iter_init(VectorIter* self, Vector* vector) {
@@ -104,4 +102,8 @@ bool vector_iter_next(VectorIter* self, void** element) {
   }
 
   return false;
+}
+
+void vector_zero_fill(Vector* self) {
+  memset(self->data, 0, self->item_size * self->capacity);
 }

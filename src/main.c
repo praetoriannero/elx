@@ -69,8 +69,8 @@ i32 main(i32 argc, char* argv[]) {
   lexer_init(&lexer, &allocator, content, file_name);
 
   Parser parser = {};
-  parser_init(&parser, lexer);
-  Ast ast = parser_parse(&allocator, &parser);
+  parser_init(&parser, &allocator, &lexer);
+  Ast ast = parser_parse(&parser);
   print_ast(&ast);
 
   AnalyzerContext ast_ctx = {};
