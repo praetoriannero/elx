@@ -38,7 +38,8 @@ Token* token_copy(Allocator* allocator, Token* self) {
 char* token_string(Allocator* allocator, Token* self) {
   xnotnull(self);
 
-  char* str = fmt(allocator, "Token(str=\"%s\", kind=\"%s\")", self->str.data, token_kind_str(self->kind));
+  char* str = fmt(allocator, "Token(str=\"%s\", kind=\"%s\")", self->str.data,
+                  token_kind_str(self->kind));
 
   return str;
 }

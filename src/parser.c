@@ -90,14 +90,16 @@ ExprPrecedence infix_precedence(TokenKind kind) {
 
 Token parser_expect(TokenKind expected, Token actual) {
   if (expected != actual.kind) {
-    panic("expected token kind %s but found %s, \"%s\"", token_kind_str(expected), token_kind_str(actual.kind),
+    panic("expected token kind %s but found %s, \"%s\"",
+          token_kind_str(expected), token_kind_str(actual.kind),
           actual.str.data);
   }
 
   return actual;
 }
 
-Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, ExprPrecedence min_prec) {
+Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token,
+                      ExprPrecedence min_prec) {
   log("stop token %s\n", token_kind_str(stop_token));
 
   Expr* lhs = allocator_alloc(allocator, sizeof(Expr));
@@ -141,7 +143,8 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
     lhs->literal_expr.kind = LITERAL_KIND_STRING;
     lhs->literal_expr.string = elx_strdup(allocator, left_tok.str.data);
 
-  } else if ((left_tok.kind == TOK_KW_FALSE) || (left_tok.kind == TOK_KW_TRUE)) {
+  } else if ((left_tok.kind == TOK_KW_FALSE) ||
+             (left_tok.kind == TOK_KW_TRUE)) {
     log("bool expr\n");
     lhs->expr_kind = EXPR_KIND_LITERAL;
     lhs->literal_expr.kind = LITERAL_KIND_BOOL;
@@ -149,7 +152,8 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
 
   } else if (left_tok.kind == TOK_LBRACK) {
     // array implicit literal, ex: [u32; 10]
-    u64 comma_count = count_csv(self->lexer.data + self->lexer.context.loc, '(');
+    u64 comma_count =
+        count_csv(self->lexer.data + self->lexer.context.loc, '(');
     if (!comma_count) {
       log("array implicit expr\n");
       lhs->expr_kind = EXPR_KIND_ARRAY_IMPLICIT;
@@ -191,7 +195,8 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
     log("unary expr\n");
     lhs->expr_kind = EXPR_KIND_UNARY;
     lhs->unary_expr.op = *token_copy(allocator, &left_tok);
-    lhs->unary_expr.inner = parse_expr_prec(allocator, self, stop_token, EXPR_PREC_PREFIX - 1);
+    lhs->unary_expr.inner =
+        parse_expr_prec(allocator, self, stop_token, EXPR_PREC_PREFIX - 1);
     // parser_expect(stop_token, lexer_next(&local_arena, &self->lexer));
   }
 
@@ -206,7 +211,8 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
 
     if (!is_valid_op(operator_tok.kind)) {
       // invalid operator
-      panic("invalid token encountered during expression parse: '%s'", token_string(allocator, &operator_tok));
+      panic("invalid token encountered during expression parse: '%s'",
+            token_string(allocator, &operator_tok));
     }
 
     ExprPrecedence postfix_prec = postfix_precedence(operator_tok.kind);
@@ -229,7 +235,8 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
         lhs->struct_init_expr.object = prev_lhs;
         vector_init(allocator, &lhs->struct_init_expr.arg_vec, sizeof(Expr), 1);
 
-        u64 comma_count = count_csv(self->lexer.data + self->lexer.context.loc, '{');
+        u64 comma_count =
+            count_csv(self->lexer.data + self->lexer.context.loc, '{');
         for (u64 i = 0; i < comma_count; i++) {
           Expr* arg_expr = parse_expr_prec(allocator, self, TOK_COMMA, 0);
           parser_expect(TOK_COMMA, lexer_next(&self->lexer));
@@ -259,7 +266,8 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
           lhs->call_expr.object = prev_lhs;
           vector_init(allocator, &lhs->call_expr.arg_vec, sizeof(Expr), 1);
 
-          u64 comma_count = count_csv(self->lexer.data + self->lexer.context.loc, '(');
+          u64 comma_count =
+              count_csv(self->lexer.data + self->lexer.context.loc, '(');
           for (u64 i = 0; i < comma_count; i++) {
             Expr* arg_expr = parse_expr_prec(allocator, self, TOK_COMMA, 0);
             parser_expect(TOK_COMMA, lexer_next(&self->lexer));
@@ -279,7 +287,8 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
         // field-type expression
         operator_tok = lexer_next(&self->lexer); // field
         if (TOK_IDENT != operator_tok.kind) {
-          panic("expected field identifier after token '.' but found '%s'", operator_tok.str.data);
+          panic("expected field identifier after token '.' but found '%s'",
+                operator_tok.str.data);
         }
 
         Token lparen = lexer_peek(&self->lexer); // possible method call
@@ -290,13 +299,16 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
           prev_lhs = lhs;
 
           lhs = allocator_alloc(allocator, sizeof(Expr));
-          vector_init(allocator, &lhs->method_call_expr.arg_vec, sizeof(Expr), 1);
+          vector_init(allocator, &lhs->method_call_expr.arg_vec, sizeof(Expr),
+                      1);
 
           lhs->expr_kind = EXPR_KIND_METHOD_CALL;
           lhs->method_call_expr.object = prev_lhs;
-          lhs->method_call_expr.method = elx_strdup(allocator, operator_tok.str.data);
+          lhs->method_call_expr.method =
+              elx_strdup(allocator, operator_tok.str.data);
 
-          u64 comma_count = count_csv(self->lexer.data + self->lexer.context.loc, '(');
+          u64 comma_count =
+              count_csv(self->lexer.data + self->lexer.context.loc, '(');
           for (u64 i = 0; i < comma_count; i++) {
             Expr* arg_expr = parse_expr_prec(allocator, self, TOK_COMMA, 0);
             parser_expect(TOK_COMMA, lexer_next(&self->lexer));
@@ -327,7 +339,8 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
         lhs = allocator_alloc(allocator, sizeof(Expr));
         lhs->expr_kind = EXPR_KIND_ARRAY_INDEX;
         lhs->array_index_expr.object = prev_lhs;
-        lhs->array_index_expr.index = parse_expr_prec(allocator, self, TOK_RBRACK, EXPR_PREC_POSTFIX - 1);
+        lhs->array_index_expr.index =
+            parse_expr_prec(allocator, self, TOK_RBRACK, EXPR_PREC_POSTFIX - 1);
         parser_expect(TOK_RBRACK, lexer_next(&self->lexer));
         continue;
       }
@@ -349,7 +362,8 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
         lhs->expr_kind = EXPR_KIND_PATH;
         assert(prev_lhs->expr_kind == EXPR_KIND_IDENT);
         lhs->path_expr.stem = elx_strdup(allocator, prev_lhs->ident_expr);
-        lhs->path_expr.expr = parse_expr_prec(allocator, self, stop_token, infix_prec - 1);
+        lhs->path_expr.expr =
+            parse_expr_prec(allocator, self, stop_token, infix_prec - 1);
         continue;
 
       } else {
@@ -360,7 +374,8 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
         lhs->expr_kind = EXPR_KIND_BINARY;
         lhs->binary_expr.lhs = prev_lhs;
         lhs->binary_expr.op = *token_copy(allocator, &operator_tok);
-        lhs->binary_expr.rhs = parse_expr_prec(allocator, self, stop_token, infix_prec + 1);
+        lhs->binary_expr.rhs =
+            parse_expr_prec(allocator, self, stop_token, infix_prec + 1);
         continue;
       }
     }
@@ -377,7 +392,8 @@ Expr* parse_expr_prec(Allocator* allocator, Parser* self, TokenKind stop_token, 
   return lhs;
 }
 
-Expr* parser_visit_expr(Allocator* allocator, Parser* self, TokenKind stop_token) {
+Expr* parser_visit_expr(Allocator* allocator, Parser* self,
+                        TokenKind stop_token) {
   /*
    * Consume tokens until we reach the stop token, creating an expression tree
    */
@@ -607,7 +623,8 @@ Body parser_visit_body(Allocator* allocator, Parser* self) {
 
       default:
         tok_str = token_string(&local_allocator, &feed);
-        snprintf(PANIC_MSG_BUFF, PANIC_MSG_SIZE, "unexpected token encountered: %s\n", tok_str);
+        snprintf(PANIC_MSG_BUFF, PANIC_MSG_SIZE,
+                 "unexpected token encountered: %s\n", tok_str);
         allocator_deinit(&local_allocator);
         panic(PANIC_MSG_BUFF);
     }
@@ -619,7 +636,8 @@ Body parser_visit_body(Allocator* allocator, Parser* self) {
   return body;
 }
 
-Vector parser_visit_module_inner(Allocator* allocator, Parser* self, u8 is_source) {
+Vector parser_visit_module_inner(Allocator* allocator, Parser* self,
+                                 u8 is_source) {
   // log("entering parser_visit_module_inner\n");
   xnotnull(self);
 
@@ -686,7 +704,8 @@ Vector parser_visit_module_inner(Allocator* allocator, Parser* self, u8 is_sourc
 
       default:
         tok_str = token_string(&local_allocator, &token);
-        snprintf(PANIC_MSG_BUFF, PANIC_MSG_SIZE, "unexpected token encountered: %s\n", tok_str);
+        snprintf(PANIC_MSG_BUFF, PANIC_MSG_SIZE,
+                 "unexpected token encountered: %s\n", tok_str);
         allocator_deinit(&local_allocator);
         panic(PANIC_MSG_BUFF);
     }
@@ -702,7 +721,8 @@ Vector parser_visit_module_inner(Allocator* allocator, Parser* self, u8 is_sourc
 Ast parser_parse(Allocator* allocator, Parser* self) {
   // log("entering parser_parse\n");
   Ast ast = {};
-  Module module = {.name = "ANONYMOUS", parser_visit_module_inner(allocator, self, true)};
+  Module module = {.name = "ANONYMOUS",
+                   parser_visit_module_inner(allocator, self, true)};
   vector_init(allocator, &ast.module_vec, sizeof(Module), 1);
   vector_push(&ast.module_vec, &module);
 

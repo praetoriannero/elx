@@ -455,7 +455,8 @@ AstNode parser_visit_func(Allocator* allocator, Parser* self);
 
 Stmt parser_visit_expr_stmt(Allocator* allocator, Parser* self);
 
-Expr* parser_visit_expr(Allocator* allocator, Parser* self, TokenKind stop_token);
+Expr* parser_visit_expr(Allocator* allocator, Parser* self,
+                        TokenKind stop_token);
 
 u64 count_csv(const char* data, char sep);
 

@@ -7,7 +7,8 @@
 
 #define DEFAULT_VEC_SIZE 8
 
-void vector_init(Allocator* allocator, Vector* self, usize datum_size, usize initial_capacity) {
+void vector_init(Allocator* allocator, Vector* self, usize datum_size,
+                 usize initial_capacity) {
   xnotnull(self);
 
   self->data = allocator_alloc(allocator, datum_size * initial_capacity);
@@ -17,7 +18,8 @@ void vector_init(Allocator* allocator, Vector* self, usize datum_size, usize ini
   self->alloc = allocator;
 }
 
-Vector* vector_new(Allocator* allocator, usize datum_size, usize initial_capacity) {
+Vector* vector_new(Allocator* allocator, usize datum_size,
+                   usize initial_capacity) {
   Vector* vec = allocator_alloc(allocator, sizeof(Vector));
   vector_init(allocator, vec, datum_size, initial_capacity);
   return vec;
@@ -36,7 +38,8 @@ void vector_push(Vector* self, const void* datum) {
     self->data = new_data;
   }
 
-  memcpy((char*)self->data + self->size * self->datum_size, datum, self->datum_size);
+  memcpy((char*)self->data + self->size * self->datum_size, datum,
+         self->datum_size);
 
   self->size++;
 }
@@ -70,7 +73,9 @@ void vector_clear(Vector* self, VectorFreeInner inner_cb) {
   self->capacity = 0;
 }
 
-void vector_deinit(Vector* self, VectorFreeInner inner_cb) { vector_clear(self, inner_cb); }
+void vector_deinit(Vector* self, VectorFreeInner inner_cb) {
+  vector_clear(self, inner_cb);
+}
 
 void vector_free(Vector* self, VectorFreeInner inner_cb) {
   usize idx;
@@ -89,9 +94,7 @@ void vector_iter_init(VectorIter* self, Vector* vector) {
   self->idx = 0;
 }
 
-void vector_iter_reset(VectorIter* self) {
-  self->idx = 0;
-}
+void vector_iter_reset(VectorIter* self) { self->idx = 0; }
 
 bool vector_iter_next(VectorIter* self, void** element) {
   if (self->idx < self->vector->size) {

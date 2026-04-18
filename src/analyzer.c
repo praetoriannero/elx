@@ -1,8 +1,8 @@
 #include <glib.h>
 #include <stdio.h>
 
-#include "analyzer.h"
 #include "allocator.h"
+#include "analyzer.h"
 #include "parser.h"
 
 // idea: table of trait impls for built-ins just like we did with the operator
@@ -11,7 +11,7 @@
 // check if type exists in the built-in table, then do a look-up to see if the
 // operation is supported
 
-void analyzer_visit_expr(Expr* expr, AnalyzerContext *ctx) {}
+void analyzer_visit_expr(Expr* expr, AnalyzerContext* ctx) {}
 
 void analyzer_visit_assign_stmt(AssignStmt* node, AnalyzerContext* ctx) {}
 
@@ -40,13 +40,8 @@ void analyzer_visit_func(Func* func, AnalyzerContext* ctx) {}
 void analyzer_visit_module(Module* module, AnalyzerContext* ctx) {
   GHashTable* ast_node_set = g_hash_table_new(g_str_hash, g_str_equal);
 
-  VectorIter vec_iter = {};
-  vector_iter_init(&vec_iter, &module->ast_node_vec);
-  void* element = NULL;
-
-  while (vector_iter_next(&vec_iter, &element)) {
-    AstNode* ast_node = (AstNode*)element;
-
+  AstNode* ast_node = NULL;
+  vector_foreach(ast_node, module->ast_node_vec) {
     printf("validating symbol '%s'\n", ast_node->name);
     if (g_hash_table_contains(ast_node_set, ast_node->name)) {
       panic("redefinition of symbol '%s'\n", ast_node->name);

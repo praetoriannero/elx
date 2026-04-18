@@ -185,7 +185,8 @@ void print_if_stmt(IfStmt* if_stmt, u64 depth) {
   indent(depth);
   printf("},\n");
   for (usize i = 0; i < if_stmt->elif_clause_vec.size; i++) {
-    ElifClause elif_clause = *(ElifClause*)vector_get(&if_stmt->elif_clause_vec, i);
+    ElifClause elif_clause =
+        *(ElifClause*)vector_get(&if_stmt->elif_clause_vec, i);
     print_elif_clause(&elif_clause, depth);
   }
   depth--;
@@ -292,8 +293,8 @@ void print_struct(Struct* struct_, u64 depth) {
 }
 
 u64 count_csv(const char* data, char sep) {
-  // count the comma separated values before finding the right-hand version of the separator
-  // todo: better string handling to allow regex
+  // count the comma separated values before finding the right-hand version of
+  // the separator todo: better string handling to allow regex
   assert(data != NULL);
 
   u64 count = 0;

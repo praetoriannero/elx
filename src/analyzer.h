@@ -21,7 +21,7 @@ typedef struct {
 Scope* scope_push(Allocator* alloc, Scope* scope);
 
 /*  @brief AnalyzerContext contains the entry point of the
- *    scope linked list as the global scope, and it also 
+ *    scope linked list as the global scope, and it also
  *    contains the current scope, local_scope.
  */
 typedef struct {

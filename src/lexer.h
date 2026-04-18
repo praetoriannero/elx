@@ -20,7 +20,8 @@ typedef struct lexer {
   Allocator* alloc;
 } Lexer;
 
-void lexer_init(Lexer* self, Allocator* alloc, const char* data, const char* file_name);
+void lexer_init(Lexer* self, Allocator* alloc, const char* data,
+                const char* file_name);
 
 Token lexer_next(Lexer* self);
 
