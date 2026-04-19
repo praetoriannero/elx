@@ -11,7 +11,7 @@ set_defaultmode("debug")
 
 target("elx")
 set_kind("binary")
-add_files("src/*.c")
+add_files("src/**.c")
 set_languages("c23")
 add_packages("glib")
 

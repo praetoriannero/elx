@@ -4,8 +4,8 @@
 #include "allocator.h"
 
 HashTable* hash_table_new(Allocator* alloc, HashFunc hash_func,
-                          KeyEqualFunc key_comp, HashTableFreeKey free_key,
-                          HashTableFreeValue free_value) {
+                          KeyEqualFunc key_comp, FreeKeyFunc free_key,
+                          FreeValueFunc free_value) {
   HashTable* table = NULL;
   hash_table_init(table, alloc, hash_func, key_comp, free_key, free_value);
 
@@ -13,8 +13,8 @@ HashTable* hash_table_new(Allocator* alloc, HashFunc hash_func,
 }
 
 void hash_table_init(HashTable* self, Allocator* alloc, HashFunc hash_func,
-                     KeyEqualFunc key_comp, HashTableFreeKey free_key,
-                     HashTableFreeValue free_value) {
+                     KeyEqualFunc key_comp, FreeKeyFunc free_key,
+                     FreeValueFunc free_value) {
   u64 first_prime = hash_primes[0];
   Vector entry_vec;
   vector_init(&entry_vec, alloc, sizeof(usize), first_prime, NULL);
