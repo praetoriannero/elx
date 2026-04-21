@@ -7,6 +7,7 @@
 #include "lexer.h"
 #include "logger.h"
 #include "modprim.h"
+#include "panic.h"
 #include "str.h"
 #include "token.h"
 #include "token_kind.h"

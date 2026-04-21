@@ -6,11 +6,6 @@ void array_init(Array* self, Allocator* alloc, usize item_size, usize capacity) 
   self->length = capacity;
 }
 
-// Array* array_constexpr(Array* self, void* data, usize datum_size, usize capacity) {
-//
-// }
-
-
 Array* array_new(Allocator* alloc, usize item_size, usize capacity) {
   Array* arr = allocator_alloc(alloc, sizeof(Array));
   array_init(arr, alloc, item_size, capacity);

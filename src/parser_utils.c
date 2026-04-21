@@ -2,7 +2,10 @@
 #include <string.h>
 
 #include "parser_utils.h"
+#include "parser.h"
+#include "panic.h"
 #include "todo.h"
+#include "vector.h"
 #include "xalloc.h"
 
 const char INDENT[] = "  ";
@@ -34,10 +37,10 @@ void print_func(Func* func, u64 depth) {
   printf("params {\n");
   depth++;
   if (func->param_vec.size) {
-    for (usize idx = 0; idx < func->param_vec.size; idx++) {
-      FuncArg* func_arg = vector_get(&func->param_vec, idx);
+    FuncArg* func_arg = NULL;
+    vector_foreach(func_arg, func->param_vec) {
       indent(depth);
-      printf("param_%zu {%s: %s},\n", idx, func_arg->name, func_arg->type.name);
+      printf("param {%s: %s},\n", func_arg->name, func_arg->type.name);
     }
   }
   depth--;
@@ -184,10 +187,9 @@ void print_if_stmt(IfStmt* if_stmt, u64 depth) {
   print_body(&if_stmt->body, depth);
   indent(depth);
   printf("},\n");
-  for (usize i = 0; i < if_stmt->elif_clause_vec.size; i++) {
-    ElifClause elif_clause =
-        *(ElifClause*)vector_get(&if_stmt->elif_clause_vec, i);
-    print_elif_clause(&elif_clause, depth);
+  ElifClause* elif_clause = NULL;
+  vector_foreach(elif_clause, if_stmt->elif_clause_vec) {
+    print_elif_clause(elif_clause, depth);
   }
   depth--;
   indent(depth);
@@ -205,8 +207,8 @@ void print_continue_stmt(ContinueStmt* continue_stmt, u64 depth) {
 }
 
 void print_body(Body* body, u64 depth) {
-  for (usize i = 0; i < body->stmts.size; i++) {
-    Stmt* stmt = vector_get(&body->stmts, i);
+  Stmt* stmt = NULL;
+  vector_foreach(stmt, body->stmts) {
     switch (stmt->kind) {
       case STMT_KIND_ASSIGN:
         print_assign_stmt(&stmt->assign_stmt, depth + 1);
@@ -241,9 +243,8 @@ void print_body(Body* body, u64 depth) {
 void print_module(Module* module, u64 depth) {
   indent(depth);
   printf("module {\n");
-  // depth++;
-  for (usize i = 0; i < module->ast_node_vec.size; i++) {
-    AstNode* ast_node = vector_get(&module->ast_node_vec, i);
+  AstNode* ast_node = NULL;
+  vector_foreach(ast_node, module->ast_node_vec) {
     switch (ast_node->kind) {
       case AST_NODE_KIND_MODULE:
         print_module(&ast_node->module_case, depth + 1);
@@ -279,12 +280,15 @@ void print_struct(Struct* struct_, u64 depth) {
   printf("ident: %s,\n", struct_->name);
   for (u32 i = 0; i < struct_->field_vec.size; i++) {
     indent(depth);
-    StructField* field = vector_get(&struct_->field_vec, i);
-    xnotnull(field);
-    printf("field { ident: %s, type: %s },\n", field->name, field->type.name);
+    // StructField* field = vector_get(&struct_->field_vec, i);
+    StructField field = vector_get(&struct_->field_vec, StructField, i);
+    // xnotnull(field);
+    printf("field { ident: %s, type: %s },\n", field.name, field.type.name);
   }
-  for (usize j = 0; j < struct_->method_vec.size; j++) {
-    AstNode* ast_node = vector_get(&struct_->method_vec, j);
+  // for (usize j = 0; j < struct_->method_vec.size; j++) {
+  //   AstNode* ast_node = vector_get(&struct_->method_vec, j);
+  AstNode* ast_node = NULL;
+  vector_foreach(ast_node, struct_->method_vec) {
     print_func(&ast_node->func_case, depth);
   }
   depth--;
@@ -357,14 +361,17 @@ void print_import(Import* import, u64 depth) { todo(); }
 
 void print_ast(Ast* ast) {
   u64 depth = 0;
-  for (usize i = 0; i < ast->module_vec.size; i++) {
-    Module* module = vector_get(&ast->module_vec, i);
+  // for (usize i = 0; i < ast->module_vec.size; i++) {
+  //   Module* module = vector_get(&ast->module_vec, i);
+  Module* module = NULL;
+  vector_foreach(module, ast->module_vec) {
     print_module(module, depth);
   }
 }
 
 void print_expr(Expr* expr, u64 depth) {
   xnotnull(expr);
+  Expr* arg_expr = NULL;
   usize vec_len;
 
   indent(depth);
@@ -382,8 +389,10 @@ void print_expr(Expr* expr, u64 depth) {
       vec_len = expr->method_call_expr.arg_vec.size;
       indent(depth);
       printf("args {\n");
-      for (usize i = 0; i < vec_len; i++) {
-        Expr* arg_expr = vector_get(&expr->method_call_expr.arg_vec, i);
+      // for (usize i = 0; i < vec_len; i++) {
+      //   Expr* arg_expr = vector_get(&expr->method_call_expr.arg_vec, i);
+      // Expr* arg_expr = NULL;
+      vector_foreach(arg_expr, expr->method_call_expr.arg_vec) {
         print_expr(arg_expr, depth + 1);
       }
       indent(depth);
@@ -433,8 +442,12 @@ void print_expr(Expr* expr, u64 depth) {
     case EXPR_KIND_ARRAY_EXPLICIT:
       printf("array explicit {\n");
       vec_len = expr->array_explicit_expr.arg_vec.size;
+      // for (usize i = 0; i < vec_len; i++) {
+      //   Expr* arg_expr = vector_get(&expr->array_explicit_expr.arg_vec, i);
+      // Expr* arg_expr = NULL;
+      // vector_foreach(arg_expr, expr->array_explicit_expr.arg_vec) {
       for (usize i = 0; i < vec_len; i++) {
-        Expr* arg_expr = vector_get(&expr->array_explicit_expr.arg_vec, i);
+        arg_expr = &vector_get(&expr->array_explicit_expr.arg_vec, Expr, i);
         print_expr(arg_expr, depth + 1);
       }
       indent(depth);
@@ -477,7 +490,7 @@ void print_expr(Expr* expr, u64 depth) {
       indent(depth);
       printf("args {\n");
       for (usize i = 0; i < vec_len; i++) {
-        Expr* arg_expr = vector_get(&expr->struct_init_expr.arg_vec, i);
+        arg_expr = &vector_get(&expr->struct_init_expr.arg_vec, Expr, i);
         print_expr(arg_expr, depth + 1);
       }
       indent(depth);
@@ -532,8 +545,8 @@ void print_expr(Expr* expr, u64 depth) {
       for (usize i = 0; i < vec_len; i++) {
         indent(depth);
         printf("arg_%zu {\n", i);
-        Expr arg_expr = *(Expr*)vector_get(&expr->call_expr.arg_vec, i);
-        print_expr(&arg_expr, depth + 1);
+        arg_expr = &vector_get(&expr->call_expr.arg_vec, Expr, i);
+        print_expr(arg_expr, depth + 1);
         indent(depth);
         printf("},\n");
       }

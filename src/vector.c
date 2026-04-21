@@ -40,7 +40,7 @@ void vector_push(Vector* self, const void* item) {
     self->data = new_data;
   }
 
-  memcpy((char*)self->data + self->size * self->item_size, item,
+  memcpy((u8*)self->data + self->size * self->item_size, item,
          self->item_size);
 
   self->size++;
@@ -55,12 +55,21 @@ void* vector_pop(Vector* self) {
   return (u8*)self->data + self->size * self->item_size;
 }
 
-void* vector_get(Vector* self, usize index) {
+void* _vector_get(Vector* self, usize index) {
   if (index > self->size) {
     panic("vector_get on out of bounds index");
   }
 
   return (u8*)self->data + (index * self->item_size);
+}
+
+void vector_insert(Vector* self, const usize index, const void* item) {
+  if (index > self->size) {
+    panic("vector_insert on out of bound index");
+  }
+
+  memcpy((u8*)self->data + index * self->item_size, item,
+         self->item_size);
 }
 
 static inline void _vector_free_items(Vector* self) {
@@ -96,7 +105,7 @@ void vector_iter_reset(VectorIter* self) { self->idx = 0; }
 
 bool vector_iter_next(VectorIter* self, void** element) {
   if (self->idx < self->vector->size) {
-    *element = vector_get(self->vector, self->idx);
+    *element = _vector_get(self->vector, self->idx);
     self->idx++;
     return true;
   }

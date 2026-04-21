@@ -29,7 +29,9 @@ void vector_push(Vector* self, const void* item);
 
 void* vector_pop(Vector* self);
 
-void* vector_get(Vector* self, usize index);
+void* _vector_get(Vector* self, usize index);
+
+void vector_insert(Vector* self, const usize index, const void* item);
 
 void vector_free(Vector* self);
 
@@ -43,9 +45,15 @@ bool vector_iter_next(VectorIter* self, void** element);
 
 void vector_zero_fill(Vector* self);
 
-#define vector_foreach(item, vec)                                              \
-  VectorIter iter;                                                             \
-  vector_iter_init(&iter, &vec);                                               \
-  while (vector_iter_next(&iter, (void*)&item))
+#define paste_impl(a, b) a##b
 
+#define paste(a, b) paste_impl(a, b)
+
+#define vector_get(vec, type, index) *(type*)_vector_get(vec, index)
+
+#define vector_foreach(item, vec)                                   \
+  VectorIter paste(iter, __LINE__);                                 \
+  vector_iter_init(&paste(iter, __LINE__), &vec);                   \
+  while (vector_iter_next(&paste(iter, __LINE__), (void*)&item))    \
+  
 #define vector_iter(idx, vec) (usize idx = 0; idx < vec.size; idx++)

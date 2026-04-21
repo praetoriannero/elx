@@ -1,5 +1,6 @@
 #include "token_tables.h"
 #include "array.h"
+#include "panic.h"
 #include "stdint.h"
 #include "token_kind.h"
 #include "xalloc.h"

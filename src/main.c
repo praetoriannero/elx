@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "array.h"
 #include "allocator.h"
 #include "analyzer.h"
 #include "lexer.h"
@@ -12,8 +13,6 @@
 #include "parser.h"
 
 typedef FILE File;
-
-#define null NULL
 
 i64 get_file_size(FILE* handle) {
   if (fseek(handle, 0, SEEK_END) != 0) {
@@ -31,10 +30,17 @@ i64 get_file_size(FILE* handle) {
 
 char* read_file_content(const char* file_path);
 
+void close_file(File** file) {
+  fclose(*file);
+}
+
+#define defer(func) __attribute__((__cleanup__(func)))
+
 i32 main(i32 argc, char* argv[]) {
-  File* file_handle = null;
-  char* file_name = null;
-  char* content = null;
+  // File* file_handle __attribute__((__cleanup__(close_file))) = NULL;
+  File* file_handle defer(close_file) = NULL;
+  char* file_name = NULL;
+  char* content = NULL;
   i64 file_size = 0;
 
   Allocator allocator;
@@ -47,7 +53,7 @@ i32 main(i32 argc, char* argv[]) {
     panic("missing source location argument\n");
   }
 
-  if (file_handle != null) {
+  if (file_handle != NULL) {
     printf("%s\n", file_name);
   } else {
     panic("failed to open file %s\n", file_name);
@@ -77,7 +83,7 @@ i32 main(i32 argc, char* argv[]) {
   analyzer_visit_ast(&ast, &ast_ctx);
 
   // clean up
-  fclose(file_handle);
+  // fclose(file_handle);
   allocator_deinit(&allocator);
 
   return EXIT_SUCCESS;
