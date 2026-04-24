@@ -2,8 +2,6 @@
 .xmake/
 build/
 
-.clang-format
-
 .cache/
 
 # MacOS Cache

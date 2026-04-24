@@ -14,8 +14,7 @@ void string_push(String* self, char c) {
   usize new_size = self->size + 1;
   if (new_size == self->capacity) {
     usize new_alloc = self->capacity * 2;
-    char* new_data_ptr =
-        (char*)allocator_realloc(self->alloc, self->data, new_alloc);
+    char* new_data_ptr = (char*)allocator_realloc(self->alloc, self->data, new_alloc);
     if (new_data_ptr == NULL) {
       panic("failed to reallocate string buffer\n");
     }

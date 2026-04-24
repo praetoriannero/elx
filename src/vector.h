@@ -19,11 +19,10 @@ typedef struct {
   usize idx;
 } VectorIter;
 
-void vector_init(Vector* self, Allocator* allocator, usize item_size,
-                 usize initial_capacity, VectorFreeItem free_item_cb);
+void vector_init(Vector* self, Allocator* allocator, usize item_size, usize initial_capacity,
+                 VectorFreeItem free_item_cb);
 
-Vector* vector_new(Allocator* allocator, usize item_size,
-                   usize initial_capacity, VectorFreeItem free_item_cb);
+Vector* vector_new(Allocator* allocator, usize item_size, usize initial_capacity, VectorFreeItem free_item_cb);
 
 void vector_push(Vector* self, const void* item);
 
@@ -45,15 +44,17 @@ bool vector_iter_next(VectorIter* self, void** element);
 
 void vector_zero_fill(Vector* self);
 
+void vector_reserve(Vector* self, usize size);
+
 #define paste_impl(a, b) a##b
 
 #define paste(a, b) paste_impl(a, b)
 
 #define vector_get(vec, type, index) *(type*)_vector_get(vec, index)
 
-#define vector_foreach(item, vec)                                   \
-  VectorIter paste(iter, __LINE__);                                 \
-  vector_iter_init(&paste(iter, __LINE__), &vec);                   \
-  while (vector_iter_next(&paste(iter, __LINE__), (void*)&item))    \
-  
+#define vector_foreach(item, vec)                                                                                      \
+  VectorIter paste(_iter_, __LINE__);                                                                                  \
+  vector_iter_init(&paste(_iter_, __LINE__), &vec);                                                                    \
+  while (vector_iter_next(&paste(_iter_, __LINE__), (void*)&item))
+
 #define vector_iter(idx, vec) (usize idx = 0; idx < vec.size; idx++)

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "allocator.h"
+#include "array.h"
 #include "modint.h"
 #include "vector.h"
 
@@ -16,7 +17,7 @@ typedef void (*FreeValueFunc)(void* value);
 
 typedef struct {
   Allocator* alloc;
-  u64 prime;
+  usize prime_idx;
   usize population;
   Vector entries;
   HashFunc hash_func;
@@ -39,13 +40,11 @@ typedef struct {
   usize idx;
 } HashTableIter;
 
-HashTable* hash_table_new(Allocator* alloc, HashFunc hash_func,
-                          KeyEqualFunc key_comp, FreeKeyFunc free_key,
+HashTable* hash_table_new(Allocator* alloc, HashFunc hash_func, KeyEqualFunc key_comp, FreeKeyFunc free_key,
                           FreeValueFunc free_value);
 
-void hash_table_init(HashTable* table, Allocator* alloc, HashFunc hash_func,
-                     KeyEqualFunc key_comp, FreeKeyFunc free_key,
-                     FreeValueFunc free_value);
+void hash_table_init(HashTable* table, Allocator* alloc, HashFunc hash_func, KeyEqualFunc key_comp,
+                     FreeKeyFunc free_key, FreeValueFunc free_value);
 
 void hash_table_add(HashTable* self, void* key, void* value);
 
@@ -63,14 +62,14 @@ void hash_table_key_iter_init(HashTableIter* self, HashTable* table);
 
 void hash_table_key_iter_next(HashTableIter* self, void** key);
 
-void hash_table_value_iter_init(HashTableIter* self,
-                                HashTable* table);
+void hash_table_value_iter_init(HashTableIter* self, HashTable* table);
 
 void hash_table_value_iter_next(HashTableIter* self, void** value);
 
 static u64 hash_primes[] = {
-    53,        97,        193,       389,       769,        1543,     3079,
-    6151,      12289,     24593,     49157,     98317,      196613,   393241,
-    786433,    1572869,   3145739,   6291469,   12582917,   25165843, 50331653,
-    100663319, 201326611, 402653189, 805306457, 1610612741,
+    53,       97,       193,      389,       769,       1543,      3079,      6151,       12289,
+    24593,    49157,    98317,    196613,    393241,    786433,    1572869,   3145739,    6291469,
+    12582917, 25165843, 50331653, 100663319, 201326611, 402653189, 805306457, 1610612741,
 };
+
+Array hash_primes_array = (Array){.data = hash_primes, .item_size = sizeof(u64), .length = sizeof(hash_primes)};

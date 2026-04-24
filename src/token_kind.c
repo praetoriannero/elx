@@ -1,7 +1,7 @@
 #include "token_kind.h"
 
-#define TOKEN_CASE(kind)                                                       \
-  case kind:                                                                   \
+#define TOKEN_CASE(kind)                                                                                               \
+  case kind:                                                                                                           \
     return #kind;
 
 char* token_kind_str(TokenKind kind) {

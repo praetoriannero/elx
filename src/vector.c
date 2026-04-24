@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stddef.h>
 #include <string.h>
 
@@ -8,8 +9,8 @@
 
 #define DEFAULT_VEC_SIZE 8
 
-void vector_init(Vector* self, Allocator* allocator, usize item_size,
-                 usize initial_capacity, VectorFreeItem free_item_cb) {
+void vector_init(Vector* self, Allocator* allocator, usize item_size, usize initial_capacity,
+                 VectorFreeItem free_item_cb) {
   xnotnull(self);
 
   self->data = allocator_alloc(allocator, item_size * initial_capacity);
@@ -20,8 +21,7 @@ void vector_init(Vector* self, Allocator* allocator, usize item_size,
   self->free_item_cb = free_item_cb;
 }
 
-Vector* vector_new(Allocator* alloc, usize item_size,
-                   usize initial_capacity, VectorFreeItem free_item_cb) {
+Vector* vector_new(Allocator* alloc, usize item_size, usize initial_capacity, VectorFreeItem free_item_cb) {
   Vector* vec = allocator_alloc(alloc, sizeof(Vector));
   vector_init(vec, alloc, item_size, initial_capacity, free_item_cb);
   return vec;
@@ -40,8 +40,7 @@ void vector_push(Vector* self, const void* item) {
     self->data = new_data;
   }
 
-  memcpy((u8*)self->data + self->size * self->item_size, item,
-         self->item_size);
+  memcpy((u8*)self->data + self->size * self->item_size, item, self->item_size);
 
   self->size++;
 }
@@ -68,8 +67,7 @@ void vector_insert(Vector* self, const usize index, const void* item) {
     panic("vector_insert on out of bound index");
   }
 
-  memcpy((u8*)self->data + index * self->item_size, item,
-         self->item_size);
+  memcpy((u8*)self->data + index * self->item_size, item, self->item_size);
 }
 
 static inline void _vector_free_items(Vector* self) {
@@ -86,9 +84,7 @@ void vector_clear(Vector* self) {
   self->capacity = 0;
 }
 
-void vector_deinit(Vector* self) {
-  vector_clear(self);
-}
+void vector_deinit(Vector* self) { vector_clear(self); }
 
 void vector_free(Vector* self) {
   _vector_free_items(self);
@@ -113,6 +109,12 @@ bool vector_iter_next(VectorIter* self, void** element) {
   return false;
 }
 
-void vector_zero_fill(Vector* self) {
-  memset(self->data, 0, self->item_size * self->capacity);
+void vector_zero_fill(Vector* self) { memset(self->data, 0, self->item_size * self->capacity); }
+
+void vector_reserve(Vector* self, usize size) {
+  assert(size > 0 && size >= self->size);
+  usize new_alloc = size * self->item_size;
+  void* new_data = allocator_realloc(self->alloc, self->data, new_alloc);
+  self->capacity = size;
+  self->data = new_data;
 }

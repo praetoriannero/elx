@@ -252,25 +252,21 @@ typedef enum token_kind {
  */
 
 static constexpr TokenKind single_char_token[] = {
-    ['.'] = TOK_DECIMAL,   [','] = TOK_COMMA,   ['?'] = TOK_QMARK,
-    ['"'] = TOK_DQUOTE,    ['\''] = TOK_SQUOTE, ['!'] = TOK_EXCLAM,
-    [':'] = TOK_COLON,     ['^'] = TOK_XOR,     ['%'] = TOK_PERCENT,
-    ['~'] = TOK_BINV,      ['-'] = TOK_MINUS,   ['+'] = TOK_PLUS,
-    ['$'] = TOK_DOLLAR,    ['`'] = TOK_TICK,    ['*'] = TOK_STAR,
-    ['/'] = TOK_FSLASH,    ['\\'] = TOK_BSLASH, ['{'] = TOK_LBRACE,
-    ['}'] = TOK_RBRACE,    ['@'] = TOK_AT,      ['='] = TOK_EQ,
-    ['('] = TOK_LPAREN,    [')'] = TOK_RPAREN,  ['#'] = TOK_POUND,
-    ['&'] = TOK_AMPER,     ['['] = TOK_LBRACK,  [']'] = TOK_RBRACK,
-    ['|'] = TOK_PIPE,      ['>'] = TOK_GT,      ['<'] = TOK_LT,
+    ['.'] = TOK_DECIMAL,   [','] = TOK_COMMA,   ['?'] = TOK_QMARK,  ['"'] = TOK_DQUOTE,  ['\''] = TOK_SQUOTE,
+    ['!'] = TOK_EXCLAM,    [':'] = TOK_COLON,   ['^'] = TOK_XOR,    ['%'] = TOK_PERCENT, ['~'] = TOK_BINV,
+    ['-'] = TOK_MINUS,     ['+'] = TOK_PLUS,    ['$'] = TOK_DOLLAR, ['`'] = TOK_TICK,    ['*'] = TOK_STAR,
+    ['/'] = TOK_FSLASH,    ['\\'] = TOK_BSLASH, ['{'] = TOK_LBRACE, ['}'] = TOK_RBRACE,  ['@'] = TOK_AT,
+    ['='] = TOK_EQ,        ['('] = TOK_LPAREN,  [')'] = TOK_RPAREN, ['#'] = TOK_POUND,   ['&'] = TOK_AMPER,
+    ['['] = TOK_LBRACK,    [']'] = TOK_RBRACK,  ['|'] = TOK_PIPE,   ['>'] = TOK_GT,      ['<'] = TOK_LT,
     [';'] = TOK_SEMICOLON,
 };
 
 #include "array.h"
 
 static const Array single_char_token_arr = {
-  .data = (void*)single_char_token,
-  .length = sizeof(single_char_token),
-  .item_size = sizeof(TokenKind),
+    .data = (void*)single_char_token,
+    .length = sizeof(single_char_token),
+    .item_size = sizeof(TokenKind),
 };
 
 static const u32 valid_ops[] = {

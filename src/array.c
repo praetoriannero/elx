@@ -1,6 +1,5 @@
 #include "array.h"
 
-
 void array_init(Array* self, Allocator* alloc, usize item_size, usize capacity) {
   self->data = allocator_alloc(alloc, item_size * capacity);
   self->length = capacity;

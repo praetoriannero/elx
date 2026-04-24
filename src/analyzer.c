@@ -3,8 +3,8 @@
 
 #include "allocator.h"
 #include "analyzer.h"
-#include "parser.h"
 #include "panic.h"
+#include "parser.h"
 
 // idea: table of trait impls for built-ins just like we did with the operator
 // lookup tables
@@ -82,9 +82,7 @@ void analyzer_visit_ast(Ast* ast, AnalyzerContext* ctx) {
   ctx->global_scope->symbol_table = g_hash_table_new(g_str_hash, g_str_equal);
 
   Module* module = NULL;
-  vector_foreach(module, ast->module_vec) {
-    analyzer_visit_module(module, ctx);
-  }
+  vector_foreach(module, ast->module_vec) { analyzer_visit_module(module, ctx); }
 
   GHashTableIter hash_iter;
   gpointer key = NULL;

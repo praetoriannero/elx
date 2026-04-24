@@ -134,8 +134,7 @@ void print_stacktrace(void) {
   fprintf(stderr, "\e[0m\n");
 }
 
-void panic_impl(const char* file, int line, const char* func, const char* fmt,
-                ...) {
+void panic_impl(const char* file, int line, const char* func, const char* fmt, ...) {
   print_stacktrace();
   // print_stacktrace2();
   // print_stacktrace3();

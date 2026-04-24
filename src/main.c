@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "array.h"
 #include "allocator.h"
 #include "analyzer.h"
+#include "array.h"
 #include "lexer.h"
 #include "modprim.h"
 #include "panic.h"
@@ -30,14 +30,11 @@ i64 get_file_size(FILE* handle) {
 
 char* read_file_content(const char* file_path);
 
-void close_file(File** file) {
-  fclose(*file);
-}
+void close_file(File** file) { fclose(*file); }
 
 #define defer(func) __attribute__((__cleanup__(func)))
 
 i32 main(i32 argc, char* argv[]) {
-  // File* file_handle __attribute__((__cleanup__(close_file))) = NULL;
   File* file_handle defer(close_file) = NULL;
   char* file_name = NULL;
   char* content = NULL;
@@ -46,7 +43,7 @@ i32 main(i32 argc, char* argv[]) {
   Allocator allocator;
   allocator_init(&allocator);
 
-  if (argc >= 2) {
+  if (argc == 2) {
     file_name = argv[1];
     file_handle = fopen(file_name, "r");
   } else {
@@ -76,6 +73,7 @@ i32 main(i32 argc, char* argv[]) {
 
   Parser parser = {};
   parser_init(&parser, &allocator, &lexer);
+
   Ast ast = parser_parse(&parser);
   print_ast(&ast);
 
@@ -83,7 +81,6 @@ i32 main(i32 argc, char* argv[]) {
   analyzer_visit_ast(&ast, &ast_ctx);
 
   // clean up
-  // fclose(file_handle);
   allocator_deinit(&allocator);
 
   return EXIT_SUCCESS;

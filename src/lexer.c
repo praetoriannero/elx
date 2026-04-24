@@ -17,12 +17,11 @@
 
 void lexer_error(Lexer* self, char* msg) {
   // handle unrecoverable errors
-  panic("lexing error: %s at location %d:%d in file '%s'\n", msg,
-        self->context.line + 1, self->context.col, self->file_name);
+  panic("lexing error: %s at location %d:%d in file '%s'\n", msg, self->context.line + 1, self->context.col,
+        self->file_name);
 }
 
-void lexer_init(Lexer* self, Allocator* alloc, const char* data,
-                const char* file_name) {
+void lexer_init(Lexer* self, Allocator* alloc, const char* data, const char* file_name) {
   xnotnull(self);
 
   self->data = data;
@@ -52,8 +51,7 @@ static const char* hexadecimal_digits = "0123456789ABCDEF";
 
 static const char* decimal_digits = "0123456789";
 
-static void lexer_consume_digits(Lexer* self, String* str,
-                                 const char* valid_digits) {
+static void lexer_consume_digits(Lexer* self, String* str, const char* valid_digits) {
   while (true) {
     char c = lexer_peek_first(self);
     if (strchr(valid_digits, c)) {
@@ -149,8 +147,7 @@ Token lexer_advance(Lexer* self) {
       }
     }
 
-    while (op_iter && (kind_next != TOK_INVALID) &&
-           (!strchr(whitespace, c_next))) {
+    while (op_iter && (kind_next != TOK_INVALID) && (!strchr(whitespace, c_next))) {
       bool found = false;
       for (usize i = 0; i < sub_table_size; i++) {
         op_node = op_iter[i];

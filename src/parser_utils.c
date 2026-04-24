@@ -1,9 +1,9 @@
 #include <assert.h>
 #include <string.h>
 
-#include "parser_utils.h"
-#include "parser.h"
 #include "panic.h"
+#include "parser.h"
+#include "parser_utils.h"
 #include "todo.h"
 #include "vector.h"
 #include "xalloc.h"
@@ -188,9 +188,7 @@ void print_if_stmt(IfStmt* if_stmt, u64 depth) {
   indent(depth);
   printf("},\n");
   ElifClause* elif_clause = NULL;
-  vector_foreach(elif_clause, if_stmt->elif_clause_vec) {
-    print_elif_clause(elif_clause, depth);
-  }
+  vector_foreach(elif_clause, if_stmt->elif_clause_vec) { print_elif_clause(elif_clause, depth); }
   depth--;
   indent(depth);
   printf("},\n");
@@ -288,9 +286,7 @@ void print_struct(Struct* struct_, u64 depth) {
   // for (usize j = 0; j < struct_->method_vec.size; j++) {
   //   AstNode* ast_node = vector_get(&struct_->method_vec, j);
   AstNode* ast_node = NULL;
-  vector_foreach(ast_node, struct_->method_vec) {
-    print_func(&ast_node->func_case, depth);
-  }
+  vector_foreach(ast_node, struct_->method_vec) { print_func(&ast_node->func_case, depth); }
   depth--;
   indent(depth);
   printf("},\n");
@@ -364,9 +360,7 @@ void print_ast(Ast* ast) {
   // for (usize i = 0; i < ast->module_vec.size; i++) {
   //   Module* module = vector_get(&ast->module_vec, i);
   Module* module = NULL;
-  vector_foreach(module, ast->module_vec) {
-    print_module(module, depth);
-  }
+  vector_foreach(module, ast->module_vec) { print_module(module, depth); }
 }
 
 void print_expr(Expr* expr, u64 depth) {
@@ -392,9 +386,7 @@ void print_expr(Expr* expr, u64 depth) {
       // for (usize i = 0; i < vec_len; i++) {
       //   Expr* arg_expr = vector_get(&expr->method_call_expr.arg_vec, i);
       // Expr* arg_expr = NULL;
-      vector_foreach(arg_expr, expr->method_call_expr.arg_vec) {
-        print_expr(arg_expr, depth + 1);
-      }
+      vector_foreach(arg_expr, expr->method_call_expr.arg_vec) { print_expr(arg_expr, depth + 1); }
       indent(depth);
       printf("},\n");
       depth--;

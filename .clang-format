@@ -1,0 +1,5 @@
+ColumnLimit: 120
+PointerAlignment: Left
+BasedOnStyle: llvm
+IndentWidth: 2
+IndentCaseLabels: true
