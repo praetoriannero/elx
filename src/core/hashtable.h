@@ -4,11 +4,17 @@
 
 #include "core/allocator.h"
 #include "core/array.h"
-#include "modint.h"
 #include "core/vector.h"
 
+/*  @brief Type for hashing keys
+ *  @param value the value to hash
+ */
 typedef u64 (*HashFunc)(const void* value);
 
+/*  @brief Type for comparing two keys for equivalency
+ *  @param lhs a key to compare
+ *  @param rhs the other key to compare against lhs
+ */
 typedef u64 (*KeyEqualFunc)(const void* lhs, const void* rhs);
 
 typedef void (*FreeKeyFunc)(void* key);
