@@ -109,7 +109,10 @@ bool vector_iter_next(VectorIter* self, void** element) {
   return false;
 }
 
-void vector_zero_fill(Vector* self) { memset(self->data, 0, self->item_size * self->capacity); }
+void vector_zero_fill(Vector* self) {
+  memset(self->data, 0, self->item_size * self->capacity);
+  self->size = self->capacity;
+}
 
 void vector_reserve(Vector* self, usize size) {
   assert(size > 0 && size >= self->size);

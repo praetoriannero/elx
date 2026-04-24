@@ -31,6 +31,7 @@ typedef struct HashTableEntry HashTableEntry;
 struct HashTableEntry {
   void* key;
   void* value;
+  bool initialized;
   HashTableEntry* last_entry;
   HashTableEntry* next_entry;
 };
@@ -46,7 +47,7 @@ HashTable* hash_table_new(Allocator* alloc, HashFunc hash_func, KeyEqualFunc key
 void hash_table_init(HashTable* table, Allocator* alloc, HashFunc hash_func, KeyEqualFunc key_comp,
                      FreeKeyFunc free_key, FreeValueFunc free_value);
 
-void hash_table_add(HashTable* self, void* key, void* value);
+void hash_table_insert(HashTable* self, void* key, void* value);
 
 void* hash_table_remove(HashTable* self, void* key);
 
