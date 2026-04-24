@@ -4,13 +4,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "allocator.h"
-#include "analyzer.h"
-#include "array.h"
-#include "lexer.h"
-#include "modprim.h"
-#include "panic.h"
-#include "parser.h"
+#include "core/allocator.h"
+#include "analyzer/analyzer.h"
+#include "core/array.h"
+#include "lexer/lexer.h"
+#include "core/modprim.h"
+#include "core/panic.h"
+#include "parser/parser.h"
 
 typedef FILE File;
 

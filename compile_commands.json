@@ -1,111 +1,111 @@
 [
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/vector.c.o", "src/vector.c"],
-  "file": "src/vector.c"
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/lexer/lexer.c.o", "src/lexer/lexer.c"],
+  "file": "src/lexer/lexer.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/logger.c.o", "src/logger.c"],
-  "file": "src/logger.c"
-},
-{
-  "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/panic.c.o", "src/panic.c"],
-  "file": "src/panic.c"
-},
-{
-  "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/parser.c.o", "src/parser.c"],
-  "file": "src/parser.c"
-},
-{
-  "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/strview.c.o", "src/strview.c"],
-  "file": "src/strview.c"
-},
-{
-  "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/token_tables.c.o", "src/token_tables.c"],
-  "file": "src/token_tables.c"
-},
-{
-  "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/lexer.c.o", "src/lexer.c"],
-  "file": "src/lexer.c"
-},
-{
-  "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/xalloc.c.o", "src/xalloc.c"],
-  "file": "src/xalloc.c"
-},
-{
-  "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/main.c.o", "src/main.c"],
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/main.c.o", "src/main.c"],
   "file": "src/main.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/token_utils.c.o", "src/token_utils.c"],
-  "file": "src/token_utils.c"
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/analyzer/analyzer.c.o", "src/analyzer/analyzer.c"],
+  "file": "src/analyzer/analyzer.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/parser_utils.c.o", "src/parser_utils.c"],
-  "file": "src/parser_utils.c"
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/token/token_tables.c.o", "src/token/token_tables.c"],
+  "file": "src/token/token_tables.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/analyzer.c.o", "src/analyzer.c"],
-  "file": "src/analyzer.c"
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/token/token_utils.c.o", "src/token/token_utils.c"],
+  "file": "src/token/token_utils.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/token.c.o", "src/token.c"],
-  "file": "src/token.c"
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/token/token.c.o", "src/token/token.c"],
+  "file": "src/token/token.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/hash.c.o", "src/hash.c"],
-  "file": "src/hash.c"
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/token/token_kind.c.o", "src/token/token_kind.c"],
+  "file": "src/token/token_kind.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/str.c.o", "src/str.c"],
-  "file": "src/str.c"
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/parser/parser.c.o", "src/parser/parser.c"],
+  "file": "src/parser/parser.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/str_utils.c.o", "src/str_utils.c"],
-  "file": "src/str_utils.c"
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/parser/parser_utils.c.o", "src/parser/parser_utils.c"],
+  "file": "src/parser/parser_utils.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/allocator.c.o", "src/allocator.c"],
-  "file": "src/allocator.c"
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/core/vector.c.o", "src/core/vector.c"],
+  "file": "src/core/vector.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/array.c.o", "src/array.c"],
-  "file": "src/array.c"
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/core/logger.c.o", "src/core/logger.c"],
+  "file": "src/core/logger.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/hashtable.c.o", "src/hashtable.c"],
-  "file": "src/hashtable.c"
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/core/panic.c.o", "src/core/panic.c"],
+  "file": "src/core/panic.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/fmt.c.o", "src/fmt.c"],
-  "file": "src/fmt.c"
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/core/strview.c.o", "src/core/strview.c"],
+  "file": "src/core/strview.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/todo.c.o", "src/todo.c"],
-  "file": "src/todo.c"
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/core/xalloc.c.o", "src/core/xalloc.c"],
+  "file": "src/core/xalloc.c"
 },
 {
   "directory": "/home/heaven/source/elx",
-  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/token_kind.c.o", "src/token_kind.c"],
-  "file": "src/token_kind.c"
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/core/hash.c.o", "src/core/hash.c"],
+  "file": "src/core/hash.c"
+},
+{
+  "directory": "/home/heaven/source/elx",
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/core/str.c.o", "src/core/str.c"],
+  "file": "src/core/str.c"
+},
+{
+  "directory": "/home/heaven/source/elx",
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/core/str_utils.c.o", "src/core/str_utils.c"],
+  "file": "src/core/str_utils.c"
+},
+{
+  "directory": "/home/heaven/source/elx",
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/core/allocator.c.o", "src/core/allocator.c"],
+  "file": "src/core/allocator.c"
+},
+{
+  "directory": "/home/heaven/source/elx",
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/core/array.c.o", "src/core/array.c"],
+  "file": "src/core/array.c"
+},
+{
+  "directory": "/home/heaven/source/elx",
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/core/hashtable.c.o", "src/core/hashtable.c"],
+  "file": "src/core/hashtable.c"
+},
+{
+  "directory": "/home/heaven/source/elx",
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/core/fmt.c.o", "src/core/fmt.c"],
+  "file": "src/core/fmt.c"
+},
+{
+  "directory": "/home/heaven/source/elx",
+  "arguments": ["gcc-14.1.0", "-c", "-m64", "-Wall", "-Wextra", "-Wpedantic", "-O0", "-Isrc", "-I", "/usr/include/libmount", "-I", "/usr/include/blkid", "-I", "/usr/include/glib-2.0", "-I", "/usr/lib/x86_64-linux-gnu/glib-2.0/include", "-pthread", "-Wshadow", "-Wconversion", "-Wformat=2", "-Wnull-dereference", "-Wdouble-promotion", "-Wundef", "-rdynamic", "-fsanitize=address", "-g", "-std=c23", "-fno-omit-frame-pointer", "-o", "build/.objs/elx/linux/x86_64/debug/src/core/todo.c.o", "src/core/todo.c"],
+  "file": "src/core/todo.c"
 }]

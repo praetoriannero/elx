@@ -10,10 +10,11 @@ set_defaultmode("debug")
 -- set_toolchains("clang")
 
 target("elx")
-set_kind("binary")
-add_files("src/**.c")
-set_languages("c23")
-add_packages("glib")
+	set_kind("binary")
+	add_files("src/**.c")
+	set_languages("c23")
+	add_packages("glib")
+	add_includedirs("src/")
 
 set_warnings("all", "extra", "pedantic")
 
