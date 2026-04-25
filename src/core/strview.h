@@ -8,6 +8,6 @@ typedef struct {
   usize size;
 } StringView;
 
-StringView stringview_from_string(String* string);
+StringView string_view_from_string(String* string);
 
-bool stringview_equals(const StringView* lhs, const StringView* rhs);
+bool string_view_equals(const StringView* lhs, const StringView* rhs);
