@@ -6,7 +6,6 @@
 
 #include "core/allocator.h"
 #include "analyzer/analyzer.h"
-#include "core/array.h"
 #include "lexer/lexer.h"
 #include "core/modprim.h"
 #include "core/panic.h"
@@ -80,7 +79,6 @@ i32 main(i32 argc, char* argv[]) {
   AnalyzerContext ast_ctx = {};
   analyzer_visit_ast(&ast, &ast_ctx);
 
-  // clean up
   allocator_deinit(&allocator);
 
   return EXIT_SUCCESS;

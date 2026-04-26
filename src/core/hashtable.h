@@ -82,4 +82,4 @@ static u64 hash_primes[] = {
 // Array hash_primes_array =
 //     (Array){.data = hash_primes, .item_size = sizeof(hash_primes[0]), .length = sizeof(hash_primes)};
 
-Array hash_primes_array = array_from_ptr(hash_primes);
+static Array hash_primes_array = array_from_ptr(hash_primes);

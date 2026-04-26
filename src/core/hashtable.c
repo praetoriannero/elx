@@ -96,8 +96,13 @@ void hash_table_insert(HashTable* self, void* key, void* value) {
     entry.initialized = true;
     entry.key = key;
     entry.value = value;
+
     vector_insert(&self->entries, key_loc, &entry);
   } else {
+    while (entry.next_entry != NULL) {
+      entry = *entry.next_entry;
+    }
+
     HashTableEntry* new_entry = allocator_alloc(self->alloc, sizeof(HashTableEntry));
     new_entry->initialized = true;
     new_entry->key = key;
@@ -116,7 +121,24 @@ void* hash_table_remove(HashTable* self, void* key);
 /*
   Get an entry from the hash table by its key, if it exists, else return null
 */
-void* hash_table_get(HashTable* self, void* key);
+void* hash_table_get(HashTable* self, void* key) {
+  u64 key_hash = self->hash_func(key);
+  usize key_loc = key_hash % self->entries.size;
+  HashTableEntry* entry = &vector_get(&self->entries, HashTableEntry, key_loc);
+  if (!entry->initialized) {
+    return NULL;
+  }
+
+  while (entry) {
+    if (self->comp_func(key, entry->key)) {
+      return entry->value;
+    }
+
+    entry = entry->next_entry;
+  }
+
+  return NULL;
+}
 
 /*
   Free the hash table from the heap

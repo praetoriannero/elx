@@ -7,7 +7,7 @@
 #include "core/vector.h"
 #include "core/xalloc.h"
 
-#define DEFAULT_VEC_SIZE 8
+constexpr usize DEFAULT_VEC_SIZE = 1;
 
 void vector_init(Vector* self, Allocator* allocator, usize item_size, usize initial_capacity,
                  VectorFreeItem free_item_cb) {

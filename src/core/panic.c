@@ -19,7 +19,7 @@ static StackFrame stack_trace[256];
 static usize stack_idx = 0;
 
 char PANIC_MSG_BUFF[PANIC_MSG_SIZE];
-/* Error callback */
+
 static void error_callback(void* data, const char* msg, int errnum) {
   (void)data;
   fprintf(stderr, "libbacktrace error: %s (%d)\n", msg, errnum);

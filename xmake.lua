@@ -24,7 +24,7 @@ for _, file in ipairs(os.files("tests/test_*.c")) do
 		set_languages("c23")
 		set_kind("binary")
 		set_default("false")
-		add_packages("glib", "unity_test")
+		add_packages("glib", "unity_test", "libbacktrace")
 		add_tests("default")
 end
 
