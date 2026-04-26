@@ -15,7 +15,7 @@ typedef u64 (*HashFunc)(const void* value);
  *  @param lhs a key to compare
  *  @param rhs the other key to compare against lhs
  */
-typedef u64 (*KeyEqualFunc)(const void* lhs, const void* rhs);
+typedef bool (*KeyEqualFunc)(const void* lhs, const void* rhs);
 
 typedef void (*FreeKeyFunc)(void* key);
 
@@ -79,4 +79,7 @@ static u64 hash_primes[] = {
     12582917, 25165843, 50331653, 100663319, 201326611, 402653189, 805306457, 1610612741,
 };
 
-Array hash_primes_array = (Array){.data = hash_primes, .item_size = sizeof(u64), .length = sizeof(hash_primes)};
+// Array hash_primes_array =
+//     (Array){.data = hash_primes, .item_size = sizeof(hash_primes[0]), .length = sizeof(hash_primes)};
+
+Array hash_primes_array = array_from_ptr(hash_primes);

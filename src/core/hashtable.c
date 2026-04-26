@@ -57,21 +57,25 @@ void hash_table_init(HashTable* self, Allocator* alloc, HashFunc hash_func, KeyE
 void hash_table_rehash(HashTable* self) {
   Vector new_vec = {};
   Vector old_vec = self->entries;
-  self->population = 0;
-
   u64 new_prime_size = _htpi(self->prime_idx);
   vector_init(&new_vec, self->alloc, sizeof(HashTableEntry), new_prime_size, NULL);
   vector_zero_fill(&new_vec);
 
-  for (usize idx = 0; idx < self->entries.size; idx++) {
-    HashTableEntry entry = vector_get(&self->entries, HashTableEntry, idx);
+  self->entries = new_vec;
+  self->population = 0;
+
+  for (usize idx = 0; idx < old_vec.size; idx++) {
+    HashTableEntry entry = vector_get(&old_vec, HashTableEntry, idx);
+
     HashTableEntry* child = entry.next_entry;
     while (child) {
-      u64 hash = self->hash_func(child->key);
-      usize new_loc = hash % new_prime_size;
-      // hash_table_insert
+      hash_table_insert(self, child->key, child->value);
     }
+
+    hash_table_insert(self, entry.key, entry.value);
   }
+
+  allocator_free(self->alloc, old_vec.data);
 }
 
 /*
