@@ -279,9 +279,9 @@ void print_struct(Struct* struct_, u64 depth) {
   for (u32 i = 0; i < struct_->field_vec.size; i++) {
     indent(depth);
     // StructField* field = vector_get(&struct_->field_vec, i);
-    StructField field = vector_get(&struct_->field_vec, StructField, i);
+    StructField* field = vector_get(&struct_->field_vec, StructField, i);
     // xnotnull(field);
-    printf("field { ident: %s, type: %s },\n", field.name, field.type.name);
+    printf("field { ident: %s, type: %s },\n", field->name, field->type.name);
   }
   // for (usize j = 0; j < struct_->method_vec.size; j++) {
   //   AstNode* ast_node = vector_get(&struct_->method_vec, j);
@@ -439,7 +439,7 @@ void print_expr(Expr* expr, u64 depth) {
       // Expr* arg_expr = NULL;
       // vector_foreach(arg_expr, expr->array_explicit_expr.arg_vec) {
       for (usize i = 0; i < vec_len; i++) {
-        arg_expr = &vector_get(&expr->array_explicit_expr.arg_vec, Expr, i);
+        arg_expr = vector_get(&expr->array_explicit_expr.arg_vec, Expr, i);
         print_expr(arg_expr, depth + 1);
       }
       indent(depth);
@@ -482,7 +482,7 @@ void print_expr(Expr* expr, u64 depth) {
       indent(depth);
       printf("args {\n");
       for (usize i = 0; i < vec_len; i++) {
-        arg_expr = &vector_get(&expr->struct_init_expr.arg_vec, Expr, i);
+        arg_expr = vector_get(&expr->struct_init_expr.arg_vec, Expr, i);
         print_expr(arg_expr, depth + 1);
       }
       indent(depth);
@@ -537,7 +537,7 @@ void print_expr(Expr* expr, u64 depth) {
       for (usize i = 0; i < vec_len; i++) {
         indent(depth);
         printf("arg_%zu {\n", i);
-        arg_expr = &vector_get(&expr->call_expr.arg_vec, Expr, i);
+        arg_expr = vector_get(&expr->call_expr.arg_vec, Expr, i);
         print_expr(arg_expr, depth + 1);
         indent(depth);
         printf("},\n");

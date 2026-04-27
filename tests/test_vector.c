@@ -65,7 +65,7 @@ void test_vector_get(void) {
     vector_push(&vec, &t);
   }
 
-  TEST_ASSERT_TRUE(vector_get(&vec, u64, 4) == 3);
+  TEST_ASSERT_TRUE(*vector_get(&vec, u64, 4) == 3);
 }
 
 void test_vector_insert(void) {
@@ -83,7 +83,7 @@ void test_vector_insert(void) {
   t = 7;
   vector_insert(&vec, 5, &t);
   
-  TEST_ASSERT_TRUE(vector_get(&vec, u64, 5) == 7);
+  TEST_ASSERT_TRUE(*vector_get(&vec, u64, 5) == 7);
 }
 
 int main(void) {

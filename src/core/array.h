@@ -30,7 +30,7 @@ static void* _array_get_impl(Array* self, const usize index) {
   return (u8*)self->data + (index * self->item_size);
 }
 
-#define array_from_ptr(arr) (Array){.data = arr, .length = sizeof(arr), .item_size = sizeof(arr[0])}
+#define array_from_ptr(arr) (Array){.data = arr, .length = sizeof(arr) / sizeof(arr[0]), .item_size = sizeof(arr[0])}
 
 #define array_get(arr, type, index) *(type*)_array_get_impl(arr, index)
 

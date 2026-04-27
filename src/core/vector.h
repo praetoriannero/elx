@@ -50,7 +50,7 @@ void vector_reserve(Vector* self, usize size);
 
 #define paste(a, b) paste_impl(a, b)
 
-#define vector_get(vec, type, index) *(type*)_vector_get(vec, index)
+#define vector_get(vec, type, index) ((type*)_vector_get((vec), (index)))
 
 #define vector_foreach(item, vec)                                                                                      \
   VectorIter paste(_iter_, __LINE__);                                                                                  \

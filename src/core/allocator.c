@@ -11,6 +11,8 @@ Allocator* allocator_new(void) {
   return allocator;
 }
 
+#include <assert.h>
+
 void allocator_free(Allocator* self, void* ptr) {
   AllocatorNode* node = ((AllocatorNode*)ptr) - 1;
 
@@ -51,7 +53,7 @@ void allocator_deinit(Allocator* self) {
   }
 }
 
-void* allocator_alloc(Allocator* self, size_t size) {
+void* allocator_alloc(Allocator* self, usize size) {
   xnotnull(self);
 
   AllocatorNode* node = xmalloc(sizeof(*node) + size);
@@ -72,7 +74,7 @@ void* allocator_alloc(Allocator* self, size_t size) {
   return ptr;
 }
 
-void* allocator_realloc(Allocator* self, void* old_ptr, size_t new_size) {
+void* allocator_realloc(Allocator* self, void* old_ptr, usize new_size) {
   xnotnull(old_ptr);
   xnotnull(self);
 

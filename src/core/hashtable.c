@@ -1,17 +1,12 @@
 // https://benhoyt.com/writings/hash-table-in-c/
 // refer to the above
+#include <stdio.h>
 #include "hashtable.h"
 #include "core/allocator.h"
 #include "core/vector.h"
 
-/*
-  Maximum load of the hash table before it rehashes
-*/
 constexpr f64 MAX_HASH_TABLE_LOAD = 0.7;
 
-/*
-  Create a new, heap-allocated HashTable
-*/
 HashTable* hash_table_new(Allocator* alloc, HashFunc hash_func, KeyEqualFunc key_comp, FreeKeyFunc free_key,
                           FreeValueFunc free_value) {
   HashTable* table = NULL;
@@ -20,23 +15,15 @@ HashTable* hash_table_new(Allocator* alloc, HashFunc hash_func, KeyEqualFunc key
   return table;
 }
 
-
-/*
-  Convenience method for getting the hash_primes_array index
-*/
 static inline u64 _htpi(u64 idx) {
   return array_get(&hash_primes_array, u64, idx);
 }
 
-
-/*
-  Initialize a HashTable
-*/
 void hash_table_init(HashTable* self, Allocator* alloc, HashFunc hash_func, KeyEqualFunc key_comp, FreeKeyFunc free_key,
                      FreeValueFunc free_value) {
-  usize prime_idx = hash_primes[0];
+  usize prime_idx = 0;
   Vector entry_vec;
-  vector_init(&entry_vec, alloc, sizeof(usize), _htpi(self->prime_idx), NULL);
+  vector_init(&entry_vec, alloc, sizeof(HashTableEntry), _htpi(self->prime_idx), NULL);
   vector_zero_fill(&entry_vec);
 
   *self = (HashTable){
@@ -51,10 +38,9 @@ void hash_table_init(HashTable* self, Allocator* alloc, HashFunc hash_func, KeyE
   };
 }
 
-/*
-  Rehash the hash table
-*/
-void hash_table_rehash(HashTable* self) {
+#include <assert.h>
+
+static inline void hash_table_rehash(HashTable* self) {
   Vector new_vec = {};
   Vector old_vec = self->entries;
   u64 new_prime_size = _htpi(self->prime_idx);
@@ -65,94 +51,134 @@ void hash_table_rehash(HashTable* self) {
   self->population = 0;
 
   for (usize idx = 0; idx < old_vec.size; idx++) {
-    HashTableEntry entry = vector_get(&old_vec, HashTableEntry, idx);
-
-    HashTableEntry* child = entry.next_entry;
-    while (child) {
-      hash_table_insert(self, child->key, child->value);
+    HashTableEntry* entry = vector_get(&old_vec, HashTableEntry, idx);
+    assert(entry);
+    if (!entry->initialized) {
+      continue;
     }
 
-    hash_table_insert(self, entry.key, entry.value);
+    HashTableEntry* child = entry->child_entry;
+    while (child != NULL) {
+      hash_table_insert(self, child->key, child->value);
+      child = child->child_entry;
+      allocator_free(self->alloc, child->parent_entry);
+    }
+
+    hash_table_insert(self, entry->key, entry->value);
   }
 
   allocator_free(self->alloc, old_vec.data);
 }
 
-/*
-  Insert into the hash table
-*/
 void hash_table_insert(HashTable* self, void* key, void* value) {
   if ((f64)self->population >= (MAX_HASH_TABLE_LOAD * (f64)_htpi(self->prime_idx))) {
     if (self->prime_idx != hash_primes_array.length - 1) {
       self->prime_idx++;
       hash_table_rehash(self);
+      printf("rehash success\n");
+      fflush(stdout);
     }
   }
 
   u64 key_hash = self->hash_func(key);
   usize key_loc = key_hash % self->entries.size;
-  HashTableEntry entry = vector_get(&self->entries, HashTableEntry, key_loc);
-  if (!entry.initialized) {
-    entry.initialized = true;
-    entry.key = key;
-    entry.value = value;
-
-    vector_insert(&self->entries, key_loc, &entry);
+  HashTableEntry* entry = vector_get(&self->entries, HashTableEntry, key_loc);
+  if (!entry->initialized) {
+    entry->initialized = true;
+    entry->key = key;
+    entry->value = value;
+    vector_insert(&self->entries, key_loc, entry);
   } else {
-    while (entry.next_entry != NULL) {
-      entry = *entry.next_entry;
+    while (entry->child_entry != NULL) {
+      entry = entry->child_entry;
     }
 
     HashTableEntry* new_entry = allocator_alloc(self->alloc, sizeof(HashTableEntry));
     new_entry->initialized = true;
     new_entry->key = key;
     new_entry->value = value;
-    new_entry->last_entry = &entry;
+    new_entry->parent_entry = entry;
+    entry->child_entry = new_entry;
   }
 
   self->population++;
 }
 
-/*
-  Remove an entry from the hash table and return it, if it exists, else return null
-*/
-void* hash_table_remove(HashTable* self, void* key);
+typedef struct HashTableResult {
+  HashTableEntry* entry;
+  usize key_loc;  
+} HashTableResult;
 
-/*
-  Get an entry from the hash table by its key, if it exists, else return null
-*/
-void* hash_table_get(HashTable* self, void* key) {
+static inline HashTableResult hash_table_find_entry(HashTable* self, void* key) {
+  HashTableResult result = {};
+  assert(key);
+  printf("%s", (char*)key);
   u64 key_hash = self->hash_func(key);
   usize key_loc = key_hash % self->entries.size;
-  HashTableEntry* entry = &vector_get(&self->entries, HashTableEntry, key_loc);
+  HashTableEntry* entry = vector_get(&self->entries, HashTableEntry, key_loc);
+
   if (!entry->initialized) {
-    return NULL;
+    return result;
   }
 
   while (entry) {
+    printf("%s", (char*)entry->key);
     if (self->comp_func(key, entry->key)) {
-      return entry->value;
+      result.entry = entry;
+      result.key_loc = key_loc;
+      return result;
     }
 
-    entry = entry->next_entry;
+    entry = entry->child_entry;
+  }
+
+  return result;
+}
+
+void hash_table_remove(HashTable* self, void* key) {
+  HashTableResult result = hash_table_find_entry(self, key);
+  HashTableEntry* entry = result.entry;
+
+  if (entry) {
+    HashTableEntry* parent = entry->parent_entry;
+    HashTableEntry* child = entry->child_entry;
+    if (parent) {
+      parent->child_entry = child;
+    }
+
+    if (child) {
+      child->parent_entry = parent;      
+    }
+
+    if (!parent && child) {
+      vector_insert(&self->entries, result.key_loc, child);
+    }
+
+    if (!parent && !child) {
+      entry->initialized = false;
+    }
+
+    if (parent) {
+      allocator_free(self->alloc, entry);
+    }
+
+    self->population--;
+  }
+}
+
+void* hash_table_get(HashTable* self, void* key) {
+  HashTableResult result = hash_table_find_entry(self, key);
+  if (result.entry) {
+    return result.entry->value;
   }
 
   return NULL;
 }
 
-/*
-  Free the hash table from the heap
-*/
 void hash_table_free(HashTable* self) { allocator_free(self->alloc, self); }
 
-/*
-  Initialize a HashTableIter object
-*/
 void hash_table_iter_init(HashTableIter* self, HashTable* table);
 
-/*
-  Iterate through a hash table using its iterator
-*/
 void hash_table_iter_next(HashTableIter* self, void** key, void** value);
 
 void hash_table_key_iter_init(HashTableIter* self, HashTable* table);

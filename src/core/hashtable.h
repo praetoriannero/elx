@@ -38,8 +38,8 @@ struct HashTableEntry {
   void* key;
   void* value;
   bool initialized;
-  HashTableEntry* last_entry;
-  HashTableEntry* next_entry;
+  HashTableEntry* parent_entry;
+  HashTableEntry* child_entry;
 };
 
 typedef struct {
@@ -55,7 +55,7 @@ void hash_table_init(HashTable* table, Allocator* alloc, HashFunc hash_func, Key
 
 void hash_table_insert(HashTable* self, void* key, void* value);
 
-void* hash_table_remove(HashTable* self, void* key);
+void hash_table_remove(HashTable* self, void* key);
 
 void* hash_table_get(HashTable* self, void* key);
 
