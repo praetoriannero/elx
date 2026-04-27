@@ -84,7 +84,10 @@ void vector_clear(Vector* self) {
   self->capacity = 0;
 }
 
-void vector_deinit(Vector* self) { vector_clear(self); }
+void vector_deinit(Vector* self) {
+  vector_clear(self);
+  allocator_free(self->alloc, self->data);
+}
 
 void vector_free(Vector* self) {
   _vector_free_items(self);

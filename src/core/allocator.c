@@ -11,8 +11,6 @@ Allocator* allocator_new(void) {
   return allocator;
 }
 
-#include <assert.h>
-
 void allocator_free(Allocator* self, void* ptr) {
   AllocatorNode* node = ((AllocatorNode*)ptr) - 1;
 

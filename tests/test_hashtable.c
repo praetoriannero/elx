@@ -38,17 +38,46 @@ void test_hash_table_rehash(void) {
   hash_table_init(&ht, &alloc, (HashFunc)hash_str, (KeyEqualFunc)streq, NULL, NULL);
 
   for (usize idx = 0; idx < 5000; idx++) {
-    char* char_buff = allocator_alloc(ht.alloc, 16);
-    sprintf(char_buff, "%zu", idx);
-    printf("inserting %zu\n", idx);
-    hash_table_insert(&ht, char_buff, char_buff);
+    char* key = allocator_alloc(ht.alloc, 16);
+    sprintf(key, "%zu", idx);
+    hash_table_insert(&ht, key, key);
+  }
+
+  for (usize idx = 0; idx < 5000; idx++) {
+    char* key = allocator_alloc(ht.alloc, 16);
+    sprintf(key, "%zu", idx);
+    char* value = hash_table_get(&ht, key);
+    TEST_ASSERT_TRUE(streq(key, value));
   }
 }
+
+void test_hash_table_remove(void) {
+  HashTable ht = {};
+  Allocator alloc = {};
+  allocator_init(&alloc);
+  hash_table_init(&ht, &alloc, (HashFunc)hash_str, (KeyEqualFunc)streq, NULL, NULL);
+
+  for (usize idx = 0; idx < 5000; idx++) {
+    char* key = allocator_alloc(ht.alloc, 16);
+    sprintf(key, "%zu", idx);
+    hash_table_insert(&ht, key, key);
+  }
+
+  for (usize idx = 0; idx < 5000; idx++) {
+    char* key = allocator_alloc(ht.alloc, 16);
+    sprintf(key, "%zu", idx);
+    hash_table_remove(&ht, key);
+    char* value = hash_table_get(&ht, key);
+    TEST_ASSERT_TRUE(value == NULL);
+  }
+}
+
 
 int main(void) {
   UNITY_BEGIN();
   RUN_TEST(test_hash_table_init);
   RUN_TEST(test_hash_table_insert_get);
   RUN_TEST(test_hash_table_rehash);
+  RUN_TEST(test_hash_table_remove);
   return UNITY_END();
 }
