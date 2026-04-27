@@ -1,9 +1,9 @@
 #include "token/token_tables.h"
 #include "core/array.h"
 #include "core/panic.h"
+#include "core/xalloc.h"
 #include "stdint.h"
 #include "token/token_kind.h"
-#include "core/xalloc.h"
 
 LookupResult lookup_operator(char* chars) {
   xnotnull(chars);

@@ -2,11 +2,11 @@
 #include <string.h>
 
 #include "core/panic.h"
-#include "parser/parser.h"
-#include "parser_utils.h"
 #include "core/todo.h"
 #include "core/vector.h"
 #include "core/xalloc.h"
+#include "parser/parser.h"
+#include "parser_utils.h"
 
 const char INDENT[] = "  ";
 

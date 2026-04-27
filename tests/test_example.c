@@ -1,11 +1,9 @@
 #include "unity/unity.h"
 
-void test_example(void) {
-	TEST_ASSERT_TRUE(1);
-}
+void test_example(void) { TEST_ASSERT_TRUE(1); }
 
 int main(void) {
-	UNITY_BEGIN();
-	RUN_TEST(test_example);
-	return UNITY_END();
+  UNITY_BEGIN();
+  RUN_TEST(test_example);
+  return UNITY_END();
 }

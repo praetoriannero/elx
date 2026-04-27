@@ -11,6 +11,4 @@ u64 fnv1a(u8* data, usize data_length) {
   return hash;
 }
 
-u64 hash_str(const char* ptr) {
-  return fnv1a((u8*)ptr, strlen(ptr));
-}
+u64 hash_str(const char* ptr) { return fnv1a((u8*)ptr, strlen(ptr)); }

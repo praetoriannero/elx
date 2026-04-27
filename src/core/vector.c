@@ -110,6 +110,8 @@ bool vector_iter_next(VectorIter* self, void** element) {
 }
 
 void vector_zero_fill(Vector* self) {
+  xnotnull(self);
+  xnotnull(self->data);
   memset(self->data, 0, self->item_size * self->capacity);
   self->size = self->capacity;
 }

@@ -1,6 +1,6 @@
-#include "unity/unity.h"
-#include "core/vector.h"
 #include "core/allocator.h"
+#include "core/vector.h"
+#include "unity/unity.h"
 
 void test_vector_init(void) {
   Allocator alloc = {};
@@ -59,7 +59,7 @@ void test_vector_get(void) {
 
   Vector vec = {};
   vector_init(&vec, &alloc, sizeof(u64), 13, NULL);
-  
+
   u64 t = 3;
   for (usize idx = 0; idx < 15; idx++) {
     vector_push(&vec, &t);
@@ -74,7 +74,7 @@ void test_vector_insert(void) {
 
   Vector vec = {};
   vector_init(&vec, &alloc, sizeof(u64), 13, NULL);
-  
+
   u64 t = 3;
   for (usize idx = 0; idx < 15; idx++) {
     vector_push(&vec, &t);
@@ -82,16 +82,16 @@ void test_vector_insert(void) {
 
   t = 7;
   vector_insert(&vec, 5, &t);
-  
+
   TEST_ASSERT_TRUE(*vector_get(&vec, u64, 5) == 7);
 }
 
 int main(void) {
-	UNITY_BEGIN();
-	RUN_TEST(test_vector_init);
-	RUN_TEST(test_vector_init_with_capacity);
-	RUN_TEST(test_vector_push);
-	RUN_TEST(test_vector_get);
-	RUN_TEST(test_vector_insert);
-	return UNITY_END();
+  UNITY_BEGIN();
+  RUN_TEST(test_vector_init);
+  RUN_TEST(test_vector_init_with_capacity);
+  RUN_TEST(test_vector_push);
+  RUN_TEST(test_vector_get);
+  RUN_TEST(test_vector_insert);
+  return UNITY_END();
 }

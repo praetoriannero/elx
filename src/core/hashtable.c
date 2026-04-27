@@ -1,9 +1,9 @@
 // https://benhoyt.com/writings/hash-table-in-c/
 // refer to the above
-#include <stdio.h>
 #include "hashtable.h"
 #include "core/allocator.h"
 #include "core/vector.h"
+#include <stdio.h>
 
 constexpr f64 MAX_HASH_TABLE_LOAD = 0.7;
 
@@ -15,9 +15,19 @@ HashTable* hash_table_new(Allocator* alloc, HashFunc hash_func, KeyEqualFunc key
   return table;
 }
 
-static inline u64 _htpi(u64 idx) {
-  return array_get(&hash_primes_array, u64, idx);
+static void printd(const char* fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+
+  printf("[DEBUG] ");
+  vprintf(fmt, args);
+  printf("\n");
+  fflush(stdout);
+
+  va_end(args);
 }
+
+static inline u64 _htpi(u64 idx) { return array_get(&hash_primes_array, u64, idx); }
 
 void hash_table_init(HashTable* self, Allocator* alloc, HashFunc hash_func, KeyEqualFunc key_comp, FreeKeyFunc free_key,
                      FreeValueFunc free_value) {
@@ -41,8 +51,10 @@ void hash_table_init(HashTable* self, Allocator* alloc, HashFunc hash_func, KeyE
 #include <assert.h>
 
 static inline void hash_table_rehash(HashTable* self) {
+  printd("starting rehash");
   Vector new_vec = {};
   Vector old_vec = self->entries;
+  printd("%p", &old_vec.data);
   u64 new_prime_size = _htpi(self->prime_idx);
   vector_init(&new_vec, self->alloc, sizeof(HashTableEntry), new_prime_size, NULL);
   vector_zero_fill(&new_vec);
@@ -51,19 +63,30 @@ static inline void hash_table_rehash(HashTable* self) {
   self->population = 0;
 
   for (usize idx = 0; idx < old_vec.size; idx++) {
+    printd("i");
     HashTableEntry* entry = vector_get(&old_vec, HashTableEntry, idx);
-    assert(entry);
     if (!entry->initialized) {
       continue;
     }
 
     HashTableEntry* child = entry->child_entry;
     while (child != NULL) {
+      printd("%p %p", child->key, child->value);
       hash_table_insert(self, child->key, child->value);
+      // printd("n %p %p", child->key, child->value);
+      // printd("child %p", child);
       child = child->child_entry;
-      allocator_free(self->alloc, child->parent_entry);
+      // printd("child %p", child);
+      // printd("%d", child == NULL);
+      if (child != NULL) {
+        printd("nnn %p %p %p %p %p", child, child->parent_entry, child->child_entry, child->key, child->value);
+        allocator_free(self->alloc, child->parent_entry);
+        printd("nnn");
+      }
     }
 
+    printd("about to reinsert");
+    // printd("e %p %p", entry->key, entry->value);
     hash_table_insert(self, entry->key, entry->value);
   }
 
@@ -106,7 +129,7 @@ void hash_table_insert(HashTable* self, void* key, void* value) {
 
 typedef struct HashTableResult {
   HashTableEntry* entry;
-  usize key_loc;  
+  usize key_loc;
 } HashTableResult;
 
 static inline HashTableResult hash_table_find_entry(HashTable* self, void* key) {
@@ -147,7 +170,7 @@ void hash_table_remove(HashTable* self, void* key) {
     }
 
     if (child) {
-      child->parent_entry = parent;      
+      child->parent_entry = parent;
     }
 
     if (!parent && child) {

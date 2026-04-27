@@ -4,16 +4,16 @@
 
 #include "core/allocator.h"
 #include "core/array.h"
-#include "lexer/lexer.h"
 #include "core/logger.h"
 #include "core/modprim.h"
 #include "core/panic.h"
 #include "core/str.h"
+#include "core/xalloc.h"
+#include "lexer/lexer.h"
 #include "token/token.h"
 #include "token/token_kind.h"
 #include "token/token_tables.h"
 #include "token/token_utils.h"
-#include "core/xalloc.h"
 
 void lexer_error(Lexer* self, char* msg) {
   // handle unrecoverable errors

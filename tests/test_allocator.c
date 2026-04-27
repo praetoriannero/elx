@@ -1,6 +1,5 @@
-#include "unity/unity.h"
 #include "core/allocator.h"
-
+#include "unity/unity.h"
 
 void test_alloc_init_free(void) {
   Allocator alloc = {};
@@ -13,7 +12,6 @@ void test_alloc_init_free(void) {
 
   allocator_free(&alloc, int_arr[17]);
 }
-
 
 int main(void) {
   UNITY_BEGIN();

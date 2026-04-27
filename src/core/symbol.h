@@ -2,9 +2,9 @@
 
 #include <stdbool.h>
 
+#include "core/vector.h"
 #include "parser/parser.h"
 #include "strview.h"
-#include "core/vector.h"
 
 typedef enum {
   SYMBOL_KIND_VAR,

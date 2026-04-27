@@ -1,10 +1,10 @@
+#include <backtrace.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <backtrace.h>
 
 #include "core/modprim.h"
 #include "core/panic.h"
@@ -36,7 +36,7 @@ static int full_callback(void* data, uintptr_t pc, const char* filename, int lin
   if (strstr(function, "__libc")) {
     return 0;
   }
-  stack_trace[stack_idx++] = (StackFrame){.filename=filename, .lineno=lineno, .function=function};
+  stack_trace[stack_idx++] = (StackFrame){.filename = filename, .lineno = lineno, .function = function};
 
   return 0;
 }

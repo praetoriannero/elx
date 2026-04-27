@@ -2,17 +2,17 @@
 #include <stdio.h>
 
 #include "core/allocator.h"
-#include "lexer/lexer.h"
 #include "core/logger.h" // IWYU pragma: keep
 #include "core/modprim.h"
 #include "core/panic.h"
-#include "parser/parser.h"
 #include "core/str_utils.h"
 #include "core/todo.h"
-#include "token/token.h"
-#include "token/token_kind.h"
 #include "core/vector.h"
 #include "core/xalloc.h"
+#include "lexer/lexer.h"
+#include "parser/parser.h"
+#include "token/token.h"
+#include "token/token_kind.h"
 
 ExprPrecedence postfix_precedence(TokenKind kind) {
   switch (kind) {

@@ -4,8 +4,8 @@
 #include <stdint.h>
 
 #include "core/allocator.h"
-#include "lexer/lexer.h"
 #include "core/vector.h"
+#include "lexer/lexer.h"
 
 struct Expr;
 typedef struct Expr Expr;

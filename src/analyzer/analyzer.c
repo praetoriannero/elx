@@ -1,8 +1,8 @@
 #include <glib.h>
 #include <stdio.h>
 
-#include "core/allocator.h"
 #include "analyzer/analyzer.h"
+#include "core/allocator.h"
 #include "core/panic.h"
 #include "parser/parser.h"
 
