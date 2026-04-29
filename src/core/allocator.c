@@ -56,6 +56,7 @@ void* allocator_alloc(Allocator* self, usize size) {
 
   AllocatorNode* node = xmalloc(sizeof(*node) + size);
   void* ptr = (void*)(node + 1);
+  memset(ptr, 0, size);
 
   *node = (AllocatorNode){
       .parent = self->node_end,

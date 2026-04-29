@@ -117,7 +117,7 @@ Expr* parse_expr_prec(Parser* self, TokenKind stop_token, ExprPrecedence min_pre
     // identifier
     log("identifier expr\n");
     lhs->expr_kind = EXPR_KIND_IDENT;
-    lhs->ident_expr = elx_strdup(self->alloc, left_tok.str.data);
+    lhs->ident_expr = str_copy(self->alloc, left_tok.str.data);
 
     // todo: missing byte and char literal support in AST
   } else if (left_tok.kind == TOK_FLOAT) {
@@ -125,27 +125,27 @@ Expr* parse_expr_prec(Parser* self, TokenKind stop_token, ExprPrecedence min_pre
     log("float expr\n");
     lhs->expr_kind = EXPR_KIND_LITERAL;
     lhs->literal_expr.kind = LITERAL_KIND_FLOAT;
-    lhs->literal_expr.float_ = elx_strdup(self->alloc, left_tok.str.data);
+    lhs->literal_expr.float_ = str_copy(self->alloc, left_tok.str.data);
 
   } else if (left_tok.kind == TOK_INTEGER) {
     // integer literal
     log("integer expr\n");
     lhs->expr_kind = EXPR_KIND_LITERAL;
     lhs->literal_expr.kind = LITERAL_KIND_INTEGER;
-    lhs->literal_expr.integer = elx_strdup(self->alloc, left_tok.str.data);
+    lhs->literal_expr.integer = str_copy(self->alloc, left_tok.str.data);
 
   } else if (left_tok.kind == TOK_STRING) {
     // string literal
     log("string expr\n");
     lhs->expr_kind = EXPR_KIND_LITERAL;
     lhs->literal_expr.kind = LITERAL_KIND_STRING;
-    lhs->literal_expr.string = elx_strdup(self->alloc, left_tok.str.data);
+    lhs->literal_expr.string = str_copy(self->alloc, left_tok.str.data);
 
   } else if ((left_tok.kind == TOK_KW_FALSE) || (left_tok.kind == TOK_KW_TRUE)) {
     log("bool expr\n");
     lhs->expr_kind = EXPR_KIND_LITERAL;
     lhs->literal_expr.kind = LITERAL_KIND_BOOL;
-    lhs->literal_expr.bool_ = elx_strdup(self->alloc, left_tok.str.data);
+    lhs->literal_expr.bool_ = str_copy(self->alloc, left_tok.str.data);
 
   } else if (left_tok.kind == TOK_LBRACK) {
     // array implicit literal, ex: [u32; 10]
@@ -297,7 +297,7 @@ Expr* parse_expr_prec(Parser* self, TokenKind stop_token, ExprPrecedence min_pre
 
           lhs->expr_kind = EXPR_KIND_METHOD_CALL;
           lhs->method_call_expr.object = prev_lhs;
-          lhs->method_call_expr.method = elx_strdup(self->alloc, operator_tok.str.data);
+          lhs->method_call_expr.method = str_copy(self->alloc, operator_tok.str.data);
 
           u64 comma_count = count_csv(self->lexer->data + self->lexer->context.loc, '(');
           for (u64 i = 0; i < comma_count; i++) {
@@ -320,7 +320,7 @@ Expr* parse_expr_prec(Parser* self, TokenKind stop_token, ExprPrecedence min_pre
         lhs = allocator_alloc(self->alloc, sizeof(Expr));
         lhs->expr_kind = EXPR_KIND_FIELD;
         lhs->field_expr.object = prev_lhs;
-        lhs->field_expr.name = elx_strdup(self->alloc, operator_tok.str.data);
+        lhs->field_expr.name = str_copy(self->alloc, operator_tok.str.data);
         continue;
 
       } else if (operator_tok.kind == TOK_LBRACK) {
@@ -351,7 +351,7 @@ Expr* parse_expr_prec(Parser* self, TokenKind stop_token, ExprPrecedence min_pre
         lhs = allocator_alloc(self->alloc, sizeof(Expr));
         lhs->expr_kind = EXPR_KIND_PATH;
         assert(prev_lhs->expr_kind == EXPR_KIND_IDENT);
-        lhs->path_expr.stem = elx_strdup(self->alloc, prev_lhs->ident_expr);
+        lhs->path_expr.stem = str_copy(self->alloc, prev_lhs->ident_expr);
         lhs->path_expr.expr = parse_expr_prec(self, stop_token, infix_prec - 1);
         continue;
 
@@ -425,7 +425,7 @@ Stmt parser_visit_for_stmt(Parser* self) {
   feed = parser_expect(TOK_IDENT, lexer_next(self->lexer));
   stmt.kind = STMT_KIND_FOR;
 
-  stmt.for_stmt.iterator = elx_strdup(self->alloc, feed.str.data);
+  stmt.for_stmt.iterator = str_copy(self->alloc, feed.str.data);
   parser_expect(TOK_KW_IN, lexer_next(self->lexer));
   stmt.for_stmt.iterable = parser_visit_expr(self, TOK_LBRACE);
   parser_expect(TOK_LBRACE, lexer_next(self->lexer));
@@ -536,7 +536,7 @@ Stmt parser_visit_assign_stmt(Parser* self) {
   stmt.assign_stmt.mut = mut;
 
   feed = parser_expect(TOK_IDENT, lexer_next(self->lexer));
-  stmt.assign_stmt.name = elx_strdup(self->alloc, feed.str.data);
+  stmt.assign_stmt.name = str_copy(self->alloc, feed.str.data);
 
   parser_expect(TOK_EQ, lexer_next(self->lexer));
   stmt.assign_stmt.expr = parser_visit_expr(self, TOK_SEMICOLON);
@@ -725,7 +725,7 @@ AstNode parser_visit_struct(Parser* self) {
 
   // struct name
   Token feed = parser_expect(TOK_IDENT, lexer_next(self->lexer));
-  struct_.name = elx_strdup(self->alloc, feed.str.data);
+  struct_.name = str_copy(self->alloc, feed.str.data);
   ast_node.name = struct_.name;
 
   parser_expect(TOK_LBRACE, lexer_next(self->lexer));
@@ -738,12 +738,12 @@ AstNode parser_visit_struct(Parser* self) {
       feed = lexer_next(self->lexer);
       StructField field = {};
 
-      field.name = elx_strdup(self->alloc, feed.str.data);
+      field.name = str_copy(self->alloc, feed.str.data);
 
       parser_expect(TOK_COLON, lexer_next(self->lexer));
 
       feed = parser_expect(TOK_IDENT, lexer_next(self->lexer));
-      field.type.name = elx_strdup(self->alloc, feed.str.data);
+      field.type.name = str_copy(self->alloc, feed.str.data);
       vector_push(&struct_.field_vec, &field);
 
       parser_expect(TOK_SEMICOLON, lexer_next(self->lexer));
@@ -781,7 +781,7 @@ AstNode parser_visit_module(Parser* self) {
 
   // module name
   Token feed = parser_expect(TOK_IDENT, lexer_next(self->lexer));
-  module.name = elx_strdup(self->alloc, feed.str.data);
+  module.name = str_copy(self->alloc, feed.str.data);
   ast_node.name = module.name;
 
   // module content
@@ -809,7 +809,7 @@ AstNode parser_visit_func(Parser* self) {
 
   // function name
   Token feed = parser_expect(TOK_IDENT, lexer_next(self->lexer));
-  func.name = elx_strdup(self->alloc, feed.str.data);
+  func.name = str_copy(self->alloc, feed.str.data);
   ast_node.name = func.name;
 
   parser_expect(TOK_LPAREN, lexer_next(self->lexer));
@@ -819,10 +819,10 @@ AstNode parser_visit_func(Parser* self) {
   // function arguments
   while (feed.kind != TOK_RPAREN) {
     FuncArg arg = {};
-    arg.name = elx_strdup(self->alloc, feed.str.data);
+    arg.name = str_copy(self->alloc, feed.str.data);
     parser_expect(TOK_COLON, lexer_next(self->lexer));
     feed = parser_expect(TOK_IDENT, lexer_next(self->lexer));
-    arg.type.name = elx_strdup(self->alloc, feed.str.data);
+    arg.type.name = str_copy(self->alloc, feed.str.data);
     vector_push(&func.param_vec, &arg);
 
     feed = lexer_next(self->lexer);
@@ -836,7 +836,7 @@ AstNode parser_visit_func(Parser* self) {
   // todo: allow empty return type
   parser_expect(TOK_ARROW, lexer_next(self->lexer));
   feed = parser_expect(TOK_IDENT, lexer_next(self->lexer));
-  func.ret_type.name = elx_strdup(self->alloc, feed.str.data);
+  func.ret_type.name = str_copy(self->alloc, feed.str.data);
 
   parser_expect(TOK_LBRACE, lexer_next(self->lexer));
 
@@ -875,14 +875,14 @@ AstNode parser_visit_global(Parser* self, bool is_var) {
 
   // variable name
   feed = parser_expect(TOK_IDENT, feed);
-  global.name = elx_strdup(self->alloc, feed.str.data);
+  global.name = str_copy(self->alloc, feed.str.data);
   ast_node.name = global.name;
 
   feed = parser_expect(TOK_COLON, lexer_next(self->lexer));
 
   // type name
   feed = parser_expect(TOK_IDENT, lexer_next(self->lexer));
-  global.type.name = elx_strdup(self->alloc, feed.str.data);
+  global.type.name = str_copy(self->alloc, feed.str.data);
 
   // globals must always be initialized
   feed = parser_expect(TOK_EQ, lexer_next(self->lexer));
@@ -907,7 +907,7 @@ AstNode parser_visit_enum(Parser* self) {
   Token feed = {};
 
   feed = parser_expect(TOK_IDENT, lexer_next(self->lexer));
-  enum_.name = elx_strdup(self->alloc, feed.str.data);
+  enum_.name = str_copy(self->alloc, feed.str.data);
   ast_node.name = enum_.name;
 
   parser_expect(TOK_LBRACE, lexer_next(self->lexer));
@@ -921,7 +921,7 @@ AstNode parser_visit_enum(Parser* self) {
     EnumKind* enum_kind = allocator_alloc(self->alloc, sizeof(EnumKind));
 
     parser_expect(TOK_IDENT, feed);
-    enum_kind->name = elx_strdup(self->alloc, feed.str.data);
+    enum_kind->name = str_copy(self->alloc, feed.str.data);
 
     feed = lexer_next(self->lexer);
     if (feed.kind == TOK_COMMA) {
@@ -933,7 +933,7 @@ AstNode parser_visit_enum(Parser* self) {
     if (feed.kind == TOK_LPAREN) {
       enum_kind->variant = ENUM_VARIANT_ALG;
       feed = parser_expect(TOK_IDENT, lexer_next(self->lexer));
-      enum_kind->type.name = elx_strdup(self->alloc, feed.str.data);
+      enum_kind->type.name = str_copy(self->alloc, feed.str.data);
       parser_expect(TOK_RPAREN, lexer_next(self->lexer));
       parser_expect(TOK_COMMA, lexer_next(self->lexer));
     }

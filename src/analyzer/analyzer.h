@@ -1,14 +1,13 @@
 #pragma once
 
-#include <glib.h>
-
+#include "core/hashtable.h"
 #include "core/allocator.h"
 #include "parser/parser.h"
 
 /*  @brief Scope contains a table of symbols available
  */
 typedef struct {
-  GHashTable* symbol_table;   // &GHashTable<char*, &Symbol>
+  HashTable symbol_table;   // &HashTable<char*, Symbol*>
   Vector child_scopes;        // Vector<Scope>
   struct Scope* parent_scope; // null if global scope
 } Scope;

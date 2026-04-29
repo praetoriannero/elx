@@ -9,7 +9,7 @@ void test_hash_table_init(void) {
   HashTable ht = {};
   Allocator alloc = {};
   allocator_init(&alloc);
-  hash_table_init(&ht, &alloc, (HashFunc)hash_str, (KeyEqualFunc)streq, NULL, NULL);
+  hash_table_init(&ht, &alloc, (HashFunc)hash_str, (KeyEqualFunc)str_equal, NULL, NULL);
 
   TEST_ASSERT_TRUE(ht.hash_func != NULL);
   TEST_ASSERT_TRUE(ht.comp_func != NULL);
@@ -20,7 +20,7 @@ void test_hash_table_insert_get(void) {
   HashTable ht = {};
   Allocator alloc = {};
   allocator_init(&alloc);
-  hash_table_init(&ht, &alloc, (HashFunc)hash_str, (KeyEqualFunc)streq, NULL, NULL);
+  hash_table_init(&ht, &alloc, (HashFunc)hash_str, (KeyEqualFunc)str_equal, NULL, NULL);
 
   char* key = "key";
   char* value = "value";
@@ -28,14 +28,14 @@ void test_hash_table_insert_get(void) {
 
   char* stored_value = hash_table_get(&ht, key);
   TEST_ASSERT_TRUE(stored_value != NULL);
-  TEST_ASSERT_TRUE(streq(value, stored_value));
+  TEST_ASSERT_TRUE(str_equal(value, stored_value));
 }
 
 void test_hash_table_rehash(void) {
   HashTable ht = {};
   Allocator alloc = {};
   allocator_init(&alloc);
-  hash_table_init(&ht, &alloc, (HashFunc)hash_str, (KeyEqualFunc)streq, NULL, NULL);
+  hash_table_init(&ht, &alloc, (HashFunc)hash_str, (KeyEqualFunc)str_equal, NULL, NULL);
 
   for (usize idx = 0; idx < 5000; idx++) {
     char* key = allocator_alloc(ht.alloc, 16);
@@ -47,7 +47,7 @@ void test_hash_table_rehash(void) {
     char* key = allocator_alloc(ht.alloc, 16);
     sprintf(key, "%zu", idx);
     char* value = hash_table_get(&ht, key);
-    TEST_ASSERT_TRUE(streq(key, value));
+    TEST_ASSERT_TRUE(str_equal(key, value));
   }
 }
 
@@ -55,7 +55,7 @@ void test_hash_table_remove(void) {
   HashTable ht = {};
   Allocator alloc = {};
   allocator_init(&alloc);
-  hash_table_init(&ht, &alloc, (HashFunc)hash_str, (KeyEqualFunc)streq, NULL, NULL);
+  hash_table_init(&ht, &alloc, (HashFunc)hash_str, (KeyEqualFunc)str_equal, NULL, NULL);
 
   for (usize idx = 0; idx < 5000; idx++) {
     char* key = allocator_alloc(ht.alloc, 16);
