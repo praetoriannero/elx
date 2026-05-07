@@ -1,9 +1,9 @@
 #include <stdio.h>
 
 #include "analyzer/analyzer.h"
-#include "core/allocator.h"
-#include "core/hashtable.h"
-#include "core/panic.h"
+// #include "core/allocator.h"
+// #include "core/hashtable.h"
+// #include "core/panic.h"
 #include "parser/parser.h"
 
 // idea: table of trait impls for built-ins just like we did with the operator
