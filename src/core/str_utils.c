@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include "core/allocator.h"
+#include "core/hash.h"
 #include "core/str_utils.h"
 
 char* str_copy(Allocator* allocator, const char* str) {
@@ -13,5 +14,7 @@ char* str_copy(Allocator* allocator, const char* str) {
 
   return copy;
 }
+
+u64 hash_str(const char* ptr) { return fnv1a((u8*)ptr, strlen(ptr)); }
 
 bool str_equal(const char* lhs, const char* rhs) { return (strcmp(lhs, rhs) == 0); }

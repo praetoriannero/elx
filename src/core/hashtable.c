@@ -15,17 +15,17 @@ HashTable* hash_table_new(Allocator* alloc, HashFunc hash_func, KeyEqualFunc key
   return table;
 }
 
-static inline void printd(const char* fmt, ...) {
-  va_list args;
-  va_start(args, fmt);
+// static inline void printd(const char* fmt, ...) {
+//   va_list args;
+//   va_start(args, fmt);
 
-  printf("[DEBUG] ");
-  vprintf(fmt, args);
-  printf("\n");
-  fflush(stdout);
+//   printf("[DEBUG] ");
+//   vprintf(fmt, args);
+//   printf("\n");
+//   fflush(stdout);
 
-  va_end(args);
-}
+//   va_end(args);
+// }
 
 static inline u64 _htpi(u64 idx) { return array_get(&hash_primes_array, u64, idx); }
 
@@ -67,10 +67,12 @@ static inline void hash_table_rehash(HashTable* self) {
     HashTableEntry* child = entry->child_entry;
     while (child != NULL && child->initialized) {
       hash_table_insert(self, child->key, child->value);
+
       child = child->child_entry;
-      if (child != NULL && child->initialized) {
-        HashTableEntry* parent = child->parent_entry;
+      if (child != NULL) {
         allocator_free(self->alloc, child->parent_entry);
+      } else {
+        allocator_free(self->alloc, child);
       }
     }
 
@@ -149,6 +151,7 @@ void hash_table_remove(HashTable* self, void* key) {
     entry->initialized = false;
     HashTableEntry* parent = entry->parent_entry;
     HashTableEntry* child = entry->child_entry;
+
     if (parent) {
       parent->child_entry = child;
     }

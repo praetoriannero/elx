@@ -1,11 +1,32 @@
 #include <string.h>
-#include "core/panic.h"
 #include "core/list.h"
+#include "core/panic.h"
 
-static inline ListNode* _get_tail(List* self) {
-  ListNode* node = self->root;
+static inline void list_free_node(List* self, ListNode* node) {
+  if (node->parent) {
+    node->parent->child = node->child;
+  }
+
+  if (node->child) {
+    node->child->parent = node->parent;
+  }
+
+  if (node == self->head) {
+    self->head = node->child;
+  }
+
+  allocator_free(self->alloc, node->ptr);
+  allocator_free(self->alloc, node);
+}
+
+static inline ListNode* list_get_tail(List* self) {
+  ListNode* node = self->head;
   while (node) {
-    node = node->child;
+    if (node->child) {
+      node = node->child;
+    } else {
+      return node; 
+    }
   }
 
   return node;
@@ -15,9 +36,28 @@ void list_init(List* self, Allocator* alloc, usize item_size) {
   (*self) = (List){
       .alloc = alloc,
       .length = 0,
-      .root = NULL,
+      .head = NULL,
       .item_size = item_size,
   };
+}
+
+void list_deinit(List* self) {
+  ListNode* node = self->head;
+  ListNode* child = NULL;
+  while (node) {
+    if (node->parent) {
+      list_free_node(self, node->parent);
+    }
+
+    if (node->child) {
+      node = node->child;
+    } else {
+      list_free_node(self, node);
+      break;
+    }
+  }
+
+  list_init(self, self->alloc, self->item_size);
 }
 
 List* list_new(Allocator* alloc, usize item_size) {
@@ -26,20 +66,84 @@ List* list_new(Allocator* alloc, usize item_size) {
   return list;
 }
 
-void list_insert(List* self, void* value);
+void list_free(List* self) {
+  list_deinit(self);
+  allocator_free(self->alloc, self);  
+}
 
-void list_remove(List* self, usize idx);
+void list_insert(List* self, void* value, usize idx) {
+  if (idx > self->length || idx < 0) {
+    panic("Invalid insertion at index %lu for list of length %lu\n", idx, self->length);
+  }
+
+  ListNode* node = self->head;
+  ListNode* new_node = NULL;
+  void* ptr = NULL;
+  usize iter_idx = 0;
+
+  while (iter_idx < self->length) {
+    if (iter_idx == idx) {
+      ptr = allocator_alloc(self->alloc, self->item_size);
+      memcpy(ptr, value, self->item_size);
+      new_node = allocator_alloc(self->alloc, sizeof(ListNode));
+
+      if (node->parent) {
+        node->parent->child = new_node;
+      }
+
+      if (node->child) {
+        new_node->child = node->child;
+        node->child->parent = new_node;
+      }
+
+      new_node->parent = node;
+      self->length++;
+    }
+
+    node = node->child;
+    iter_idx++;
+  }
+}
+
+#include <stdio.h>
+
+void list_remove(List* self, usize idx) {
+  ListNode* node = self->head;
+  usize iter_idx = 0;
+
+  if (idx > self->length || idx < 0) {
+    panic("Invalid removal at index %lu for list of length %lu\n", idx, self->length);
+  }
+
+  while (node) {
+    if (iter_idx == idx) {
+      list_free_node(self, node);
+      break;
+    }
+
+    node = node->child;
+    iter_idx++;
+  }
+
+  self->length--;
+}
 
 void list_push(List* self, const void* value) {
-  ListNode* tail = _get_tail(self);
+  void* ptr = allocator_alloc(self->alloc, self->item_size);
+  ListNode* new_node = allocator_alloc(self->alloc, sizeof(ListNode));
+  ListNode* tail = list_get_tail(self);
 
-  ListNode* new_node = allocator_alloc(self->alloc, sizeof(ListNode) + self->item_size);
+  if (!self->head) {
+    self->head = new_node;
+  }
+
   (*new_node) = (ListNode){
     .parent = tail,
     .child = NULL,
+    .ptr = ptr,
   };
 
-  memcpy(new_node + 1, value, self->item_size);
+  memcpy(ptr, value, self->item_size);
 
   if (tail) {
     tail->child = new_node;
@@ -48,21 +152,74 @@ void list_push(List* self, const void* value) {
   self->length++;
 }
 
-#define safe_deref(ptr, field, value) if (!ptr) panic("null pointer dereference"); ptr->field = value;
+void* list_pop(List* self, Allocator* owner) {
+  ListNode* tail = list_get_tail(self);
+  void* ptr = NULL;
 
-#define box(alloc, type) allocator_alloc(alloc, sizeof(type))
+  if (tail) {
+    if (tail->parent) {
+      ptr = allocator_alloc(owner, self->item_size);
+      memcpy(ptr, tail->ptr, self->item_size);
+      list_free_node(self, tail);
+    }
 
-typedef struct {
-  void* inner;
-  void* (*unwrap)(void);
-} Box;
+    if (tail == self->head) {
+      self->head = NULL;
+    }
 
-void* list_pop(List* self) {
-  ListNode* tail = _get_tail(self);
-  ListNode* head = box(self->alloc, ListNode);
-  safe_deref(head, parent, NULL);
+    self->length--;
+  }
+
+
+  return ptr;
 }
 
-usize list_find(List* self, void* value, ListNodeEqualFunc node_equal_func);
+void* list_find(List* self, void* value, ListNodeEqualFunc node_equal_func) {
+  ListNode* node = self->head;
+  while (node) {
+    if (node_equal_func(node->ptr, value)) {
+      return node->ptr;
+    }
 
-void* list_get(List* self, usize idx);
+    node = node->child;
+  }
+
+  return NULL;
+}
+
+void* list_get(List* self, usize idx) {
+  ListNode* node = self->head;
+  usize iter = 0;
+
+  if (idx > self->length || idx < 0) {
+    panic("Invalid get at index %lu for list of length %lu\n", idx, self->length);
+  }
+
+  while (node) {
+    if (iter == idx) {
+      return node->ptr;
+    }
+
+    node = node->child;
+    iter++;
+  }
+
+  return NULL;
+}
+
+void list_iter_init(ListIter* self, List* list) {
+  (*self) = (ListIter){
+    .iter = list->head,
+    .list = list,
+  };
+}
+
+bool list_iter_next(ListIter* self, void** value) {
+  if (self->iter) {
+    *value = self->iter->ptr;
+    self->iter = self->iter->child;
+    return true;
+  }
+
+  return false;
+}

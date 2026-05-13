@@ -34,7 +34,9 @@ void close_file(File** file) { fclose(*file); }
 #define defer(func) __attribute__((__cleanup__(func)))
 
 i32 main(i32 argc, char* argv[]) {
-  File* file_handle defer(close_file) = NULL;
+  defer(close_file)
+  File* file_handle = NULL;
+  // void t(void) {}
   char* file_name = NULL;
   char* content = NULL;
   i64 file_size = 0;
@@ -49,17 +51,17 @@ i32 main(i32 argc, char* argv[]) {
     panic("missing source location argument\n");
   }
 
-  if (file_handle != NULL) {
+  if (file_handle) {
     printf("%s\n", file_name);
   } else {
-    panic("failed to open file %s\n", file_name);
+    panic("failed to open file '%s'\n", file_name);
   }
 
   file_size = get_file_size(file_handle);
   if (file_size < 0) {
     panic("failed to read file %s\n", file_name);
   }
-  printf("%jd\n", file_size);
+  printf("%lld\n", file_size);
 
   content = allocator_alloc(&allocator, (usize)file_size + 1);
   usize bytes_read = fread(content, 1, (usize)file_size, file_handle);

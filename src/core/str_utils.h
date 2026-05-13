@@ -9,3 +9,5 @@ char* str_copy(Allocator* allocator, const char* str);
 char* strmov(char** str);
 
 bool str_equal(const char* lhs, const char* rhs);
+
+u64 hash_str(const char* ptr);

@@ -70,6 +70,8 @@ void test_hash_table_remove(void) {
     char* value = hash_table_get(&ht, key);
     TEST_ASSERT_TRUE(value == NULL);
   }
+
+  allocator_deinit(&alloc);
 }
 
 
