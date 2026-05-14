@@ -13,6 +13,8 @@ void test_vector_init(void) {
   TEST_ASSERT_TRUE(vec.free_item_cb == NULL);
   TEST_ASSERT_TRUE(vec.size == 0);
   TEST_ASSERT_TRUE(vec.data != NULL);
+
+  allocator_deinit(&alloc);
 }
 
 void test_vector_push(void) {
@@ -34,6 +36,8 @@ void test_vector_push(void) {
 
   TEST_ASSERT_TRUE(vec.capacity == 16);
   TEST_ASSERT_TRUE(vec.size == 11);
+
+  allocator_deinit(&alloc);
 }
 
 void test_vector_init_with_capacity(void) {
@@ -51,6 +55,7 @@ void test_vector_init_with_capacity(void) {
   }
 
   TEST_ASSERT_TRUE(vec.capacity == 26);
+  allocator_deinit(&alloc);
 }
 
 void test_vector_get(void) {
@@ -66,6 +71,7 @@ void test_vector_get(void) {
   }
 
   TEST_ASSERT_TRUE(*vector_get(&vec, u64, 4) == 3);
+  allocator_deinit(&alloc);
 }
 
 void test_vector_insert(void) {
@@ -84,13 +90,14 @@ void test_vector_insert(void) {
   vector_insert(&vec, 5, &t);
 
   TEST_ASSERT_TRUE(*vector_get(&vec, u64, 5) == 7);
+  allocator_deinit(&alloc);
 }
 
 typedef struct {
-  u32 x;
+  i32 x;
 } TestItem;
 
-void test_item_init(TestItem* item, u32* value) {
+void test_item_init(TestItem* item, i32* value) {
   item->x = *value;
 }
 
@@ -101,12 +108,13 @@ void test_vector_item_init(void) {
   Vector vec = {};
   vector_init(&vec, &alloc, sizeof(TestItem), 13, NULL);
   vector_zero_fill(&vec);
-  u32 test_value = -1337;
+  i32 test_value = -1337;
   vector_item_init(&vec, (VectorItemInit)test_item_init, &test_value);
 
-  for (usize idx; idx < 13; idx++) {
+  for (usize idx = 0; idx < 13; idx++) {
     TEST_ASSERT_TRUE(vector_get(&vec, TestItem, idx)->x == test_value);
   }
+  allocator_deinit(&alloc);
 }
 
 int main(void) {

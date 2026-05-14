@@ -9,7 +9,7 @@ void test_hash_table_init(void) {
   HashTable ht = {};
   Allocator alloc = {};
   allocator_init(&alloc);
-  hash_table_init(&ht, &alloc, (HashFunc)hash_str, (KeyEqualFunc)str_equal, NULL, NULL);
+  hash_table_init(&ht, &alloc, (HashFunc)hash_str, (KeyEqualFunc)str_equal, 1, 1, NULL, NULL);
 
   TEST_ASSERT_TRUE(ht.hash_func != NULL);
   TEST_ASSERT_TRUE(ht.comp_func != NULL);
@@ -20,7 +20,7 @@ void test_hash_table_insert_get(void) {
   HashTable ht = {};
   Allocator alloc = {};
   allocator_init(&alloc);
-  hash_table_init(&ht, &alloc, (HashFunc)hash_str, (KeyEqualFunc)str_equal, NULL, NULL);
+  hash_table_init(&ht, &alloc, (HashFunc)hash_str, (KeyEqualFunc)str_equal, sizeof(char*), sizeof(char*), NULL, NULL);
 
   char* key = "key";
   char* value = "value";
@@ -35,7 +35,7 @@ void test_hash_table_rehash(void) {
   HashTable ht = {};
   Allocator alloc = {};
   allocator_init(&alloc);
-  hash_table_init(&ht, &alloc, (HashFunc)hash_str, (KeyEqualFunc)str_equal, NULL, NULL);
+  hash_table_init(&ht, &alloc, (HashFunc)hash_str, (KeyEqualFunc)str_equal, sizeof(char*), sizeof(char*), NULL, NULL);
 
   for (usize idx = 0; idx < 5000; idx++) {
     char* key = allocator_alloc(ht.alloc, 16);
@@ -57,7 +57,7 @@ void test_hash_table_remove(void) {
   HashTable ht = {};
   Allocator alloc = {};
   allocator_init(&alloc);
-  hash_table_init(&ht, &alloc, (HashFunc)hash_str, (KeyEqualFunc)str_equal, NULL, NULL);
+  hash_table_init(&ht, &alloc, (HashFunc)hash_str, (KeyEqualFunc)str_equal, sizeof(char*), sizeof(char*), NULL, NULL);
 
   for (usize idx = 0; idx < 5000; idx++) {
     char* key = allocator_alloc(ht.alloc, 16);

@@ -1,6 +1,5 @@
 // https://benhoyt.com/writings/hash-table-in-c/
 // refer to the above
-#include <stdio.h>
 #include "core/hashtable.h"
 #include "core/list.h"
 #include "core/allocator.h"
