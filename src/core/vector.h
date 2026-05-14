@@ -3,7 +3,9 @@
 #include "core/allocator.h"
 #include "core/modprim.h"
 
-typedef void (*VectorFreeItem)(void* value, ...);
+typedef void (*VectorFreeItem)(void* value);
+
+typedef void (*VectorItemInit)(void* item, void* item_args);
 
 typedef struct vector {
   void* data;
@@ -38,6 +40,8 @@ void vector_deinit(Vector* self);
 
 void vector_clear(Vector* self);
 
+VectorIter vector_iter_vec(Vector* self);
+
 void vector_iter_init(VectorIter* self, Vector* vector);
 
 bool vector_iter_next(VectorIter* self, void** element);
@@ -45,6 +49,8 @@ bool vector_iter_next(VectorIter* self, void** element);
 void vector_zero_fill(Vector* self);
 
 void vector_reserve(Vector* self, usize size);
+
+void vector_item_init(Vector* self, VectorItemInit init_func, void* init_args);
 
 #define paste_impl(a, b) a##b
 

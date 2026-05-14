@@ -41,6 +41,16 @@ void list_init(List* self, Allocator* alloc, usize item_size) {
   };
 }
 
+void list_init_args(List* self, ListInitArgs* args) {
+  if (!self) {
+    panic("list is null\n");
+  }
+  if (!args) {
+    panic("args is null\n");
+  }
+  list_init(self, args->alloc, args->item_size);
+}
+
 void list_deinit(List* self) {
   ListNode* node = self->head;
   ListNode* child = NULL;
@@ -129,6 +139,9 @@ void list_remove(List* self, usize idx) {
 }
 
 void list_push(List* self, const void* value) {
+  if (!self) {
+    panic("list is null\n");
+  }
   void* ptr = allocator_alloc(self->alloc, self->item_size);
   ListNode* new_node = allocator_alloc(self->alloc, sizeof(ListNode));
   ListNode* tail = list_get_tail(self);
@@ -207,6 +220,10 @@ void* list_get(List* self, usize idx) {
   return NULL;
 }
 
+ListIter list_iter(List* self) {
+  return (ListIter){.list = self, .iter = self->head};
+}
+
 void list_iter_init(ListIter* self, List* list) {
   (*self) = (ListIter){
     .iter = list->head,
@@ -222,4 +239,12 @@ bool list_iter_next(ListIter* self, void** value) {
   }
 
   return false;
+}
+
+void list_item_init(List* self, ListItemInit item_init_func, void* item_args) {
+  auto iter = list_iter(self);
+  void* item = NULL;
+  while (list_iter_next(&iter, &item)) {
+    item_init_func(item, item_args);
+  }
 }

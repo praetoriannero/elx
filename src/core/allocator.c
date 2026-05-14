@@ -18,7 +18,6 @@ static inline void allocator_free_node(AllocatorNode* node) {
 
 static inline AllocatorNode* allocator_find_node(Allocator* self, void* ptr) {
   AllocatorNode* node = NULL;
-  xnotnull(self);
 
   if (!ptr) {
     return node;
@@ -91,7 +90,9 @@ void allocator_deinit(Allocator* self) {
 }
 
 void* allocator_alloc(Allocator* self, usize size) {
-  xnotnull(self);
+  if (!self) {
+    panic("allocator is null\n");
+  }
 
   AllocatorNode* node = xmalloc(sizeof(AllocatorNode));
   void* ptr = xmalloc(size);

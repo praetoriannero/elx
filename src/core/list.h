@@ -3,7 +3,15 @@
 #include "core/allocator.h"
 
 typedef struct List List;
+
 typedef struct ListNode ListNode;
+
+typedef void (*ListItemInit)(void* item, void* item_args);
+
+typedef struct {
+  Allocator* alloc;
+  usize item_size;
+} ListInitArgs;
 
 typedef struct {
   List* list;
@@ -27,6 +35,8 @@ typedef bool (*ListNodeEqualFunc)(const void* lhs, const void* rhs);
 
 void list_init(List* self, Allocator* alloc, usize item_size);
 
+void list_init_args(List* self, ListInitArgs* args);
+
 void list_deinit(List* self);
 
 List* list_new(Allocator* alloc, usize item_size);
@@ -45,8 +55,12 @@ void* list_find(List* self, void* value, ListNodeEqualFunc node_equal_func);
 
 void* list_get(List* self, usize idx);
 
+ListIter list_iter(List* self);
+
 void list_iter_init(ListIter* iter, List* list);
 
 bool list_iter_next(ListIter* iter, void** item);
+
+void list_item_init(List* self, ListItemInit item_init_func, void* item_args);
 
 // #define list_iter_next(list_iter, type, item) (type*)_list_iter_next(list_iter, (void*)&item)

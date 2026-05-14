@@ -12,7 +12,7 @@ typedef struct string {
   Allocator* alloc;
 } String;
 
-String* string_new(char* str);
+String* string_new(Allocator* alloc, char* str);
 
 String* string_from(char* str);
 

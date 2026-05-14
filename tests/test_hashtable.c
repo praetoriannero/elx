@@ -49,6 +49,8 @@ void test_hash_table_rehash(void) {
     char* value = hash_table_get(&ht, key);
     TEST_ASSERT_TRUE(str_equal(key, value));
   }
+
+  allocator_deinit(&alloc);
 }
 
 void test_hash_table_remove(void) {

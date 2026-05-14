@@ -73,7 +73,7 @@ void vector_insert(Vector* self, const usize index, const void* item) {
 static inline void _vector_free_items(Vector* self) {
   if (self->free_item_cb) {
     for (usize idx = 0; idx < self->size; idx++) {
-      self->free_item_cb((u8*)self->data + idx * self->item_size);
+      self->free_item_cb((u8*)self->data + (idx * self->item_size));
     }
   }
 }
@@ -93,6 +93,12 @@ void vector_free(Vector* self) {
   _vector_free_items(self);
   allocator_free(self->alloc, self->data);
   allocator_free(self->alloc, self);
+}
+
+VectorIter vector_iter_vec(Vector* self) {
+  VectorIter iter = {};
+  vector_iter_init(&iter, self);
+  return iter;
 }
 
 void vector_iter_init(VectorIter* self, Vector* vector) {
@@ -125,4 +131,13 @@ void vector_reserve(Vector* self, usize size) {
   void* new_data = allocator_realloc(self->alloc, self->data, new_alloc);
   self->capacity = size;
   self->data = new_data;
+}
+
+void vector_item_init(Vector* self, VectorItemInit init_func, void* init_args) {
+  void* item = NULL;
+  VectorIter iter = vector_iter_vec(self);
+  while (vector_iter_next(&iter, &item)) {
+    init_func(item, init_args);
+  }
+  
 }

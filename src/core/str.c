@@ -15,9 +15,6 @@ void string_push(String* self, char c) {
   if (new_size == self->capacity) {
     usize new_alloc = self->capacity * 2;
     char* new_data_ptr = (char*)allocator_realloc(self->alloc, self->data, new_alloc);
-    if (new_data_ptr == NULL) {
-      panic("failed to reallocate string buffer\n");
-    }
     if (new_alloc > MAX_STR_ALLOC) {
       panic("max string allocation exceeded\n");
     }
@@ -77,7 +74,13 @@ void string_deinit(String* self) {
   allocator_free(self->alloc, self->data);
 }
 
+String* string_new(Allocator* alloc, char* str) {
+  String* string = allocator_alloc(alloc, sizeof(String));  
+
+  return string;
+}
+
 void string_free(String* self) {
-  string_deinit(self);
-  xfree(self);
+  allocator_free(self->alloc, self->data);
+  allocator_free(self->alloc, self);
 }

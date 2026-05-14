@@ -28,6 +28,8 @@ typedef struct {
   Vector entries;
   HashFunc hash_func;
   KeyEqualFunc comp_func;
+  usize key_size;
+  usize value_size;
   FreeKeyFunc free_key;
   FreeValueFunc free_value;
 } HashTable;
@@ -37,9 +39,6 @@ typedef struct HashTableEntry HashTableEntry;
 struct HashTableEntry {
   void* key;
   void* value;
-  bool initialized;
-  HashTableEntry* parent_entry;
-  HashTableEntry* child_entry;
 };
 
 typedef struct {
@@ -47,11 +46,11 @@ typedef struct {
   usize idx;
 } HashTableIter;
 
-HashTable* hash_table_new(Allocator* alloc, HashFunc hash_func, KeyEqualFunc key_comp, FreeKeyFunc free_key,
-                          FreeValueFunc free_value);
+HashTable* hash_table_new(Allocator* alloc, HashFunc hash_func, KeyEqualFunc key_comp, usize key_size, usize value_size,
+                          FreeKeyFunc free_key, FreeValueFunc free_value);
 
 void hash_table_init(HashTable* table, Allocator* alloc, HashFunc hash_func, KeyEqualFunc key_comp,
-                     FreeKeyFunc free_key, FreeValueFunc free_value);
+                     usize key_size, usize value_size, FreeKeyFunc free_key, FreeValueFunc free_value);
 
 void hash_table_insert(HashTable* self, void* key, void* value);
 

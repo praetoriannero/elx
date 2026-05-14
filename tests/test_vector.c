@@ -86,6 +86,29 @@ void test_vector_insert(void) {
   TEST_ASSERT_TRUE(*vector_get(&vec, u64, 5) == 7);
 }
 
+typedef struct {
+  u32 x;
+} TestItem;
+
+void test_item_init(TestItem* item, u32* value) {
+  item->x = *value;
+}
+
+void test_vector_item_init(void) {
+  Allocator alloc = {};
+  allocator_init(&alloc);
+
+  Vector vec = {};
+  vector_init(&vec, &alloc, sizeof(TestItem), 13, NULL);
+  vector_zero_fill(&vec);
+  u32 test_value = -1337;
+  vector_item_init(&vec, (VectorItemInit)test_item_init, &test_value);
+
+  for (usize idx; idx < 13; idx++) {
+    TEST_ASSERT_TRUE(vector_get(&vec, TestItem, idx)->x == test_value);
+  }
+}
+
 int main(void) {
   UNITY_BEGIN();
   RUN_TEST(test_vector_init);
@@ -93,5 +116,6 @@ int main(void) {
   RUN_TEST(test_vector_push);
   RUN_TEST(test_vector_get);
   RUN_TEST(test_vector_insert);
+  RUN_TEST(test_vector_item_init);
   return UNITY_END();
 }
