@@ -133,7 +133,7 @@ void vector_reserve(Vector* self, usize size) {
   self->data = new_data;
 }
 
-void vector_item_init(Vector* self, VectorItemInit init_func, void* init_args) {
+void vector_item_init(Vector* self, VectorInitItem init_func, void* init_args) {
   void* item = NULL;
   VectorIter iter = vector_iter_vec(self);
   while (vector_iter_next(&iter, &item)) {

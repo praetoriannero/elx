@@ -42,12 +42,6 @@ void list_init(List* self, Allocator* alloc, usize item_size) {
 }
 
 void list_init_args(List* self, ListInitArgs* args) {
-  if (!self) {
-    panic("list is null\n");
-  }
-  if (!args) {
-    panic("args is null\n");
-  }
   list_init(self, args->alloc, args->item_size);
 }
 
@@ -115,8 +109,6 @@ void list_insert(List* self, void* value, usize idx) {
   }
 }
 
-#include <stdio.h>
-
 void list_remove(List* self, usize idx) {
   ListNode* node = self->head;
   usize iter_idx = 0;
@@ -142,6 +134,7 @@ void list_push(List* self, const void* value) {
   if (!self) {
     panic("list is null\n");
   }
+
   void* ptr = allocator_alloc(self->alloc, self->item_size);
   ListNode* new_node = allocator_alloc(self->alloc, sizeof(ListNode));
   ListNode* tail = list_get_tail(self);

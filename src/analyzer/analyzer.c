@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #include "analyzer/analyzer.h"
 // #include "core/allocator.h"
 // #include "core/hashtable.h"

@@ -45,6 +45,7 @@ static inline AllocatorNode* allocator_find_node(Allocator* self, void* ptr) {
 }
 
 void allocator_free(Allocator* self, void* ptr) {
+  xnotnull(self);
   AllocatorNode* node = allocator_find_node(self, ptr);
   if (!node) {
     return;
@@ -71,6 +72,7 @@ void allocator_free(Allocator* self, void* ptr) {
 AllocatorScope* allocator_new_scope(Allocator* self) { return self->node_end; }
 
 void allocator_free_scope(Allocator* self, AllocatorScope* scope) {
+  xnotnull(self);
   while (self->node_end != scope) {
     AllocatorNode* node = self->node_end;
     self->node_end = node->parent;
@@ -79,7 +81,7 @@ void allocator_free_scope(Allocator* self, AllocatorScope* scope) {
 }
 
 void allocator_init(Allocator* self) {
-  *self = (Allocator){};
+  *self = (Allocator){.alloc = allocator_alloc, .realloc = allocator_realloc, .free = allocator_free};
 }
 
 void allocator_deinit(Allocator* self) {
@@ -90,10 +92,7 @@ void allocator_deinit(Allocator* self) {
 }
 
 void* allocator_alloc(Allocator* self, usize size) {
-  if (!self) {
-    panic("allocator is null\n");
-  }
-
+  xnotnull(self);
   AllocatorNode* node = xmalloc(sizeof(AllocatorNode));
   void* ptr = xmalloc(size);
   memset(ptr, 0, size);
@@ -139,6 +138,8 @@ void* allocator_realloc(Allocator* self, void* old_ptr, usize new_size) {
 }
 
 void allocator_move(Allocator* src, Allocator* dst, void* ptr) {
+  xnotnull(src);
+  xnotnull(dst);
   if (src == dst) {
     return;
   }
@@ -151,4 +152,26 @@ void allocator_move(Allocator* src, Allocator* dst, void* ptr) {
 #ifdef ELX_DEBUG
   src->total_alloc -= src_node->size;
 #endif
+}
+
+void* new(Allocator* alloc, usize size) {
+  return allocator_alloc(alloc, size);
+}
+
+void* resize(Allocator* alloc, void* old_ptr, usize new_size) {
+  return allocator_realloc(alloc, old_ptr, new_size);
+}
+
+void delete(Allocator* alloc, void* ptr) {
+  allocator_free(alloc, ptr);
+}
+
+void move(Allocator* src, Allocator* dst, void* ptr) {
+  allocator_move(src, dst, ptr);
+}
+
+void* copy(Allocator* alloc, void* ptr, usize size) {
+  void* ret_ptr = allocator_alloc(alloc, size);
+  memcpy(ret_ptr, ptr, size);
+  return ret_ptr;
 }

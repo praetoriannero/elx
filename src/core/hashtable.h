@@ -17,9 +17,9 @@ typedef u64 (*HashFunc)(const void* value);
  */
 typedef bool (*KeyEqualFunc)(const void* lhs, const void* rhs);
 
-typedef void (*FreeKeyFunc)(void* key);
+typedef void (*FreeItem)(void* item);
 
-typedef void (*FreeValueFunc)(void* value);
+typedef void* (*CopyItem)(const void* item, Allocator* alloc);
 
 typedef struct {
   Allocator* alloc;
@@ -28,10 +28,10 @@ typedef struct {
   Vector entries;
   HashFunc hash_func;
   KeyEqualFunc comp_func;
-  usize key_size;
-  usize value_size;
-  FreeKeyFunc free_key;
-  FreeValueFunc free_value;
+  FreeItem free_key;
+  FreeItem free_value;
+  CopyItem copy_key;
+  CopyItem copy_value;
 } HashTable;
 
 typedef struct HashTableEntry HashTableEntry;
@@ -46,11 +46,13 @@ typedef struct {
   usize idx;
 } HashTableIter;
 
-HashTable* hash_table_new(Allocator* alloc, HashFunc hash_func, KeyEqualFunc key_comp, usize key_size, usize value_size,
-                          FreeKeyFunc free_key, FreeValueFunc free_value);
+HashTable* hash_table_new(Allocator* alloc, HashFunc hash_func, KeyEqualFunc key_comp, CopyItem copy_key,
+                          CopyItem copy_value, FreeItem free_key, FreeItem free_value);
 
-void hash_table_init(HashTable* table, Allocator* alloc, HashFunc hash_func, KeyEqualFunc key_comp,
-                     usize key_size, usize value_size, FreeKeyFunc free_key, FreeValueFunc free_value);
+void hash_table_init(HashTable* self, Allocator* alloc, HashFunc hash_func, KeyEqualFunc key_comp, CopyItem copy_key,
+                     CopyItem copy_value, FreeItem free_key, FreeItem free_value);
+
+void hash_table_deinit(HashTable* self);
 
 void hash_table_insert(HashTable* self, void* key, void* value);
 

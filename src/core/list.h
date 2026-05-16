@@ -8,7 +8,11 @@ typedef struct ListNode ListNode;
 
 typedef void (*ListItemInit)(void* item, void* item_args);
 
+typedef void (*ListItemFree)(void* item);
+
 typedef struct {
+  ListItemInit item_init;
+  ListItemFree item_free;
   Allocator* alloc;
   usize item_size;
 } ListInitArgs;
@@ -26,6 +30,8 @@ struct ListNode {
 
 struct List {
   ListNode* head;
+  ListItemInit item_init;
+  ListItemFree item_free;
   Allocator* alloc;
   usize item_size;
   usize length;
@@ -34,6 +40,8 @@ struct List {
 typedef bool (*ListNodeEqualFunc)(const void* lhs, const void* rhs);
 
 void list_init(List* self, Allocator* alloc, usize item_size);
+
+void list_init_full(List* self, Allocator* alloc, usize item_size, ListItemInit item_init, ListItemFree item_free);
 
 void list_init_args(List* self, ListInitArgs* args);
 

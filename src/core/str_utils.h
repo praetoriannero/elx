@@ -4,10 +4,10 @@
 
 #include "core/allocator.h"
 
-char* str_copy(Allocator* allocator, const char* str);
+char* str_copy(Allocator* allocator, const char* cstr);
 
-char* strmov(char** str);
+char* str_move(char** cstr);
 
 bool str_equal(const char* lhs, const char* rhs);
 
-u64 hash_str(const char* ptr);
+u64 str_hash(const char* cstr);

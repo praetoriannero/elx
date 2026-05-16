@@ -34,15 +34,12 @@ void close_file(File** file) { fclose(*file); }
 #define defer(func) __attribute__((__cleanup__(func)))
 
 i32 main(i32 argc, char* argv[]) {
-  defer(close_file)
-  File* file_handle = NULL;
-  // void t(void) {}
+  defer(close_file) File* file_handle = NULL;
   char* file_name = NULL;
   char* content = NULL;
   i64 file_size = 0;
 
-  Allocator allocator;
-  allocator_init(&allocator);
+  scoped_allocator(alloc);
 
   if (argc == 2) {
     file_name = argv[1];
@@ -61,19 +58,19 @@ i32 main(i32 argc, char* argv[]) {
   if (file_size < 0) {
     panic("failed to read file %s\n", file_name);
   }
-  printf("%lld\n", file_size);
+  printf("%ld\n", file_size);
 
-  content = allocator_alloc(&allocator, (usize)file_size + 1);
+  content = allocator_alloc(&alloc, (usize)file_size + 1);
   usize bytes_read = fread(content, 1, (usize)file_size, file_handle);
   content[bytes_read] = '\0';
 
   printf("CONTENT START\n%s\nCONTENT END\n", content);
 
   Lexer lexer = {};
-  lexer_init(&lexer, &allocator, content, file_name);
+  lexer_init(&lexer, &alloc, content, file_name);
 
   Parser parser = {};
-  parser_init(&parser, &allocator, &lexer);
+  parser_init(&parser, &alloc, &lexer);
 
   Ast ast = parser_parse(&parser);
   print_ast(&ast);
@@ -81,7 +78,7 @@ i32 main(i32 argc, char* argv[]) {
   AnalyzerContext ast_ctx = {};
   analyzer_visit_ast(&ast, &ast_ctx);
 
-  allocator_deinit(&allocator);
+  // allocator_deinit(&allocator);
 
   return EXIT_SUCCESS;
 }

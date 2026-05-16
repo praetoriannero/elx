@@ -17,7 +17,7 @@ void token_init(Allocator* allocator, Token* self) {
       .size = 0,
   };
 
-  string_init(allocator, &self->str);
+  string_init(&self->str, allocator);
 }
 
 Token* token_copy(Allocator* allocator, Token* self) {
@@ -27,7 +27,7 @@ Token* token_copy(Allocator* allocator, Token* self) {
 
   *token = (Token){
       .kind = self->kind,
-      .str = string_copy(allocator, &self->str),
+      .str = string_copy(&self->str, allocator),
       .loc = self->loc,
       .size = self->size,
   };

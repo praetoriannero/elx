@@ -109,7 +109,7 @@ void test_vector_item_init(void) {
   vector_init(&vec, &alloc, sizeof(TestItem), 13, NULL);
   vector_zero_fill(&vec);
   i32 test_value = -1337;
-  vector_item_init(&vec, (VectorItemInit)test_item_init, &test_value);
+  vector_item_init(&vec, (VectorInitItem)test_item_init, &test_value);
 
   for (usize idx = 0; idx < 13; idx++) {
     TEST_ASSERT_TRUE(vector_get(&vec, TestItem, idx)->x == test_value);

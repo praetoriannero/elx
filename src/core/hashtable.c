@@ -7,36 +7,24 @@
 
 constexpr f64 MAX_HASH_TABLE_LOAD = 0.7;
 
-HashTable* hash_table_new(Allocator* alloc, HashFunc hash_func, KeyEqualFunc key_comp, usize key_size, usize value_size,
-                          FreeKeyFunc free_key, FreeValueFunc free_value) {
-  HashTable* table = NULL;
-  hash_table_init(table, alloc, hash_func, key_comp, key_size, value_size, free_key, free_value);
+typedef struct HashTableResult {
+  List* entry_list;
+  HashTableEntry* entry;
+  usize entry_idx;
+  usize key_loc;
+} HashTableResult;
 
-  return table;
+static inline void hash_table_free_key_value(HashTable* self, HashTableEntry* entry) {
+  if (self->free_key) {
+    self->free_key(entry->key);
+  }
+
+  if (self->free_value) {
+    self->free_value(entry->value);
+  }
 }
 
 static inline u64 _htpi(u64 idx) { return array_get(&hash_primes_array, u64, idx); }
-
-void hash_table_init(HashTable* self, Allocator* alloc, HashFunc hash_func, KeyEqualFunc key_comp, usize key_size,
-                     usize value_size, FreeKeyFunc free_key, FreeValueFunc free_value) {
-  usize prime_idx = 0;
-  Vector entry_vec;
-  vector_init(&entry_vec, alloc, sizeof(List), _htpi(prime_idx), (VectorFreeItem)list_deinit);
-  vector_zero_fill(&entry_vec);
-  ListInitArgs list_args = {.alloc = alloc, .item_size = sizeof(HashTableEntry)};
-  vector_item_init(&entry_vec, (VectorItemInit)list_init_args, (void*)&list_args);
-
-  *self = (HashTable){
-      .alloc = alloc,
-      .comp_func = key_comp,
-      .hash_func = hash_func,
-      .free_key = free_key,
-      .free_value = free_value,
-      .entries = entry_vec,
-      .prime_idx = prime_idx,
-      .population = 0,
-  };
-}
 
 static inline void hash_table_rehash(HashTable* self) {
   Vector new_vec = {};
@@ -45,7 +33,7 @@ static inline void hash_table_rehash(HashTable* self) {
   vector_init(&new_vec, self->alloc, sizeof(List), new_prime_size, (VectorFreeItem)list_deinit);
   vector_zero_fill(&new_vec);
   ListInitArgs list_args = {.alloc = self->alloc, .item_size = sizeof(HashTableEntry)};
-  vector_item_init(&new_vec, (VectorItemInit)list_init_args, (void*)&list_args);
+  vector_item_init(&new_vec, (VectorInitItem)list_init_args, &list_args);
 
   self->entries = new_vec;
   self->population = 0;
@@ -58,39 +46,12 @@ static inline void hash_table_rehash(HashTable* self) {
 
     while (list_iter_next(&entry_list_iter, (void**)&entry)) {
       hash_table_insert(self, entry->key, entry->value);
+      hash_table_free_key_value(self, entry);
     }
   }
 
   vector_deinit(&old_vec);
 }
-
-void hash_table_insert(HashTable* self, void* key, void* value) {
-  if ((f64)self->population >= (MAX_HASH_TABLE_LOAD * (f64)_htpi(self->prime_idx))) {
-    if (self->prime_idx != hash_primes_array.length - 1) {
-      self->prime_idx++;
-      hash_table_rehash(self);
-    }
-  }
-
-  usize key_loc = self->hash_func(key) % self->entries.size;
-  List* entry_list = vector_get(&self->entries, List, key_loc);
-
-  if (!entry_list) {
-    vector_insert(&self->entries, key_loc, allocator_alloc(self->alloc, sizeof(List)));
-  }
-
-  auto entry = (HashTableEntry){.key = key, .value = value};
-  list_push(entry_list, &entry);
-
-  self->population++;
-}
-
-typedef struct HashTableResult {
-  List* entry_list;
-  HashTableEntry* entry;
-  usize entry_idx;
-  usize key_loc;
-} HashTableResult;
 
 static inline HashTableResult hash_table_find_entry(HashTable* self, void* key) {
   HashTableResult result = {};
@@ -110,11 +71,85 @@ static inline HashTableResult hash_table_find_entry(HashTable* self, void* key) 
   return result;
 }
 
+HashTable* hash_table_new(Allocator* alloc, HashFunc hash_func, KeyEqualFunc key_comp, CopyItem copy_key,
+                          CopyItem copy_value, FreeItem free_key, FreeItem free_value) {
+  HashTable* table = new(alloc, sizeof(HashTable));
+  hash_table_init(table, alloc, hash_func, key_comp, copy_key, copy_value, free_key, free_value);
+
+  return table;
+}
+
+void hash_table_init(HashTable* self, Allocator* alloc, HashFunc hash_func, KeyEqualFunc key_comp, CopyItem copy_key,
+                     CopyItem copy_value, FreeItem free_key, FreeItem free_value) {
+  usize prime_idx = 0;
+  Vector entry_vec;
+  vector_init(&entry_vec, alloc, sizeof(List), _htpi(prime_idx), (VectorFreeItem)list_deinit);
+  vector_zero_fill(&entry_vec);
+  ListInitArgs list_args = {.alloc = alloc, .item_size = sizeof(HashTableEntry)};
+  vector_item_init(&entry_vec, (VectorInitItem)list_init_args, &list_args);
+
+  *self = (HashTable){
+      .alloc = alloc,
+      .comp_func = key_comp,
+      .hash_func = hash_func,
+      .copy_key = copy_key,
+      .copy_value = copy_value,
+      .free_key = free_key,
+      .free_value = free_value,
+      .entries = entry_vec,
+      .prime_idx = prime_idx,
+      .population = 0,
+  };
+}
+
+void hash_table_deinit(HashTable* self) {
+  for (usize i = 0; i < self->entries.size; i++) {
+    List* entry_list = vector_get(&self->entries, List, i);
+    for (usize j = 0; j < entry_list->length; j++) {
+      HashTableEntry* entry = list_get(entry_list, j);
+      hash_table_free_key_value(self, entry);
+    }
+  }
+  vector_free(&self->entries);
+}
+
+void hash_table_insert(HashTable* self, void* key, void* value) {
+  if ((f64)self->population >= (MAX_HASH_TABLE_LOAD * (f64)_htpi(self->prime_idx))) {
+    if (self->prime_idx != hash_primes_array.length - 1) {
+      self->prime_idx++;
+      hash_table_rehash(self);
+    }
+  }
+
+  usize key_loc = self->hash_func(key) % self->entries.size;
+  List* entry_list = vector_get(&self->entries, List, key_loc);
+
+  void* _key = NULL;
+  if (self->copy_key) {
+    _key = self->copy_key(key, self->alloc);
+  } else {
+    _key = key;
+  }
+
+  void* _value = NULL;
+  if (self->copy_value) {
+    _value = self->copy_value(value, self->alloc);
+  } else {
+    _value = value;
+  }
+
+  HashTableEntry entry = {.key = _key, .value = _value};
+  list_push(entry_list, &entry);
+
+  self->population++;
+}
+
 void hash_table_remove(HashTable* self, void* key) {
   HashTableResult result = hash_table_find_entry(self, key);
   List* entry_list = result.entry_list;
 
   if (entry_list) {
+    hash_table_free_key_value(self, result.entry);
     list_remove(entry_list, result.entry_idx);
     self->population--;
   }
@@ -130,6 +165,13 @@ void* hash_table_get(HashTable* self, void* key) {
 }
 
 void hash_table_free(HashTable* self) {
+  for (usize i = 0; i < self->entries.size; i++) {
+    List* entry_list = vector_get(&self->entries, List, i);
+    for (usize j = 0; j < entry_list->length; j++) {
+      HashTableEntry* entry = list_get(entry_list, j);
+      hash_table_free_key_value(self, entry);
+    }
+  }
   vector_free(&self->entries);
   allocator_free(self->alloc, self);
 }

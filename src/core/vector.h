@@ -5,7 +5,7 @@
 
 typedef void (*VectorFreeItem)(void* value);
 
-typedef void (*VectorItemInit)(void* item, void* item_args);
+typedef void (*VectorInitItem)(void* item, void* item_args);
 
 typedef struct vector {
   void* data;
@@ -50,7 +50,7 @@ void vector_zero_fill(Vector* self);
 
 void vector_reserve(Vector* self, usize size);
 
-void vector_item_init(Vector* self, VectorItemInit init_func, void* init_args);
+void vector_item_init(Vector* self, VectorInitItem init_func, void* init_args);
 
 #define paste_impl(a, b) a##b
 

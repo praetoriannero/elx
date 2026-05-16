@@ -4,17 +4,17 @@
 #include "core/hash.h"
 #include "core/str_utils.h"
 
-char* str_copy(Allocator* allocator, const char* str) {
-  if (!str)
+char* str_copy(Allocator* allocator, const char* cstr) {
+  if (!cstr)
     return NULL;
 
-  size_t len = strlen(str) + 1;
-  char* copy = allocator_alloc(allocator, len);
-  memcpy(copy, str, len);
+  size_t len = strlen(cstr) + 1;
+  char* cstr_copy = allocator_alloc(allocator, len);
+  memcpy(cstr_copy, cstr, len);
 
-  return copy;
+  return cstr_copy;
 }
 
-u64 hash_str(const char* ptr) { return fnv1a((u8*)ptr, strlen(ptr)); }
+u64 str_hash(const char* cstr) { return fnv1a((u8*)cstr, strlen(cstr)); }
 
 bool str_equal(const char* lhs, const char* rhs) { return (strcmp(lhs, rhs) == 0); }

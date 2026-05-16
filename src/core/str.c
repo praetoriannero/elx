@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "core/str.h"
 #include "core/allocator.h"
 #include "core/modprim.h"
@@ -5,8 +7,8 @@
 #include "core/str_utils.h"
 #include "core/xalloc.h"
 
-static const u64 MAX_STR_ALLOC = 4096;
-static const usize INITIAL_STR_ALLOC = 4;
+constexpr usize MAX_STR_ALLOC = 4096;
+constexpr usize INITIAL_STR_ALLOC = 4;
 
 void string_push(String* self, char c) {
   xnotnull(self);
@@ -28,7 +30,7 @@ void string_push(String* self, char c) {
   self->size++;
 }
 
-void string_init(Allocator* allocator, String* self) {
+void string_init(String* self, Allocator* allocator) {
   xnotnull(self);
 
   *self = (String){
@@ -41,13 +43,14 @@ void string_init(Allocator* allocator, String* self) {
   self->data[0] = '\0';
 }
 
-String string_copy(Allocator* allocator, String* self) {
+String string_copy(String* self, Allocator* allocator) {
   xnotnull(self);
 
   String string = (String){
       .size = self->size,
       .capacity = self->capacity,
       .data = str_copy(allocator, self->data),
+      .alloc = self->alloc,
   };
 
   return string;
@@ -67,20 +70,33 @@ void string_move(String* src, String* dst) {
 }
 
 void string_deinit(String* self) {
-  if (!self) {
-    return;
-  }
-
+  xnotnull(self);
   allocator_free(self->alloc, self->data);
 }
 
-String* string_new(Allocator* alloc, char* str) {
+String* string_new(Allocator* alloc) {
   String* string = allocator_alloc(alloc, sizeof(String));  
-
+  string_init(string, alloc);
   return string;
 }
 
 void string_free(String* self) {
   allocator_free(self->alloc, self->data);
   allocator_free(self->alloc, self);
+}
+
+String string_from_cstr(char* cstr, Allocator* alloc) {
+  String string = (String){
+      .size = strlen(cstr),
+      .capacity = strlen(cstr) + 1,
+      .data = str_copy(alloc, cstr),
+      .alloc = alloc,
+  };
+
+  return string;
+}
+
+bool string_equal(const String* lhs, const String* rhs) {
+  bool result = strcmp(lhs->data, rhs->data) == 0;
+  return result;
 }
