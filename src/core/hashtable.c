@@ -5,6 +5,8 @@
 #include "core/allocator.h"
 #include "core/vector.h"
 
+#include <stdio.h>
+
 constexpr f64 MAX_HASH_TABLE_LOAD = 0.7;
 
 typedef struct HashTableResult {
@@ -176,14 +178,43 @@ void hash_table_free(HashTable* self) {
   allocator_free(self->alloc, self);
 }
 
-void hash_table_iter_init(HashTableIter* self, HashTable* table);
+static inline void _hash_table_iter_init(HashTableIter* self, HashTable* table, usize vector_idx) {
+  ListIter list_iter = {};
+  list_iter_init(&list_iter, vector_get(&table->entries, List, vector_idx));
+  self->entry_list_iter = list_iter;
+  self->table = table;
+  self->idx = vector_idx;
+  
+}
 
-void hash_table_iter_next(HashTableIter* self, void** key, void** value);
+void hash_table_iter_init(HashTableIter* self, HashTable* table) {
+  _hash_table_iter_init(self, table, 0);
+}
 
-void hash_table_key_iter_init(HashTableIter* self, HashTable* table);
+bool hash_table_iter_next(HashTableIter* self, void** key, void** value) {
+  HashTableEntry* entry = NULL;
+  while (self->idx < self->table->entries.size) {
+    if (list_iter_next(&self->entry_list_iter, (void**)&entry)) {
+      *key = entry->key;
+      *value = entry->value;
+      return true;
+    } else {
+      self->idx++;
+      if (self->idx < self->table->entries.size) {
+        _hash_table_iter_init(self, self->table, self->idx);
+      }
+    }
+  }
 
-void hash_table_key_iter_next(HashTableIter* self, void** key);
+  return false;
+}
 
-void hash_table_value_iter_init(HashTableIter* self, HashTable* table);
+bool hash_table_key_iter_next(HashTableIter* self, void** key) {
+  void* value = NULL;
+  return hash_table_iter_next(self, key, &value);
+}
 
-void hash_table_value_iter_next(HashTableIter* self, void** value);
+bool hash_table_value_iter_next(HashTableIter* self, void** value) {
+  void* key = NULL;
+  return hash_table_iter_next(self, &key, value);
+}

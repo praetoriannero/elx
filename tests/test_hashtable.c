@@ -6,6 +6,7 @@
 #include "core/fmt.h"
 #include "unity/unity.h"
 #include "unity/unity_internals.h"
+#include <stdlib.h>
 
 void test_hash_table_init(void) {
   HashTable ht = {};
@@ -152,8 +153,35 @@ void test_hash_table_complex_entry(void) {
     TestValue value = value_create(-31, 1337, &scratch);
     hash_table_insert(&ht, &key, &value);
   }
+}
 
-  // hash_table_deinit(&ht);
+void test_hash_table_iter_next(void) {
+  HashTable ht = {};
+  Allocator alloc = {};
+  allocator_init(&alloc);
+  hash_table_init(&ht, &alloc, (HashFunc)str_hash, (KeyEqualFunc)str_equal, NULL, NULL, NULL, NULL);
+
+  usize test_size = 5000;
+  for (usize idx = 0; idx < test_size; idx++) {
+    char* key = allocator_alloc(ht.alloc, 16);
+    sprintf(key, "%zu", idx);
+    hash_table_insert(&ht, key, key);
+  }
+
+  HashTableIter ht_iter = {};
+  hash_table_iter_init(&ht_iter, &ht);
+
+  char* k = NULL;
+  char* v = NULL;
+  usize total_count = 0;
+  while (hash_table_iter_next(&ht_iter, (void**)&k, (void**)&v)) {
+    total_count++;
+    TEST_ASSERT_TRUE(str_equal(k, v));
+  }
+
+  char* k_recovered = hash_table_get(&ht, "24");
+
+  TEST_ASSERT_TRUE(total_count == test_size);
 }
 
 int main(void) {
@@ -163,5 +191,7 @@ int main(void) {
   RUN_TEST(test_hash_table_rehash);
   RUN_TEST(test_hash_table_remove);
   RUN_TEST(test_hash_table_complex_entry);
+  RUN_TEST(test_hash_table_iter_next);
   return UNITY_END();
 }
+ 
