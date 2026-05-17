@@ -4,8 +4,6 @@
 
 typedef struct {
   char* path;
-  usize start;
-  usize end;
+  usize lo;
+  usize hi;
 } Span;
-
-char* span_cstr(Span* self);
