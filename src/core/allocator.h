@@ -50,4 +50,6 @@ void delete(Allocator* alloc, void* ptr);
 
 void move(Allocator* src, Allocator* dst, void* ptr);
 
+void into(Allocator* alloc, void* ptr);
+
 void* copy(Allocator* alloc, void* ptr, usize size);

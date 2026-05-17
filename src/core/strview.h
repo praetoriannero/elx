@@ -3,11 +3,16 @@
 #include "core/str.h"
 
 typedef struct {
-  const char* data;
-  usize capacity;
-  usize size;
+  char* data;
+  usize length;
 } StringView;
 
-StringView string_view_from_string(String* string);
+StringView stringview_from_string(String* string);
 
-bool string_view_equals(const StringView* lhs, const StringView* rhs);
+StringView stringview_from_cstr(char* cstr, usize start, usize length);
+
+bool stringview_equal(const StringView* lhs, const StringView* rhs);
+
+void stringview_pop(StringView* self);
+
+void stringview_push(StringView* self);
