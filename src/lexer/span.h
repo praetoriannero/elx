@@ -3,7 +3,10 @@
 #include "core/modprim.h"
 
 typedef struct {
-  char* path;
+  const char* path;
+  const char* buffer;
   usize lo;
   usize hi;
 } Span;
+
+void span_print(Span* span);
