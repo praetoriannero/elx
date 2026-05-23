@@ -7,17 +7,17 @@
 #include "token/token_kind.h"
 
 typedef struct {
-  usize loc;
-  usize length;
-  usize line;
-  usize col;
+    usize loc;
+    usize length;
+    usize line;
+    usize col;
 } LexerContext;
 
 typedef struct lexer {
-  const char* data;
-  const char* file_name;
-  LexerContext context;
-  Allocator* alloc;
+    const char* data;
+    const char* file_name;
+    LexerContext context;
+    Allocator* alloc;
 } Lexer;
 
 void lexer_init(Lexer* self, Allocator* alloc, const char* data, const char* file_name);
@@ -38,4 +38,4 @@ char lexer_consume(Lexer* stream);
 
 void lexer_deinit(Lexer* stream);
 
-void lexer_consume_into(Lexer* self, String* string, usize count);
+// void lexer_consume_into(Lexer* self, String* string, usize count);

@@ -11,30 +11,30 @@ typedef void (*ListItemInit)(void* item, void* item_args);
 typedef void (*ListItemFree)(void* item);
 
 typedef struct {
-  ListItemInit item_init;
-  ListItemFree item_free;
-  Allocator* alloc;
-  usize item_size;
+    ListItemInit item_init;
+    ListItemFree item_free;
+    Allocator* alloc;
+    usize item_size;
 } ListInitArgs;
 
 typedef struct {
-  List* list;
-  ListNode* iter;
+    List* list;
+    ListNode* iter;
 } ListIter;
 
 struct ListNode {
-  ListNode* parent;
-  ListNode* child;
-  void* ptr;
+    ListNode* parent;
+    ListNode* child;
+    void* ptr;
 };
 
 struct List {
-  ListNode* head;
-  ListItemInit item_init;
-  ListItemFree item_free;
-  Allocator* alloc;
-  usize item_size;
-  usize length;
+    ListNode* head;
+    ListItemInit item_init;
+    ListItemFree item_free;
+    Allocator* alloc;
+    usize item_size;
+    usize length;
 };
 
 typedef bool (*ListNodeEqualFunc)(const void* lhs, const void* rhs);

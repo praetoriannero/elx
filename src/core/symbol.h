@@ -7,34 +7,34 @@
 #include "strview.h"
 
 typedef enum {
-  SYMBOL_KIND_VAR,
-  SYMBOL_KIND_FUNC,
-  SYMBOL_KIND_ENUM,
-  SYMBOL_KIND_STRUCT,
-  SYMBOL_KIND_TRAIT,
-  SYMBOL_KIND_MODULE,
+    SYMBOL_KIND_VAR,
+    SYMBOL_KIND_FUNC,
+    SYMBOL_KIND_ENUM,
+    SYMBOL_KIND_STRUCT,
+    SYMBOL_KIND_TRAIT,
+    SYMBOL_KIND_MODULE,
 } SymbolKind;
 
 typedef struct {
-  StringView name;
-  bool public;
-  SymbolKind kind;
-  union {
-    struct {
-      Type type;
-      bool mutable;
-    } var;
+    StringView name;
+    bool public;
+    SymbolKind kind;
+    union {
+        struct {
+            Type type;
+            bool mutable;
+        } var;
 
-    struct {
-      Type return_type;
-    } func;
+        struct {
+            Type return_type;
+        } func;
 
-    struct {
-      Vector cases;
-    } enum_;
+        struct {
+            Vector cases;
+        } enum_;
 
-    struct {
-      Type type;
-    } struct_;
-  };
+        struct {
+            Type type;
+        } struct_;
+    };
 } Symbol;

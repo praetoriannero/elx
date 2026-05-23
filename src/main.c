@@ -14,17 +14,17 @@
 typedef FILE File;
 
 i64 get_file_size(FILE* handle) {
-  if (fseek(handle, 0, SEEK_END) != 0) {
-    return 0;
-  };
+    if (fseek(handle, 0, SEEK_END) != 0) {
+        return 0;
+    };
 
-  i64 file_size = ftell(handle);
-  if (file_size < 0) {
-    return 0;
-  }
+    i64 file_size = ftell(handle);
+    if (file_size < 0) {
+        return 0;
+    }
 
-  rewind(handle);
-  return file_size;
+    rewind(handle);
+    return file_size;
 }
 
 char* read_file_content(const char* file_path);
@@ -34,51 +34,51 @@ void close_file(File** file) { fclose(*file); }
 #define defer(func) __attribute__((__cleanup__(func)))
 
 i32 main(i32 argc, char* argv[]) {
-  defer(close_file) File* file_handle = NULL;
-  char* file_name = NULL;
-  char* content = NULL;
-  i64 file_size = 0;
+    defer(close_file) File* file_handle = NULL;
+    char* file_name = NULL;
+    char* content = NULL;
+    i64 file_size = 0;
 
-  scoped_allocator(alloc);
+    scoped_allocator(alloc);
 
-  if (argc == 2) {
-    file_name = argv[1];
-    file_handle = fopen(file_name, "r");
-  } else {
-    panic("missing source location argument\n");
-  }
+    if (argc == 2) {
+        file_name = argv[1];
+        file_handle = fopen(file_name, "r");
+    } else {
+        panic("missing source location argument\n");
+    }
 
-  if (file_handle) {
-    printf("%s\n", file_name);
-  } else {
-    panic("failed to open file '%s'\n", file_name);
-  }
+    if (file_handle) {
+        printf("%s\n", file_name);
+    } else {
+        panic("failed to open file '%s'\n", file_name);
+    }
 
-  file_size = get_file_size(file_handle);
-  if (file_size < 0) {
-    panic("failed to read file %s\n", file_name);
-  }
-  printf("%ld\n", file_size);
+    file_size = get_file_size(file_handle);
+    if (file_size < 0) {
+        panic("failed to read file %s\n", file_name);
+    }
+    printf("%ld\n", file_size);
 
-  content = allocator_alloc(&alloc, (usize)file_size + 1);
-  usize bytes_read = fread(content, 1, (usize)file_size, file_handle);
-  content[bytes_read] = '\0';
+    content = allocator_alloc(&alloc, (usize)file_size + 1);
+    usize bytes_read = fread(content, 1, (usize)file_size, file_handle);
+    content[bytes_read] = '\0';
 
-  printf("CONTENT START\n%s\nCONTENT END\n", content);
+    printf("CONTENT START\n%s\nCONTENT END\n", content);
 
-  Lexer lexer = {};
-  lexer_init(&lexer, &alloc, content, file_name);
+    Lexer lexer = {};
+    lexer_init(&lexer, &alloc, content, file_name);
 
-  Parser parser = {};
-  parser_init(&parser, &alloc, &lexer);
+    Parser parser = {};
+    parser_init(&parser, &alloc, &lexer);
 
-  Ast ast = parser_parse(&parser);
-  print_ast(&ast);
+    Ast ast = parser_parse(&parser);
+    print_ast(&ast);
 
-  AnalyzerContext ast_ctx = {};
-  analyzer_visit_ast(&ast, &ast_ctx);
+    AnalyzerContext ast_ctx = {};
+    analyzer_visit_ast(&ast, &ast_ctx);
 
-  // allocator_deinit(&allocator);
+    // allocator_deinit(&allocator);
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

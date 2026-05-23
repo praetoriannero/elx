@@ -1,15 +1,15 @@
 #pragma once
 
-#include "core/hashtable.h"
 #include "core/allocator.h"
+#include "core/hashtable.h"
 #include "parser/parser.h"
 
 /*  @brief Scope contains a table of symbols available
  */
 typedef struct {
-  HashTable symbol_table;   // &HashTable<char*, Symbol*>
-  Vector child_scopes;        // Vector<Scope>
-  struct Scope* parent_scope; // null if global scope
+    HashTable symbol_table;     // &HashTable<char*, Symbol*>
+    Vector child_scopes;        // Vector<Scope>
+    struct Scope* parent_scope; // null if global scope
 } Scope;
 
 /*  @brief Push a new scope onto the end of the linked list
@@ -24,8 +24,8 @@ Scope* scope_push(Allocator* alloc, Scope* scope);
  *    contains the current scope, local_scope.
  */
 typedef struct {
-  Scope* global_scope;
-  Scope* local_scope;
+    Scope* global_scope;
+    Scope* local_scope;
 } AnalyzerContext;
 
 /* @brief Initialize the analyzer's context

@@ -3,14 +3,14 @@
  *  - desugaring
  *  - type inference
  *  - type checking
- *  
+ *
  */
 #pragma once
 
 #include "parser/parser.h"
 
 typedef struct {
-  Ast* ast;
+    Ast* ast;
 } HirContext;
 
 Ast* hir_lower_ast(HirContext* self, Ast* ast);

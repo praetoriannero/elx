@@ -1,16 +1,16 @@
 #pragma once
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "core/allocator.h"
 #include "core/modprim.h"
 
 typedef struct {
-  char* data;
-  usize capacity;
-  usize size;
-  Allocator* alloc;
+    char* data;
+    usize capacity;
+    usize size;
+    Allocator* alloc;
 } String;
 
 String* string_new(Allocator* alloc);

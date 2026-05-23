@@ -30,29 +30,29 @@ typedef void* (*CopyItem)(const void* item, Allocator* alloc);
 /*  @brief Struct for managing the state of the hash table
  */
 typedef struct {
-  Allocator* alloc;
-  usize prime_idx;
-  usize population;
-  Vector entries;
-  HashFunc hash_func;
-  KeyEqualFunc comp_func;
-  FreeItem free_key;
-  FreeItem free_value;
-  CopyItem copy_key;
-  CopyItem copy_value;
+    Allocator* alloc;
+    usize prime_idx;
+    usize population;
+    Vector entries;
+    HashFunc hash_func;
+    KeyEqualFunc comp_func;
+    FreeItem free_key;
+    FreeItem free_value;
+    CopyItem copy_key;
+    CopyItem copy_value;
 } HashTable;
 
 typedef struct HashTableEntry HashTableEntry;
 
 struct HashTableEntry {
-  void* key;
-  void* value;
+    void* key;
+    void* value;
 };
 
 typedef struct {
-  HashTable* table;
-  usize idx;
-  ListIter entry_list_iter;
+    HashTable* table;
+    usize idx;
+    ListIter entry_list_iter;
 } HashTableIter;
 
 HashTable* hash_table_new(Allocator* alloc, HashFunc hash_func, KeyEqualFunc key_comp, CopyItem copy_key,

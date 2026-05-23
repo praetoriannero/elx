@@ -4,19 +4,21 @@
 #include <stdint.h>
 
 #include "core/allocator.h"
-#include "core/str.h"
+// #include "core/str.h"
+#include "lexer/span.h"
 #include "token/token_kind.h"
 
 typedef struct token {
-  TokenKind kind;
-  String str;
-  usize loc;
-  usize size;
-  struct {
-    BaseKind base_kind;
-    const char* base_digits;
-    usize suffix_start;
-  } number;
+    TokenKind kind;
+    // String str;
+    Span span;
+    // usize loc;
+    // usize size;
+    struct {
+        BaseKind base_kind;
+        const char* base_digits;
+        usize suffix_start;
+    } number;
 } Token;
 
 Token* token_new(Allocator* allocator);

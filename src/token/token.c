@@ -1,44 +1,47 @@
 #include "token/token.h"
 #include "core/fmt.h"
-#include "core/str.h"
+// #include "core/str.h"
 #include "core/xalloc.h"
 
 Token* token_new(Allocator* allocator) {
-  Token* token = allocator_alloc(allocator, sizeof(Token));
-  return token;
+    Token* token = allocator_alloc(allocator, sizeof(Token));
+    return token;
 }
 
 void token_init(Allocator* allocator, Token* self) {
-  xnotnull(self);
+    xnotnull(self);
 
-  *self = (Token){
-      .kind = TOK_INVALID,
-      .loc = 0,
-      .size = 0,
-  };
+    *self = (Token){
+        .kind = TOK_INVALID,
+        // .loc = 0,
+        // .size = 0,
+        .span = {},
+    };
 
-  string_init(&self->str, allocator);
+    // string_init(&self->str, allocator);
 }
 
 Token* token_copy(Allocator* allocator, Token* self) {
-  xnotnull(self);
+    xnotnull(self);
 
-  Token* token = allocator_alloc(allocator, sizeof(Token));
+    Token* token = allocator_alloc(allocator, sizeof(Token));
 
-  *token = (Token){
-      .kind = self->kind,
-      .str = string_copy(&self->str, allocator),
-      .loc = self->loc,
-      .size = self->size,
-  };
+    *token = (Token){
+        .kind = self->kind,
+        // .str = string_copy(&self->str, allocator),
+        .span = self->span,
+        // .loc = self->loc,
+        // .size = self->size,
+    };
 
-  return token;
+    return token;
 }
 
 char* token_string(Allocator* allocator, Token* self) {
-  xnotnull(self);
+    xnotnull(self);
 
-  char* str = fmt(allocator, "Token(str=\"%s\", kind=\"%s\")", self->str.data, token_kind_str(self->kind));
+    char* str = fmt(allocator, "Token(kind='%s')", token_kind_str(self->kind));
+    // char* str = fmt(allocator, "Token(str=\"%s\", kind=\"%s\")", self->str.data, token_kind_str(self->kind));
 
-  return str;
+    return str;
 }
