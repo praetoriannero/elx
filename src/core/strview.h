@@ -3,8 +3,8 @@
 #include "core/str.h"
 
 typedef struct {
-    char* data;
-    usize length;
+  char* data;
+  usize length;
 } StringView;
 
 StringView stringview_from_string(String* string);

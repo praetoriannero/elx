@@ -8,17 +8,17 @@ typedef void (*VectorFreeItem)(void* value);
 typedef void (*VectorInitItem)(void* item, void* item_args);
 
 typedef struct vector {
-    void* data;
-    usize item_size;
-    usize capacity;
-    usize size;
-    Allocator* alloc;
-    VectorFreeItem free_item_cb;
+  void* data;
+  usize item_size;
+  usize capacity;
+  usize size;
+  Allocator* alloc;
+  VectorFreeItem free_item_cb;
 } Vector;
 
 typedef struct {
-    Vector* vector;
-    usize idx;
+  Vector* vector;
+  usize idx;
 } VectorIter;
 
 void vector_init(Vector* self, Allocator* allocator, usize item_size, usize initial_capacity,
@@ -59,8 +59,8 @@ void vector_item_init(Vector* self, VectorInitItem init_func, void* init_args);
 #define vector_get(vec, type, index) ((type*)_vector_get((vec), (index)))
 
 #define vector_foreach(item, vec)                                                                                      \
-    VectorIter paste(_iter_, __LINE__);                                                                                \
-    vector_iter_init(&paste(_iter_, __LINE__), &vec);                                                                  \
-    while (vector_iter_next(&paste(_iter_, __LINE__), (void*)&item))
+  VectorIter paste(_iter_, __LINE__);                                                                                  \
+  vector_iter_init(&paste(_iter_, __LINE__), &vec);                                                                    \
+  while (vector_iter_next(&paste(_iter_, __LINE__), (void*)&item))
 
 #define vector_iter(idx, vec) (usize idx = 0; idx < vec.size; idx++)

@@ -5,14 +5,14 @@
 #include "core/str_utils.h"
 
 char* str_copy(Allocator* allocator, const char* cstr) {
-    if (!cstr)
-        return NULL;
+  if (!cstr)
+    return NULL;
 
-    size_t len = strlen(cstr) + 1;
-    char* cstr_copy = allocator_alloc(allocator, len);
-    memcpy(cstr_copy, cstr, len);
+  size_t len = strlen(cstr) + 1;
+  char* cstr_copy = allocator_alloc(allocator, len);
+  memcpy(cstr_copy, cstr, len);
 
-    return cstr_copy;
+  return cstr_copy;
 }
 
 u64 str_hash(const char* cstr) { return fnv1a((u8*)cstr, strlen(cstr)); }

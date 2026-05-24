@@ -11,426 +11,431 @@ struct Expr;
 typedef struct Expr Expr;
 
 typedef struct {
-    Vector stmts; // Vector<Stmt>
+  Vector stmts; // Vector<Stmt>
 } Body;
 
 typedef enum {
-    TYPE_KIND_OBJ,
-    TYPE_KIND_PTR,
-    TYPE_KIND_REF,
-    TYPE_KIND_FN,
+  TYPE_KIND_OBJ,
+  TYPE_KIND_PTR,
+  TYPE_KIND_REF,
+  TYPE_KIND_FN,
 } TypeKind;
 
 typedef struct type_ {
-    TypeKind kind;
-    Vector path;
-    Span span;
+  TypeKind kind;
+  Vector path;
+  Span span;
 } Type;
 
 typedef struct {
-    Span span;
-    Type type;
+  Span span;
+  Type type;
 } StructField;
 
 typedef enum {
-    MEMBER_KIND_DATA,
-    MEMBER_KIND_FUNCTION,
+  MEMBER_KIND_DATA,
+  MEMBER_KIND_FUNCTION,
 } MemberKind;
 
 typedef struct {
-    Span span;
-    Vector param_vec; // Vector<FuncArg>
-    Body body;
-    Type ret_type;
+  Span span;
+  Vector param_vec; // Vector<FuncArg>
+  Body body;
+  Type ret_type;
 } Func;
 
 typedef struct {
-    MemberKind member_kind;
-    union {
-        StructField struct_field;
-        Func struct_func;
-    };
+  MemberKind member_kind;
+  union {
+    StructField struct_field;
+    Func struct_func;
+  };
 } Member;
 
 typedef struct {
-    Span span;
-    Vector field_vec;  // Vector<StructField>
-    Vector method_vec; // Vector<Func>
+  Span span;
+  Vector field_vec;  // Vector<StructField>
+  Vector method_vec; // Vector<Func>
 } Struct;
 
 typedef struct {
-    Span span;
-    Type type;
+  Span span;
+  Type type;
 } FuncArg;
 
 typedef enum {
-    LITERAL_KIND_STRING,
-    LITERAL_KIND_CHAR,
-    LITERAL_KIND_INTEGER,
-    LITERAL_KIND_FLOAT,
-    LITERAL_KIND_BYTE,
-    LITERAL_KIND_BOOL,
+  LITERAL_KIND_STRING,
+  LITERAL_KIND_CHAR,
+  LITERAL_KIND_INTEGER,
+  LITERAL_KIND_FLOAT,
+  LITERAL_KIND_BYTE,
+  LITERAL_KIND_BOOL,
 } LiteralKind;
 
 typedef struct {
-    LiteralKind kind;
-    union {
-        Span string;
-        Span char_;
-        Span integer;
-        Span float_;
-        Span byte;
-        Span bool_;
-    };
+  LiteralKind kind;
+  union {
+    Span string;
+    Span char_;
+    Span integer;
+    Span float_;
+    Span byte;
+    Span bool_;
+  };
 } Literal;
 
 typedef enum {
-    // EmptyExpression
-    EXPR_KIND_EMPTY,
+  // EmptyExpression
+  EXPR_KIND_EMPTY,
 
-    // LiteralExpression
-    EXPR_KIND_LITERAL,
+  // Self expression
+  EXPR_KIND_SELF,
 
-    // PathExpression
-    EXPR_KIND_PATH,
+  // LiteralExpression
+  EXPR_KIND_LITERAL,
 
-    // OperatorExpression
-    EXPR_KIND_BINARY,
-    EXPR_KIND_UNARY,
+  // PathExpression
+  EXPR_KIND_PATH,
 
-    // GroupedExpression
-    EXPR_KIND_GROUP,
+  // OperatorExpression
+  EXPR_KIND_BINARY,
+  EXPR_KIND_UNARY,
 
-    // ArrayExpression
-    EXPR_KIND_ARRAY_EXPLICIT,
-    EXPR_KIND_ARRAY_IMPLICIT,
+  // GroupedExpression
+  EXPR_KIND_GROUP,
 
-    // IndexExpression
-    EXPR_KIND_ARRAY_INDEX,
+  // ArrayExpression
+  EXPR_KIND_ARRAY_EXPLICIT,
+  EXPR_KIND_ARRAY_IMPLICIT,
 
-    // TupleExpression
-    EXPR_KIND_TUPLE,
+  // IndexExpression
+  EXPR_KIND_ARRAY_INDEX,
 
-    // note: this is really a field expression
-    // TupleIndexingExpression
-    // EXPR_KIND_TUPLE_INDEX,
+  // TupleExpression
+  EXPR_KIND_TUPLE,
 
-    // StructExpression
-    EXPR_KIND_STRUCT,
+  // note: this is really a field expression
+  // TupleIndexingExpression
+  // EXPR_KIND_TUPLE_INDEX,
 
-    // CallExpression
-    EXPR_KIND_CALL,
+  // StructExpression
+  EXPR_KIND_STRUCT,
 
-    // MethodCallExpression
-    EXPR_KIND_METHOD_CALL,
+  // CallExpression
+  EXPR_KIND_CALL,
 
-    // FieldExpression
-    EXPR_KIND_FIELD,
+  // MethodCallExpression
+  EXPR_KIND_METHOD_CALL,
 
-    // ClosureExpression
-    EXPR_KIND_CLOSURE,
+  // FieldExpression
+  EXPR_KIND_FIELD,
 
-    // RangeExpression
-    EXPR_KIND_RANGE,
+  // ClosureExpression
+  EXPR_KIND_CLOSURE,
 
-    // AssignmentExpression
-    EXPR_KIND_ASSIGN,
+  // RangeExpression
+  EXPR_KIND_RANGE,
 
-    // future
-    // AwaitExpression
-    // AsyncBlockExpression
-    // UnderscoreExpression
+  // AssignmentExpression
+  EXPR_KIND_ASSIGN,
 
-    // JumpExpression
-    // EXPR_KIND_RETURN,
-    // EXPR_KIND_BREAK,
-    // EXPR_KIND_CONTINUE,
+  // future
+  // AwaitExpression
+  // AsyncBlockExpression
+  // UnderscoreExpression
 
-    EXPR_KIND_IDENT,
+  // JumpExpression
+  // EXPR_KIND_RETURN,
+  // EXPR_KIND_BREAK,
+  // EXPR_KIND_CONTINUE,
+
+  EXPR_KIND_IDENT,
 } ExprKind;
 
 typedef enum {
-    // return break continue yield
-    EXPR_PREC_JUMP = 10,
+  // return break continue yield
+  EXPR_PREC_JUMP = 10,
 
-    // = += -= *= /= %= &= |= ^= <<= >>=
-    EXPR_PREC_ASSIGN = 20,
+  // = += -= *= /= %= &= |= ^= <<= >>=
+  EXPR_PREC_ASSIGN = 20,
 
-    // .. ..=
-    EXPR_PREC_RANGE = 30,
+  // .. ..=
+  EXPR_PREC_RANGE = 30,
 
-    // ||
-    EXPR_PREC_LOR = 40,
+  // ||
+  EXPR_PREC_LOR = 40,
 
-    // &&
-    EXPR_PREC_LAND = 50,
+  // &&
+  EXPR_PREC_LAND = 50,
 
-    // == != >= <= > <
-    EXPR_PREC_COMP = 60,
+  // == != >= <= > <
+  EXPR_PREC_COMP = 60,
 
-    // |
-    EXPR_PREC_BOR = 70,
+  // |
+  EXPR_PREC_BOR = 70,
 
-    // ^
-    EXPR_PREC_BXOR = 80,
+  // ^
+  EXPR_PREC_BXOR = 80,
 
-    // &
-    EXPR_PREC_BAND = 90,
+  // &
+  EXPR_PREC_BAND = 90,
 
-    // >> <<
-    EXPR_PREC_SHIFT = 100,
+  // >> <<
+  EXPR_PREC_SHIFT = 100,
 
-    // + -
-    EXPR_PREC_ADDSUB = 110,
+  // + -
+  EXPR_PREC_ADDSUB = 110,
 
-    // % * /
-    EXPR_PREC_MULDIV = 120,
+  // % * /
+  EXPR_PREC_MULDIV = 120,
 
-    // unary + - ^ !
-    EXPR_PREC_PREFIX = 130,
+  // unary + - ^ !
+  EXPR_PREC_PREFIX = 130,
 
-    // function calls, array indexing, field expressions, method calls
-    EXPR_PREC_POSTFIX = 140,
+  // function calls, array indexing, field expressions, method calls
+  EXPR_PREC_POSTFIX = 140,
 
-    // paths identifiers
-    EXPR_PREC_UNAMBIGUOUS = 250,
+  // paths identifiers
+  EXPR_PREC_UNAMBIGUOUS = 250,
 } ExprPrecedence;
 
 ExprPrecedence get_precedence(const ExprKind expr_kind, const char* operator);
 
 struct Expr {
-    ExprKind expr_kind;
+  ExprKind expr_kind;
 
-    union {
-        struct {
-            bool mut;
-            Expr* expr;
-        } assign_expr;
+  union {
+    struct {
+      bool mut;
+      Expr* expr;
+    } assign_expr;
 
-        struct {
-            Expr* lhs;
-            Expr* rhs;
-            Token op;
-        } binary_expr;
+    struct {
+      Expr* lhs;
+      Expr* rhs;
+      Token op;
+    } binary_expr;
 
-        struct {
-            Expr* inner;
-            Token op;
-        } unary_expr;
+    struct {
+      Expr* inner;
+      Token op;
+    } unary_expr;
 
-        struct {
-            Expr* kind;
-            Expr* size;
-        } array_implicit_expr;
+    struct {
+      Expr* kind;
+      Expr* size;
+    } array_implicit_expr;
 
-        struct {
-            Vector arg_vec;
-        } array_explicit_expr;
+    struct {
+      Vector arg_vec;
+    } array_explicit_expr;
 
-        struct {
-            Expr* object;
-            Vector arg_vec;
-        } struct_init_expr;
+    struct {
+      Expr* object;
+      Vector arg_vec;
+    } struct_init_expr;
 
-        struct {
-            Expr* object;
-            Vector arg_vec; // Vector<Expr>
-        } call_expr;
+    struct {
+      Expr* object;
+      Vector arg_vec; // Vector<Expr>
+    } call_expr;
 
-        struct {
-            Expr* object;
-            Span span;
-        } field_expr;
+    struct {
+      Expr* object;
+      Span span;
+    } field_expr;
 
-        struct {
-            Expr* object;
-            Expr* index;
-        } array_index_expr;
+    struct {
+      Expr* object;
+      Expr* index;
+    } array_index_expr;
 
-        struct {
-            Span stem;
-            Expr* expr;
-        } path_expr;
+    struct {
+      Span stem;
+      Expr* expr;
+    } path_expr;
 
-        struct {
-            Expr* object;
-            Span method;
-            Vector arg_vec; // Vector<Expr>
-        } method_call_expr;
+    struct {
+      Expr* object;
+      Span method;
+      Vector arg_vec; // Vector<Expr>
+    } method_call_expr;
 
-        Span ident_expr;
+    Span ident_expr;
 
-        Literal literal_expr;
+    Span self_expr;
 
-        // struct {
-        //     Expr* expr;
-        // } break_expr;
-        //
-        // struct {
-        //     Expr* expr;
-        // } return_expr;
-        //
-        // struct {
-        //     Expr* expr;
-        // } continue_expr;
-    };
+    Literal literal_expr;
+
+    // struct {
+    //     Expr* expr;
+    // } break_expr;
+    //
+    // struct {
+    //     Expr* expr;
+    // } return_expr;
+    //
+    // struct {
+    //     Expr* expr;
+    // } continue_expr;
+  };
 };
 
 typedef struct {
-    Vector tokens;
+  Vector tokens;
 } ExprStream;
 
 typedef struct {
-    Expr* expr;
+  Expr* expr;
 } ExprStmt;
 
 typedef enum {
-    ASSIGN_OP_KIND_PLUS_EQUAL,
-    ASSIGN_OP_KIND_MINUS_EQUAL,
-    ASSIGN_OP_KIND_TIMES_EQUAL,
-    ASSIGN_OP_KIND_DIVIDE_EQUAL,
-    ASSIGN_OP_KIND_MOD_EQUAL,
-    ASSIGN_OP_KIND_SHL_EQUAL,
-    ASSIGN_OP_KIND_SHR_EQUAL,
-    ASSIGN_OP_KIND_AND_EQUAL,
-    ASSIGN_OP_KIND_OR_EQUAL,
-    ASSIGN_OP_KIND_XOR_EQUAL,
-    ASSIGN_OP_KIND_EQUAL,
+  ASSIGN_OP_KIND_PLUS_EQUAL,
+  ASSIGN_OP_KIND_MINUS_EQUAL,
+  ASSIGN_OP_KIND_TIMES_EQUAL,
+  ASSIGN_OP_KIND_DIVIDE_EQUAL,
+  ASSIGN_OP_KIND_MOD_EQUAL,
+  ASSIGN_OP_KIND_SHL_EQUAL,
+  ASSIGN_OP_KIND_SHR_EQUAL,
+  ASSIGN_OP_KIND_AND_EQUAL,
+  ASSIGN_OP_KIND_OR_EQUAL,
+  ASSIGN_OP_KIND_XOR_EQUAL,
+  ASSIGN_OP_KIND_EQUAL,
 } AssignOpKind;
 
 typedef struct {
-    Span span;
-    bool mut;
-    Expr* expr;
+  Span span;
+  bool mut;
+  Expr* expr;
 } AssignStmt;
 
 typedef struct {
-    Expr* expr;
+  Expr* expr;
 } ReturnStmt;
 
 typedef struct {
-    Span iterator;
-    Expr* iterable;
-    Body body;
+  Span iterator;
+  Expr* iterable;
+  Body body;
 } ForStmt;
 
 typedef struct {
-    Expr* condition;
-    Body body;
+  Expr* condition;
+  Body body;
 } WhileStmt;
 
 typedef struct {
-    Body body;
+  Body body;
 } ElseClause;
 
 typedef struct {
-    Expr* condition;
-    Body body;
+  Expr* condition;
+  Body body;
 } ElifClause;
 
 typedef struct {
-    Expr* condition;
-    Body body;
-    Vector elif_clause_vec;
-    ElseClause else_clause;
+  Expr* condition;
+  Body body;
+  Vector elif_clause_vec;
+  ElseClause else_clause;
 } IfStmt;
 
 typedef struct {
-    Span ident;
+  Span ident;
 } BreakStmt;
 
 typedef struct {
-    Span ident;
+  Span ident;
 } ContinueStmt;
 
 typedef struct {
-    Span span;
-    Vector ast_node_vec; // Vector<Symbol>
+  Span span;
+  Vector ast_node_vec; // Vector<Symbol>
 } Module;
 
 typedef enum {
-    STMT_KIND_UNDEFINED,
-    STMT_KIND_ASSIGN,
-    STMT_KIND_RETURN,
-    STMT_KIND_EXPR,
-    STMT_KIND_FOR,
-    STMT_KIND_WHILE,
-    STMT_KIND_IF,
-    STMT_KIND_BREAK,
-    STMT_KIND_CONTINUE,
+  STMT_KIND_UNDEFINED,
+  STMT_KIND_ASSIGN,
+  STMT_KIND_RETURN,
+  STMT_KIND_EXPR,
+  STMT_KIND_FOR,
+  STMT_KIND_WHILE,
+  STMT_KIND_IF,
+  STMT_KIND_BREAK,
+  STMT_KIND_CONTINUE,
 } StmtKind;
 
 typedef struct {
-    StmtKind kind;
-    union {
-        AssignStmt assign_stmt;
-        ReturnStmt return_stmt;
-        ExprStmt expr_stmt;
-        ForStmt for_stmt;
-        WhileStmt while_stmt;
-        IfStmt if_stmt;
-        BreakStmt break_stmt;
-        ContinueStmt cont_stmt;
-    };
+  StmtKind kind;
+  union {
+    AssignStmt assign_stmt;
+    ReturnStmt return_stmt;
+    ExprStmt expr_stmt;
+    ForStmt for_stmt;
+    WhileStmt while_stmt;
+    IfStmt if_stmt;
+    BreakStmt break_stmt;
+    ContinueStmt cont_stmt;
+  };
 } Stmt;
 
 typedef struct {
-    Span span;
-    bool mut;
-    Type type;
-    Expr* expr;
+  Span span;
+  bool mut;
+  Type type;
+  Expr* expr;
 } Global;
 
 typedef enum {
-    ENUM_VARIANT_NOM,
-    ENUM_VARIANT_ALG,
+  ENUM_VARIANT_NOM,
+  ENUM_VARIANT_ALG,
 } EnumVariant;
 
 typedef struct {
-    Span span;
-    Type type;
-    EnumVariant variant;
+  Span span;
+  Type type;
+  EnumVariant variant;
 } EnumKind;
 
 typedef struct {
-    Span span;
-    Vector kind_vec; // Vector<EnumKind>
+  Span span;
+  Vector kind_vec; // Vector<EnumKind>
 } Enum;
 
 typedef struct {
-    Vector path;
+  Vector path;
 } Import;
 
 typedef enum {
-    AST_NODE_KIND_UNDEFINED,
-    AST_NODE_KIND_STRUCT,
-    AST_NODE_KIND_MODULE,
-    AST_NODE_KIND_FUNC,
-    AST_NODE_KIND_GLOBAL,
-    AST_NODE_KIND_ENUM,
+  AST_NODE_KIND_UNDEFINED,
+  AST_NODE_KIND_STRUCT,
+  AST_NODE_KIND_MODULE,
+  AST_NODE_KIND_FUNC,
+  AST_NODE_KIND_GLOBAL,
+  AST_NODE_KIND_ENUM,
 } AstNodeKind;
 
 typedef struct {
-    Vector path;
-    Span span;
+  Vector path;
+  Span span;
 
-    AstNodeKind kind;
-    union {
-        Struct struct_case;
-        Module module_case;
-        Func func_case;
-        Global global_case;
-        Enum enum_case;
-    };
+  AstNodeKind kind;
+  union {
+    Struct struct_case;
+    Module module_case;
+    Func func_case;
+    Global global_case;
+    Enum enum_case;
+  };
 } AstNode;
 
 typedef struct {
-    Vector module_vec; // Vector<Module>
+  Vector module_vec; // Vector<Module>
 } Ast;
 
 typedef struct parser {
-    Lexer* lexer;
-    Allocator* alloc;
+  Lexer* lexer;
+  Allocator* alloc;
 } Parser;
 
 Ast parser_parse(Parser* self);

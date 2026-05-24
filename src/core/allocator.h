@@ -6,20 +6,20 @@
 #include "core/modprim.h"
 
 typedef struct __attribute__((aligned(sizeof(max_align_t)))) AllocatorNode {
-    struct AllocatorNode* parent;
-    struct AllocatorNode* child;
-    usize size;
-    void* buffer;
+  struct AllocatorNode* parent;
+  struct AllocatorNode* child;
+  usize size;
+  void* buffer;
 } AllocatorNode;
 
 typedef AllocatorNode AllocatorScope;
 
 typedef struct Allocator {
-    AllocatorNode* node_end;
-    usize total_alloc;
-    void* (*alloc)(struct Allocator*, usize);
-    void* (*realloc)(struct Allocator*, void*, usize);
-    void (*free)(struct Allocator*, void*);
+  AllocatorNode* node_end;
+  usize total_alloc;
+  void* (*alloc)(struct Allocator*, usize);
+  void* (*realloc)(struct Allocator*, void*, usize);
+  void (*free)(struct Allocator*, void*);
 } Allocator;
 
 Allocator* allocator_new(void);
@@ -41,8 +41,8 @@ void allocator_init(Allocator* self);
 void allocator_move(Allocator* lhs, Allocator* rhs, void* ptr);
 
 #define scoped_allocator(name)                                                                                         \
-    __attribute__((__cleanup__(allocator_deinit))) Allocator name = {};                                                \
-    allocator_init(&name);
+  __attribute__((__cleanup__(allocator_deinit))) Allocator name = {};                                                  \
+  allocator_init(&name);
 
 void* new (Allocator* alloc, usize size);
 
