@@ -27,6 +27,8 @@ bool span_str_equal(Span* self, char* cstr);
 
 SpanContext span_get_context(Span* self, Allocator* alloc);
 
+String span_string(Span* self, Allocator* alloc);
+
 #define span_ref_cstr(span_) (int)(span_->hi - span_->lo), &span_->buffer[span_->lo]
 
 #define span_cstr(span_) (int)(span_.hi - span_.lo), &span_.buffer[span_.lo]

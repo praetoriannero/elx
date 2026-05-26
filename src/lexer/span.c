@@ -2,6 +2,7 @@
 #include "core/fmt.h"
 #include "core/str.h"
 #include "core/xalloc.h"
+#include "core/modprim.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -58,6 +59,15 @@ SpanContext span_get_context(Span* self, Allocator* alloc) {
   context.token_context = fmt(alloc, "%.*s", (u32)(self->hi - self->lo), &self->buffer[self->lo]);
   context.alloc = alloc;
   return context;
+}
+
+String span_string(Span* self, Allocator* alloc) {
+  String string = string_make(alloc, "");
+  for (usize cursor = self->lo; cursor < self->hi; cursor++) {
+    string_push(&string, self->buffer[cursor]); 
+  }
+
+  return string;
 }
 
 bool span_str_equal(Span* self, char* cstr) {

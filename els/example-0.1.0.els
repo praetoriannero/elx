@@ -69,6 +69,6 @@ fn main() -> void {
     x.a = 0;
     x.b = 4.0;
 
-    std::io::println("Hello, world!");
-    std::io::println("x = {}", x);
+    std::println("Hello, world!");
+    std::println("x = {}", x);
 }

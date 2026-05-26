@@ -10,6 +10,10 @@
 constexpr usize MAX_STR_ALLOC = 4096;
 constexpr usize INITIAL_STR_ALLOC = 4;
 
+String string_make(Allocator* alloc, char* cstr) {
+  return string_from_cstr(cstr, alloc);
+}
+
 void string_push(String* self, char c) {
   xnotnull(self);
 

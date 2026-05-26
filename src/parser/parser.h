@@ -237,6 +237,11 @@ struct Expr {
 
     struct {
       Expr* object;
+      Vector arg_vec;
+    } enum_init_expr;
+
+    struct {
+      Expr* object;
       Vector arg_vec; // Vector<Expr>
     } call_expr;
 

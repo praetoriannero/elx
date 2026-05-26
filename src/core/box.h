@@ -7,8 +7,16 @@ typedef struct {
   Allocator* alloc;
 } Box;
 
-void box_init(Box* box, Allocator* alloc, void* ptr);
+Box box_make(Allocator* alloc, void* ptr);
 
-void box_deinit(Box* box);
+void box_init(Box* self, Allocator* alloc, void* ptr);
 
-void box_free(Box* box);
+void box_deinit(Box* self);
+
+Box* box_copy(Box* self, Allocator* alloc);
+
+void box_free(Box* self);
+
+void* box_unwrap(Box* self);
+
+#define unwrap(box, type) (type*)box_unwrap(box)

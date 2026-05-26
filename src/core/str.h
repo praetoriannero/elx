@@ -13,6 +13,8 @@ typedef struct {
   Allocator* alloc;
 } String;
 
+String string_make(Allocator* alloc, char* cstr);
+
 String* string_new(Allocator* alloc);
 
 String string_from_cstr(char* str, Allocator* alloc);
