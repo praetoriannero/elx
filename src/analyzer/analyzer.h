@@ -1,10 +1,22 @@
+/**
+ * @file analyzer.h
+ * @brief Semantic analysis for the ELX compiler.
+ *
+ * Performs scope resolution, symbol table management, and AST traversal
+ * to validate the program's semantics before code generation.
+ */
+
 #pragma once
 
 #include "core/allocator.h"
 #include "core/hashtable.h"
 #include "parser/parser.h"
 
-/*  @brief Scope contains a table of symbols available
+/**
+ * @brief A named scope containing symbols and optional child scopes.
+ *
+ * Represents a lexical scope in the ELX language, containing a hash table
+ * of visible symbols and optionally child scopes for nested blocks.
  */
 typedef struct {
   HashTable symbol_table;     // &HashTable<char*, Symbol*>
