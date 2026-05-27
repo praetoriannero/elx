@@ -215,10 +215,25 @@ typedef struct HirSymbol {
   };
 } HirSymbol;
 
+typedef struct {
+  Vector hir_symbol_vec;
+} HirRoot;
+
 void hir_init(HirContext* self, Allocator* alloc, Ast* ast);
 
-void hir_lower_ast(HirContext* self);
-
-void hir_type_check(HirContext* self);
-
-void hir_type_inference(HirContext* self);
+HirStmt hir_visit_expr(HirContext* self, TokenKind stop_token); 
+HirStmt hir_visit_break_stmt(HirContext* self); 
+HirStmt hir_visit_expr_stmt(HirContext* self); 
+HirStmt hir_visit_for_stmt(HirContext* self); 
+HirStmt hir_visit_if_stmt(HirContext* self); 
+HirStmt hir_visit_while_stmt(HirContext* self); 
+HirStmt hir_visit_return_stmt(HirContext* self); 
+HirStmt hir_visit_continue_stmt(HirContext* self); 
+HirStmt hir_visit_assign_stmt(HirContext* self); 
+HirStmt hir_visit_body(HirContext* self); 
+HirStmt hir_visit_struct(HirContext* self); 
+HirStmt hir_visit_module(HirContext* self); 
+HirStmt hir_visit_func(HirContext* self); 
+HirStmt hir_visit_global(HirContext* self, bool is_var); 
+HirStmt hir_visit_enum(HirContext* self); 
+HirStmt hir_visit_import(HirContext* self); 

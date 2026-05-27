@@ -17,18 +17,18 @@ void hir_init(HirContext* self, Allocator* alloc, Ast* ast) {
   ctx.alloc = alloc;
 }
 
-void hir_lower_ast(HirContext* self) {
-  Module* module = NULL;
-  VectorIter iter = {};
-  vector_iter_init(&iter, &self->ast->module_vec);
-  while (vector_iter_next(&iter, (void**)&module)) {
-    VectorIter node_iter = {};
-    vector_iter_init(&node_iter, &module->ast_node_vec);
-    AstNode* node = NULL;
-    while (vector_iter_next(&node_iter, (void**)&node)) {
-      String symbol_name = span_string(&node->span, self->alloc);
-      Box symbol_box = box_make(self->alloc, node);
-      hash_table_insert(&self->symbol_table, &symbol_name, &node); 
-    }
-  }
-}
+// void hir_lower_ast(HirContext* self) {
+//   Module* module = NULL;
+//   VectorIter iter = {};
+//   vector_iter_init(&iter, &self->ast->module_vec);
+//   while (vector_iter_next(&iter, (void**)&module)) {
+//     VectorIter node_iter = {};
+//     vector_iter_init(&node_iter, &module->ast_node_vec);
+//     AstNode* node = NULL;
+//     while (vector_iter_next(&node_iter, (void**)&node)) {
+//       String symbol_name = span_string(&node->span, self->alloc);
+//       Box symbol_box = box_make(self->alloc, node);
+//       hash_table_insert(&self->symbol_table, &symbol_name, &node); 
+//     }
+//   }
+// }
